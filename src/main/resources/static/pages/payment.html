@@ -1,0 +1,1545 @@
+
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#584cf4">
+    <meta name="description" content="NEXORA — Card, Kaspi немесе PayPal арқылы тапсырыстың демонстрациялық төлемін орындаңыз.">
+
+    <title>Төлем жасау — NEXORA</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/components.css">
+    <link rel="stylesheet" href="/css/shop.css">
+</head>
+
+<body data-page="payment">
+
+<div class="site-wrapper">
+
+    <a href="#main-content" class="visually-hidden skip-link">
+        Негізгі мазмұнға өту
+    </a>
+
+    <div class="announcement-bar">
+        <div class="container announcement-inner">
+            <span>✦ Жаңа коллекциялар мен ерекше ұсыныстар</span>
+            <a href="/pages/catalog.html" class="announcement-link">
+                Каталогты қарау →
+            </a>
+        </div>
+    </div>
+
+    <header class="site-header" id="site-header">
+
+        <div class="container header-inner">
+
+            <button
+                    class="icon-button mobile-menu-toggle"
+                    type="button"
+                    id="mobile-menu-button"
+                    aria-label="Мәзірді ашу"
+                    aria-controls="mobile-menu"
+                    aria-expanded="false">
+
+                <svg viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor"
+                     stroke-width="1.8"
+                     stroke-linecap="round">
+                    <path d="M4 7h16M4 12h16M4 17h16"/>
+                </svg>
+            </button>
+
+            <a href="/" class="brand" aria-label="NEXORA басты бет">
+
+                <span class="brand-icon">
+                    <svg viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor"
+                         stroke-width="2.3"
+                         stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <path d="M4 18V6l16 12V6"/>
+                        <path d="M8 9.5l8 5"/>
+                    </svg>
+                </span>
+
+                <span class="brand-name">
+                    NEX<span>ORA</span>
+                </span>
+
+            </a>
+
+            <form
+                    class="header-search"
+                    id="header-search-form"
+                    action="/pages/catalog.html"
+                    method="get"
+                    role="search">
+
+                <div class="search-bar">
+
+                    <svg class="search-icon"
+                         viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.8"
+                         stroke-linecap="round">
+                        <circle cx="11" cy="11" r="7"/>
+                        <path d="m16 16 4 4"/>
+                    </svg>
+
+                    <input
+                            class="search-input"
+                            id="header-search-input"
+                            type="search"
+                            name="keyword"
+                            placeholder="Қандай тауар іздеп жүрсіз?"
+                            autocomplete="off"
+                            aria-label="Тауар іздеу">
+
+                    <button
+                            class="search-button"
+                            type="submit"
+                            aria-label="Іздеу">
+
+                        <svg viewBox="0 0 24 24"
+                             fill="none"
+                             stroke="currentColor"
+                             stroke-width="2"
+                             stroke-linecap="round">
+                            <path d="M5 12h14m-6-6 6 6-6 6"/>
+                        </svg>
+
+                    </button>
+
+                </div>
+
+            </form>
+
+            <div class="header-actions">
+
+                <a href="/pages/notifications.html"
+                   class="icon-button"
+                   id="header-notifications-link"
+                   aria-label="Хабарламалар">
+
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.8"
+                         stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/>
+                        <path d="M10 21h4"/>
+                    </svg>
+                </a>
+
+                <a href="/pages/account.html"
+                   class="icon-button"
+                   id="header-account-link"
+                   aria-label="Жеке кабинет">
+
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.8"
+                         stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <circle cx="12" cy="8" r="4"/>
+                        <path d="M4.5 21a7.5 7.5 0 0 1 15 0"/>
+                    </svg>
+                </a>
+
+                <a href="/pages/cart.html"
+                   class="icon-button"
+                   id="header-cart-link"
+                   aria-label="Себет">
+
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.8"
+                         stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <path d="M3 4h2l2.2 11h11.6l2-8H6"/>
+                        <circle cx="9" cy="20" r="1"/>
+                        <circle cx="18" cy="20" r="1"/>
+                    </svg>
+
+                    <span class="icon-count" id="cart-count" hidden>0</span>
+
+                </a>
+
+            </div>
+
+        </div>
+
+        <nav class="nav-bar" aria-label="Негізгі навигация">
+
+            <div class="container nav-inner">
+
+                <div class="primary-nav">
+
+                    <a href="/" class="nav-link">
+                        Басты бет
+                    </a>
+
+                    <a href="/pages/catalog.html" class="nav-link">
+                        Барлық тауарлар
+                    </a>
+
+                    <a href="/pages/catalog.html?categoryId=1" class="nav-link">
+                        Электроника
+                    </a>
+
+                    <a href="/pages/catalog.html?categoryId=2" class="nav-link">
+                        Киім
+                    </a>
+
+                    <a href="/pages/catalog.html?categoryId=3" class="nav-link">
+                        Кітаптар
+                    </a>
+
+                </div>
+
+                <a href="/pages/catalog.html" class="nav-promo">
+
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.8"
+                         stroke-linecap="round">
+                        <path d="m12 2 2.5 7.5L22 12l-7.5 2.5L12 22l-2.5-7.5L2 12l7.5-2.5L12 2Z"/>
+                    </svg>
+
+                    Discover More
+
+                </a>
+
+            </div>
+
+        </nav>
+
+    </header>
+
+    <div class="mobile-overlay" id="mobile-overlay"></div>
+
+    <aside
+            class="mobile-menu"
+            id="mobile-menu"
+            aria-label="Мобильді навигация"
+            aria-hidden="true">
+
+        <div class="mobile-menu-header">
+
+            <a href="/" class="brand">
+
+                <span class="brand-icon">
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="2.3"
+                         stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <path d="M4 18V6l16 12V6"/>
+                        <path d="M8 9.5l8 5"/>
+                    </svg>
+                </span>
+
+                <span class="brand-name">
+                    NEX<span>ORA</span>
+                </span>
+
+            </a>
+
+            <button
+                    class="icon-button"
+                    type="button"
+                    id="mobile-menu-close"
+                    aria-label="Мәзірді жабу">
+
+                <svg viewBox="0 0 24 24"
+                     fill="none"
+                     stroke="currentColor"
+                     stroke-width="2"
+                     stroke-linecap="round">
+                    <path d="M5 5l14 14M19 5 5 19"/>
+                </svg>
+
+            </button>
+
+        </div>
+
+        <div class="mobile-menu-body">
+
+            <a href="/" class="mobile-menu-link">
+                Басты бет
+            </a>
+
+            <a href="/pages/catalog.html" class="mobile-menu-link">
+                Барлық тауарлар
+            </a>
+
+            <a href="/pages/catalog.html?categoryId=1" class="mobile-menu-link">
+                Электроника
+            </a>
+
+            <a href="/pages/catalog.html?categoryId=2" class="mobile-menu-link">
+                Киім
+            </a>
+
+            <a href="/pages/catalog.html?categoryId=3" class="mobile-menu-link">
+                Кітаптар
+            </a>
+
+            <a href="/pages/cart.html" class="mobile-menu-link">
+                Менің себетім
+            </a>
+
+            <a href="/pages/orders.html" class="mobile-menu-link">
+                Тапсырыстарым
+            </a>
+
+            <a href="/pages/account.html" class="mobile-menu-link">
+                Жеке кабинет
+            </a>
+
+        </div>
+
+        <div class="mobile-menu-footer">
+            <a href="/pages/login.html"
+               class="btn btn-primary btn-block">
+                Жүйеге кіру
+            </a>
+        </div>
+
+    </aside>
+
+    <main class="site-main" id="main-content">
+
+        <div class="container">
+
+            <nav class="breadcrumb" aria-label="Сіз тұрған бөлім">
+
+                <a href="/">Басты бет</a>
+
+                <svg viewBox="0 0 24 24"
+                     fill="none"
+                     stroke="currentColor"
+                     stroke-width="2"
+                     stroke-linecap="round">
+                    <path d="m9 18 6-6-6-6"/>
+                </svg>
+
+                <a href="/pages/orders.html">
+                    Тапсырыстар
+                </a>
+
+                <svg viewBox="0 0 24 24"
+                     fill="none"
+                     stroke="currentColor"
+                     stroke-width="2"
+                     stroke-linecap="round">
+                    <path d="m9 18 6-6-6-6"/>
+                </svg>
+
+                <span class="breadcrumb-current">
+                    Төлем жасау
+                </span>
+
+            </nav>
+
+        </div>
+
+        <section class="payment-page-section">
+
+            <div class="container">
+
+                <div class="payment-page-header">
+
+                    <div class="payment-page-heading">
+
+                        <span class="section-eyebrow">
+                            ONE LAST STEP
+                        </span>
+
+                        <h1 class="page-title">
+                            Төлем <span class="gradient-text">жасау.</span>
+                        </h1>
+
+                        <p class="page-description">
+                            Тапсырысың дайын. Өзіңе ыңғайлы
+                            төлем әдісін таңдап, сатып алуды аяқта.
+                        </p>
+
+                    </div>
+
+                    <a href="/pages/orders.html"
+                       class="btn btn-outline">
+
+                        <svg viewBox="0 0 24 24"
+                             fill="none"
+                             stroke="currentColor"
+                             stroke-width="1.8"
+                             stroke-linecap="round">
+                            <path d="m12 19-7-7 7-7M5 12h14"/>
+                        </svg>
+
+                        Тапсырыстарым
+
+                    </a>
+
+                </div>
+
+                <div class="checkout-progress"
+                     aria-label="Тапсырыс рәсімдеу кезеңдері">
+
+                    <div class="checkout-progress-step is-completed">
+
+                        <span class="checkout-progress-number">
+
+                            <svg viewBox="0 0 24 24"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="2"
+                                 stroke-linecap="round">
+                                <path d="m5 12 5 5L20 7"/>
+                            </svg>
+
+                        </span>
+
+                        <span class="checkout-progress-details">
+                            <strong>Shopping Cart</strong>
+                            <small>Тауарлар таңдалды</small>
+                        </span>
+
+                    </div>
+
+                    <span class="checkout-progress-line is-completed"></span>
+
+                    <div class="checkout-progress-step is-completed">
+
+                        <span class="checkout-progress-number">
+
+                            <svg viewBox="0 0 24 24"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="2"
+                                 stroke-linecap="round">
+                                <path d="m5 12 5 5L20 7"/>
+                            </svg>
+
+                        </span>
+
+                        <span class="checkout-progress-details">
+                            <strong>Checkout</strong>
+                            <small>Тапсырыс құрылды</small>
+                        </span>
+
+                    </div>
+
+                    <span class="checkout-progress-line is-completed"></span>
+
+                    <div class="checkout-progress-step is-active"
+                         aria-current="step">
+
+                        <span class="checkout-progress-number">
+                            03
+                        </span>
+
+                        <span class="checkout-progress-details">
+                            <strong>Payment</strong>
+                            <small>Төлемді растау</small>
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <div class="payment-loading-state"
+                     id="payment-loading"
+                     role="status"
+                     aria-live="polite">
+
+                    <div class="loading-spinner"></div>
+
+                    <p>
+                        Тапсырыс пен төлем мәліметтері жүктелуде...
+                    </p>
+
+                </div>
+
+                <div class="empty-state hidden"
+                     id="payment-auth-required">
+
+                    <div class="empty-state-icon">
+
+                        <svg viewBox="0 0 24 24"
+                             fill="none"
+                             stroke="currentColor"
+                             stroke-width="1.8"
+                             stroke-linecap="round">
+                            <circle cx="12" cy="8" r="4"/>
+                            <path d="M4.5 21a7.5 7.5 0 0 1 15 0"/>
+                        </svg>
+
+                    </div>
+
+                    <h2 class="empty-state-title">
+                        Жүйеге кіру қажет
+                    </h2>
+
+                    <p class="empty-state-text">
+                        Төлем жасау және тапсырысты көру үшін
+                        аккаунтыңа кір.
+                    </p>
+
+                    <a href="/pages/login.html"
+                       class="btn btn-primary btn-lg"
+                       id="payment-login-link">
+                        Жүйеге кіру
+                    </a>
+
+                </div>
+
+                <div class="empty-state hidden"
+                     id="payment-error"
+                     role="alert">
+
+                    <div class="empty-state-icon">
+
+                        <svg viewBox="0 0 24 24"
+                             fill="none"
+                             stroke="currentColor"
+                             stroke-width="1.8"
+                             stroke-linecap="round">
+                            <circle cx="12" cy="12" r="9"/>
+                            <path d="M12 7v6M12 17h.01"/>
+                        </svg>
+
+                    </div>
+
+                    <h2 class="empty-state-title">
+                        Тапсырысты жүктеу мүмкін болмады
+                    </h2>
+
+                    <p class="empty-state-text"
+                       id="payment-error-message">
+                        Тапсырыс табылмады немесе сервермен
+                        байланыс орнатылмады.
+                    </p>
+
+                    <div class="payment-error-actions">
+
+                        <button
+                                class="btn btn-primary"
+                                type="button"
+                                id="payment-retry-button">
+                            Қайта жүктеу
+                        </button>
+
+                        <a href="/pages/orders.html"
+                           class="btn btn-outline">
+                            Тапсырыстарға өту
+                        </a>
+
+                    </div>
+
+                </div>
+
+                <div class="payment-success-state hidden"
+                     id="payment-success"
+                     role="status"
+                     aria-live="polite">
+
+                    <div class="payment-success-card">
+
+                        <div class="payment-success-decoration">
+                            <span>✦</span>
+                            <span>✧</span>
+                            <span>✦</span>
+                        </div>
+
+                        <span class="payment-success-icon">
+
+                            <svg viewBox="0 0 24 24"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="2.4"
+                                 stroke-linecap="round"
+                                 stroke-linejoin="round">
+                                <path d="m5 12 5 5L20 7"/>
+                            </svg>
+
+                        </span>
+
+                        <span class="section-eyebrow">
+                            PAYMENT SUCCESSFUL
+                        </span>
+
+                        <h2>
+                            Төлем сәтті <span class="gradient-text">орындалды!</span>
+                        </h2>
+
+                        <p>
+                            Тапсырысыңның төлемі расталды.
+                            Тапсырыс мәліметтерін және оның
+                            ағымдағы статусын жеке кабинеттен көре аласың.
+                        </p>
+
+                        <div class="payment-success-details">
+
+                            <div class="payment-success-detail">
+                                <span>Тапсырыс нөмірі</span>
+                                <strong id="payment-success-order-id">—</strong>
+                            </div>
+
+                            <div class="payment-success-detail">
+                                <span>Төлем сомасы</span>
+                                <strong id="payment-success-amount">—</strong>
+                            </div>
+
+                            <div class="payment-success-detail">
+                                <span>Төлем әдісі</span>
+                                <strong id="payment-success-method">—</strong>
+                            </div>
+
+                            <div class="payment-success-detail">
+                                <span>Төлем статусы</span>
+                                <span class="badge badge-success">
+                                    SUCCESS
+                                </span>
+                            </div>
+
+                        </div>
+
+                        <div class="payment-success-actions">
+
+                            <a href="/pages/orders.html"
+                               class="btn btn-primary btn-lg"
+                               id="payment-success-order-link">
+
+                                Тапсырысты көру
+
+                                <svg viewBox="0 0 24 24"
+                                     fill="none"
+                                     stroke="currentColor"
+                                     stroke-width="2"
+                                     stroke-linecap="round">
+                                    <path d="M5 12h14m-6-6 6 6-6 6"/>
+                                </svg>
+
+                            </a>
+
+                            <a href="/pages/catalog.html"
+                               class="btn btn-outline btn-lg">
+                                Сатып алуды жалғастыру
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="payment-layout hidden"
+                     id="payment-content">
+
+                    <div class="payment-main-column">
+
+                        <section class="payment-card"
+                                 aria-labelledby="payment-method-title">
+
+                            <div class="payment-card-header">
+
+                                <span class="payment-card-icon">
+
+                                    <svg viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="1.8"
+                                         stroke-linecap="round"
+                                         stroke-linejoin="round">
+                                        <rect x="2" y="5" width="20" height="14" rx="3"/>
+                                        <path d="M2 10h20M6 15h4"/>
+                                    </svg>
+
+                                </span>
+
+                                <div>
+
+                                    <span class="checkout-step-label">
+                                        SELECT PAYMENT METHOD
+                                    </span>
+
+                                    <h2 id="payment-method-title">
+                                        Төлем әдісін таңда
+                                    </h2>
+
+                                    <p>
+                                        Өзіңе ыңғайлы нұсқаны таңда
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                            <div class="payment-card-body">
+
+                                <div class="payment-demo-notice">
+
+                                    <span class="payment-demo-notice-icon">
+
+                                        <svg viewBox="0 0 24 24"
+                                             fill="none"
+                                             stroke="currentColor"
+                                             stroke-width="1.8"
+                                             stroke-linecap="round">
+                                            <circle cx="12" cy="12" r="9"/>
+                                            <path d="M12 11v5M12 8h.01"/>
+                                        </svg>
+
+                                    </span>
+
+                                    <div>
+
+                                        <strong>
+                                            Demo Payment Environment
+                                        </strong>
+
+                                        <p>
+                                            Бұл оқу жобасындағы төлем симуляциясы.
+                                            Нақты ақша алынбайды және банк
+                                            картасының деректері сұралмайды.
+                                        </p>
+
+                                    </div>
+
+                                </div>
+
+                                <form id="payment-form">
+
+                                    <input
+                                            type="hidden"
+                                            id="payment-order-id"
+                                            name="orderId"
+                                            value="">
+
+                                    <fieldset class="payment-method-fieldset">
+
+                                        <legend class="visually-hidden">
+                                            Қолжетімді төлем тәсілдері
+                                        </legend>
+
+                                        <div class="payment-method-list"
+                                             id="payment-method-list">
+
+                                            <label class="payment-method-option"
+                                                   for="payment-method-card">
+
+                                                <input
+                                                        type="radio"
+                                                        id="payment-method-card"
+                                                        name="method"
+                                                        value="CARD"
+                                                        required>
+
+                                                <span class="payment-method-radio"></span>
+
+                                                <span class="payment-method-icon payment-method-icon-card">
+
+                                                    <svg viewBox="0 0 24 24"
+                                                         fill="none"
+                                                         stroke="currentColor"
+                                                         stroke-width="1.8"
+                                                         stroke-linecap="round"
+                                                         stroke-linejoin="round">
+                                                        <rect x="2" y="5" width="20" height="14" rx="3"/>
+                                                        <path d="M2 10h20M6 15h4"/>
+                                                    </svg>
+
+                                                </span>
+
+                                                <span class="payment-method-details">
+
+                                                    <strong>
+                                                        Bank Card
+                                                    </strong>
+
+                                                    <small>
+                                                        Карта арқылы төлем симуляциясы
+                                                    </small>
+
+                                                </span>
+
+                                                <span class="payment-method-brand">
+                                                    CARD
+                                                </span>
+
+                                            </label>
+
+                                            <label class="payment-method-option"
+                                                   for="payment-method-kaspi">
+
+                                                <input
+                                                        type="radio"
+                                                        id="payment-method-kaspi"
+                                                        name="method"
+                                                        value="KASPI">
+
+                                                <span class="payment-method-radio"></span>
+
+                                                <span class="payment-method-icon payment-method-icon-kaspi">
+
+                                                    <svg viewBox="0 0 24 24"
+                                                         fill="none"
+                                                         stroke="currentColor"
+                                                         stroke-width="1.8"
+                                                         stroke-linecap="round"
+                                                         stroke-linejoin="round">
+                                                        <path d="M5 4v16M19 4 7 12l12 8"/>
+                                                    </svg>
+
+                                                </span>
+
+                                                <span class="payment-method-details">
+
+                                                    <strong>
+                                                        Kaspi
+                                                    </strong>
+
+                                                    <small>
+                                                        Kaspi төлем симуляциясы
+                                                    </small>
+
+                                                </span>
+
+                                                <span class="payment-method-brand">
+                                                    KASPI
+                                                </span>
+
+                                            </label>
+
+                                            <label class="payment-method-option"
+                                                   for="payment-method-paypal">
+
+                                                <input
+                                                        type="radio"
+                                                        id="payment-method-paypal"
+                                                        name="method"
+                                                        value="PAYPAL">
+
+                                                <span class="payment-method-radio"></span>
+
+                                                <span class="payment-method-icon payment-method-icon-paypal">
+
+                                                    <svg viewBox="0 0 24 24"
+                                                         fill="none"
+                                                         stroke="currentColor"
+                                                         stroke-width="1.8"
+                                                         stroke-linecap="round"
+                                                         stroke-linejoin="round">
+                                                        <path d="M6 20 9 3h7a5 5 0 0 1 0 10h-5l-1 7H6Z"/>
+                                                        <path d="M10 17h5a5 5 0 0 0 5-5"/>
+                                                    </svg>
+
+                                                </span>
+
+                                                <span class="payment-method-details">
+
+                                                    <strong>
+                                                        PayPal
+                                                    </strong>
+
+                                                    <small>
+                                                        PayPal төлем симуляциясы
+                                                    </small>
+
+                                                </span>
+
+                                                <span class="payment-method-brand">
+                                                    PAYPAL
+                                                </span>
+
+                                            </label>
+
+                                        </div>
+
+                                    </fieldset>
+
+                                    <p class="form-error hidden"
+                                       id="payment-method-error"
+                                       role="alert">
+                                        Төлем әдісін таңдаңыз.
+                                    </p>
+
+                                    <div class="payment-method-description hidden"
+                                         id="payment-method-description"
+                                         aria-live="polite"></div>
+
+                                    <div class="payment-form-divider"></div>
+
+                                    <div class="payment-confirmation">
+
+                                        <span class="payment-confirmation-icon">
+
+                                            <svg viewBox="0 0 24 24"
+                                                 fill="none"
+                                                 stroke="currentColor"
+                                                 stroke-width="1.8"
+                                                 stroke-linecap="round"
+                                                 stroke-linejoin="round">
+                                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/>
+                                                <path d="m9 12 2 2 4-4"/>
+                                            </svg>
+
+                                        </span>
+
+                                        <div>
+
+                                            <strong>
+                                                Төлемді растау
+                                            </strong>
+
+                                            <p>
+                                                Таңдалған әдіс Backend-ке жіберіледі.
+                                                Төлем нәтижесін серверден
+                                                алғаннан кейін көрсетеміз.
+                                            </p>
+
+                                        </div>
+
+                                    </div>
+
+                                    <div class="payment-submit-error hidden"
+                                         id="payment-submit-error"
+                                         role="alert"></div>
+
+                                    <button
+                                            class="btn btn-primary btn-xl btn-block payment-submit-button"
+                                            type="submit"
+                                            id="payment-submit-button"
+                                            disabled>
+
+                                        <svg viewBox="0 0 24 24"
+                                             fill="none"
+                                             stroke="currentColor"
+                                             stroke-width="1.8"
+                                             stroke-linecap="round"
+                                             stroke-linejoin="round">
+                                            <rect x="5" y="10" width="14" height="11" rx="2"/>
+                                            <path d="M8 10V7a4 4 0 0 1 8 0v3"/>
+                                        </svg>
+
+                                        <span id="payment-submit-text">
+                                            Төлем жасау
+                                        </span>
+
+                                        <svg viewBox="0 0 24 24"
+                                             fill="none"
+                                             stroke="currentColor"
+                                             stroke-width="2"
+                                             stroke-linecap="round">
+                                            <path d="M5 12h14m-6-6 6 6-6 6"/>
+                                        </svg>
+
+                                    </button>
+
+                                    <p class="payment-submit-note">
+                                        Бұл демонстрациялық төлем.
+                                        Нақты банк транзакциясы жасалмайды.
+                                    </p>
+
+                                </form>
+
+                            </div>
+
+                        </section>
+
+                        <section class="payment-info-card"
+                                 aria-labelledby="payment-info-title">
+
+                            <span class="payment-info-card-icon">
+
+                                <svg viewBox="0 0 24 24"
+                                     fill="none"
+                                     stroke="currentColor"
+                                     stroke-width="1.8"
+                                     stroke-linecap="round"
+                                     stroke-linejoin="round">
+                                    <path d="M8 3h8l4 4v14H4V7l4-4Z"/>
+                                    <path d="M8 3v5h8V3M8 13h8M8 17h5"/>
+                                </svg>
+
+                            </span>
+
+                            <div>
+
+                                <h3 id="payment-info-title">
+                                    Тапсырысың сақталады
+                                </h3>
+
+                                <p>
+                                    Төлем нәтижесіне қарамастан,
+                                    тапсырыстың ағымдағы күйін
+                                    «Менің тапсырыстарым» бөлімінен
+                                    тексере аласың.
+                                </p>
+
+                                <a href="/pages/orders.html"
+                                   class="link-arrow">
+                                    Тапсырыстарға өту →
+                                </a>
+
+                            </div>
+
+                        </section>
+
+                    </div>
+
+                    <aside class="payment-summary-column"
+                           aria-label="Төлем сомасы">
+
+                        <div class="payment-summary-panel">
+
+                            <div class="payment-summary-header">
+
+                                <span class="section-eyebrow">
+                                    PAYMENT SUMMARY
+                                </span>
+
+                                <h2>
+                                    Тапсырыс мәліметтері
+                                </h2>
+
+                                <p>
+                                    Төлем алдындағы қорытынды
+                                </p>
+
+                            </div>
+
+                            <div class="payment-order-reference">
+
+                                <span>Order ID</span>
+
+                                <strong id="payment-summary-order-id">
+                                    —
+                                </strong>
+
+                            </div>
+
+                            <div class="payment-summary-items"
+                                 id="payment-summary-items"></div>
+
+                            <div class="payment-summary-divider"></div>
+
+                            <div class="payment-summary-rows">
+
+                                <div class="payment-summary-row">
+
+                                    <span>
+                                        Тауарлар сомасы
+                                    </span>
+
+                                    <strong id="payment-summary-subtotal">
+                                        —
+                                    </strong>
+
+                                </div>
+
+                                <div class="payment-summary-row"
+                                     id="payment-summary-discount-row"
+                                     hidden>
+
+                                    <span>
+                                        Жеңілдік
+                                    </span>
+
+                                    <strong class="text-success"
+                                            id="payment-summary-discount">
+                                        —
+                                    </strong>
+
+                                </div>
+
+                                <div class="payment-summary-row"
+                                     id="payment-summary-extras-row"
+                                     hidden>
+
+                                    <span>
+                                        Қосымша қызметтер
+                                    </span>
+
+                                    <strong id="payment-summary-extras">
+                                        —
+                                    </strong>
+
+                                </div>
+
+                                <div class="payment-summary-row">
+
+                                    <span>
+                                        Тапсырыс статусы
+                                    </span>
+
+                                    <span class="badge badge-warning"
+                                          id="payment-summary-order-status">
+                                        PENDING
+                                    </span>
+
+                                </div>
+
+                                <div class="payment-summary-row">
+
+                                    <span>
+                                        Төлем статусы
+                                    </span>
+
+                                    <span class="badge badge-neutral"
+                                          id="payment-summary-payment-status">
+                                        PENDING
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                            <div class="payment-summary-divider"></div>
+
+                            <div class="payment-summary-total">
+
+                                <div>
+
+                                    <span>
+                                        Төленетін сома
+                                    </span>
+
+                                    <small>
+                                        Backend растаған сома
+                                    </small>
+
+                                </div>
+
+                                <strong id="payment-summary-total">
+                                    —
+                                </strong>
+
+                            </div>
+
+                            <div class="payment-summary-address">
+
+                                <span class="payment-summary-address-icon">
+
+                                    <svg viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="1.8"
+                                         stroke-linecap="round"
+                                         stroke-linejoin="round">
+                                        <path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z"/>
+                                        <circle cx="12" cy="10" r="3"/>
+                                    </svg>
+
+                                </span>
+
+                                <div>
+
+                                    <strong>
+                                        Жеткізу мекенжайы
+                                    </strong>
+
+                                    <p id="payment-summary-address">
+                                        —
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                            <div class="payment-security-note">
+
+                                <svg viewBox="0 0 24 24"
+                                     fill="none"
+                                     stroke="currentColor"
+                                     stroke-width="1.8"
+                                     stroke-linecap="round"
+                                     stroke-linejoin="round">
+                                    <rect x="5" y="10" width="14" height="11" rx="2"/>
+                                    <path d="M8 10V7a4 4 0 0 1 8 0v3"/>
+                                </svg>
+
+                                <span>
+                                    Spring Security және Strategy Pattern
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                        <div class="payment-assistance-card">
+
+                            <span class="payment-assistance-icon">
+                                ✦
+                            </span>
+
+                            <div>
+
+                                <strong>
+                                    Made simple. Made NEXORA.
+                                </strong>
+
+                                <p>
+                                    Сатып алуыңды бірнеше қадамда аяқта.
+                                    Барлық ақпарат тапсырыс тарихында сақталады.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </aside>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <section class="payment-confidence-section">
+
+            <div class="container">
+
+                <div class="trust-strip">
+
+                    <div class="trust-item">
+
+                        <span class="trust-icon">
+
+                            <svg viewBox="0 0 24 24"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="1.8"
+                                 stroke-linecap="round"
+                                 stroke-linejoin="round">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/>
+                                <path d="m9 12 2 2 4-4"/>
+                            </svg>
+
+                        </span>
+
+                        <span>
+                            <strong class="trust-title">
+                                Қауіпсіз сессия
+                            </strong>
+                            <small class="trust-description">
+                                Spring Security
+                            </small>
+                        </span>
+
+                    </div>
+
+                    <div class="trust-item">
+
+                        <span class="trust-icon">
+
+                            <svg viewBox="0 0 24 24"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="1.8"
+                                 stroke-linecap="round"
+                                 stroke-linejoin="round">
+                                <rect x="2" y="5" width="20" height="14" rx="3"/>
+                                <path d="M2 10h20M6 15h4"/>
+                            </svg>
+
+                        </span>
+
+                        <span>
+                            <strong class="trust-title">
+                                3 төлем әдісі
+                            </strong>
+                            <small class="trust-description">
+                                Card, Kaspi, PayPal
+                            </small>
+                        </span>
+
+                    </div>
+
+                    <div class="trust-item">
+
+                        <span class="trust-icon">
+
+                            <svg viewBox="0 0 24 24"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="1.8"
+                                 stroke-linecap="round"
+                                 stroke-linejoin="round">
+                                <path d="M8 3h8l4 4v14H4V7l4-4Z"/>
+                                <path d="M8 3v5h8V3M8 13h8M8 17h5"/>
+                            </svg>
+
+                        </span>
+
+                        <span>
+                            <strong class="trust-title">
+                                Тапсырыс тарихы
+                            </strong>
+                            <small class="trust-description">
+                                Барлық мәлімет бір жерде
+                            </small>
+                        </span>
+
+                    </div>
+
+                    <div class="trust-item">
+
+                        <span class="trust-icon">
+
+                            <svg viewBox="0 0 24 24"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="1.8"
+                                 stroke-linecap="round"
+                                 stroke-linejoin="round">
+                                <path d="M12 3v18M3 12h18"/>
+                                <path d="M5 5h14v14H5z" stroke-dasharray="2 3"/>
+                            </svg>
+
+                        </span>
+
+                        <span>
+                            <strong class="trust-title">
+                                Оқу жобасы
+                            </strong>
+                            <small class="trust-description">
+                                Demo Payment System
+                            </small>
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <footer class="site-footer" id="site-footer">
+
+        <div class="container">
+
+            <div class="footer-top">
+
+                <div class="footer-brand">
+
+                    <a href="/" class="brand">
+
+                        <span class="brand-icon">
+                            <svg viewBox="0 0 24 24"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="2.3"
+                                 stroke-linecap="round"
+                                 stroke-linejoin="round">
+                                <path d="M4 18V6l16 12V6"/>
+                                <path d="M8 9.5l8 5"/>
+                            </svg>
+                        </span>
+
+                        <span class="brand-name">
+                            NEX<span>ORA</span>
+                        </span>
+
+                    </a>
+
+                    <p class="footer-description">
+                        Жаңа идеялар. Жаңа мүмкіндіктер.
+                        Технология мен стильді біріктіретін
+                        заманауи интернет-дүкен.
+                    </p>
+
+                    <div class="footer-socials">
+
+                        <a href="/pages/catalog.html"
+                           class="footer-social-link"
+                           aria-label="Каталог">
+
+                            <svg viewBox="0 0 24 24"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="1.8"
+                                 stroke-linecap="round"
+                                 stroke-linejoin="round">
+                                <rect x="3" y="3" width="7" height="7" rx="1"/>
+                                <rect x="14" y="3" width="7" height="7" rx="1"/>
+                                <rect x="3" y="14" width="7" height="7" rx="1"/>
+                                <rect x="14" y="14" width="7" height="7" rx="1"/>
+                            </svg>
+
+                        </a>
+
+                        <a href="/pages/account.html"
+                           class="footer-social-link"
+                           aria-label="Жеке кабинет">
+
+                            <svg viewBox="0 0 24 24"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="1.8"
+                                 stroke-linecap="round"
+                                 stroke-linejoin="round">
+                                <circle cx="12" cy="8" r="4"/>
+                                <path d="M4.5 21a7.5 7.5 0 0 1 15 0"/>
+                            </svg>
+
+                        </a>
+
+                        <a href="/pages/orders.html"
+                           class="footer-social-link"
+                           aria-label="Тапсырыстар">
+
+                            <svg viewBox="0 0 24 24"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="1.8"
+                                 stroke-linecap="round"
+                                 stroke-linejoin="round">
+                                <path d="M8 3h8l4 4v14H4V7l4-4Z"/>
+                                <path d="M8 3v5h8V3M8 13h8M8 17h5"/>
+                            </svg>
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+                <div class="footer-column">
+
+                    <h3 class="footer-heading">
+                        Дүкен
+                    </h3>
+
+                    <div class="footer-links">
+
+                        <a href="/pages/catalog.html" class="footer-link">
+                            Барлық тауарлар
+                        </a>
+
+                        <a href="/pages/catalog.html?categoryId=1" class="footer-link">
+                            Электроника
+                        </a>
+
+                        <a href="/pages/catalog.html?categoryId=2" class="footer-link">
+                            Киім
+                        </a>
+
+                        <a href="/pages/catalog.html?categoryId=3" class="footer-link">
+                            Кітаптар
+                        </a>
+
+                    </div>
+
+                </div>
+
+                <div class="footer-column">
+
+                    <h3 class="footer-heading">
+                        Аккаунт
+                    </h3>
+
+                    <div class="footer-links">
+
+                        <a href="/pages/login.html" class="footer-link">
+                            Жүйеге кіру
+                        </a>
+
+                        <a href="/pages/register.html" class="footer-link">
+                            Тіркелу
+                        </a>
+
+                        <a href="/pages/account.html" class="footer-link">
+                            Жеке кабинет
+                        </a>
+
+                        <a href="/pages/orders.html" class="footer-link">
+                            Тапсырыстарым
+                        </a>
+
+                    </div>
+
+                </div>
+
+                <div class="footer-column">
+
+                    <h3 class="footer-heading">
+                        Қосымша
+                    </h3>
+
+                    <div class="footer-links">
+
+                        <a href="/pages/cart.html" class="footer-link">
+                            Менің себетім
+                        </a>
+
+                        <a href="/pages/notifications.html" class="footer-link">
+                            Хабарламалар
+                        </a>
+
+                        <a href="/pages/checkout.html" class="footer-link">
+                            Тапсырыс рәсімдеу
+                        </a>
+
+                        <a href="/admin/dashboard.html" class="footer-link">
+                            Admin Panel
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="footer-bottom">
+
+                <span>
+                    © 2026 NEXORA. Ecommerce Management System.
+                </span>
+
+                <div class="footer-bottom-links">
+
+                    <span>
+                        Built with Spring Boot & JavaScript
+                    </span>
+
+                    <span>
+                        Made for the next generation ✦
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </footer>
+
+</div>
+
+<div class="toast-container"
+     id="toast-container"
+     role="region"
+     aria-label="Жүйелік хабарламалар"
+     aria-live="polite"></div>
+
+<script type="module" src="/js/app.js"></script>
+
+</body>
+</html>

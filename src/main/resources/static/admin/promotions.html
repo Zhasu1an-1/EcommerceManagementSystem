@@ -1,0 +1,2454 @@
+
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#584cf4">
+    <meta name="description" content="NEXORA Admin Panel — промокодтарды жасау, өңдеу, белсенділігін өзгерту және басқару.">
+
+    <title>Promotion Management — NEXORA Admin</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/components.css">
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+
+<body class="admin-body"
+      data-page="admin-promotions"
+      data-promotions-endpoint="/api/promotions"
+      data-promotion-create-endpoint="/api/promotions"
+      data-promotion-update-endpoint="/api/promotions/{id}"
+      data-promotion-delete-endpoint="/api/promotions/{id}"
+      data-promotion-status-endpoint="/api/promotions/{id}/status">
+
+<div class="admin-app" id="admin-app">
+
+    <a href="#main-content" class="visually-hidden skip-link">
+        Негізгі мазмұнға өту
+    </a>
+
+    <div class="admin-sidebar-overlay"
+         id="admin-sidebar-overlay"
+         aria-hidden="true"></div>
+
+    <aside class="admin-sidebar"
+           id="admin-sidebar"
+           aria-label="Әкімші навигациясы">
+
+        <div class="admin-sidebar-header">
+
+            <a href="/admin/dashboard.html"
+               class="brand admin-brand"
+               aria-label="NEXORA Admin Dashboard">
+
+                <span class="brand-icon">
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="2.3"
+                         stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <path d="M4 18V6l16 12V6"/>
+                        <path d="M8 9.5l8 5"/>
+                    </svg>
+                </span>
+
+                <span class="brand-name">
+                    NEX<span>ORA</span>
+                </span>
+
+            </a>
+
+            <button class="admin-sidebar-close"
+                    id="admin-sidebar-close"
+                    type="button"
+                    aria-label="Бүйірлік мәзірді жабу">
+
+                <svg viewBox="0 0 24 24"
+                     fill="none"
+                     stroke="currentColor"
+                     stroke-width="1.8"
+                     stroke-linecap="round">
+                    <path d="M5 5l14 14M19 5 5 19"/>
+                </svg>
+
+            </button>
+
+        </div>
+
+        <div class="admin-workspace-selector">
+
+            <span class="admin-workspace-icon">
+                <svg viewBox="0 0 24 24"
+                     fill="none"
+                     stroke="currentColor"
+                     stroke-width="1.8"
+                     stroke-linecap="round"
+                     stroke-linejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="4"/>
+                    <path d="M8 10h8M8 14h5"/>
+                </svg>
+            </span>
+
+            <span class="admin-workspace-info">
+                <strong>NEXORA Store</strong>
+                <small>Management Workspace</small>
+            </span>
+
+            <span class="admin-workspace-indicator"></span>
+
+        </div>
+
+        <nav class="admin-navigation" aria-label="Басқару бөлімдері">
+
+            <div class="admin-nav-group">
+
+                <span class="admin-nav-label">
+                    OVERVIEW
+                </span>
+
+                <a href="/admin/dashboard.html"
+                   class="admin-nav-link">
+
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.8"
+                         stroke-linecap="round">
+                        <rect x="3" y="3" width="8" height="8" rx="2"/>
+                        <rect x="13" y="3" width="8" height="5" rx="2"/>
+                        <rect x="13" y="10" width="8" height="11" rx="2"/>
+                        <rect x="3" y="13" width="8" height="8" rx="2"/>
+                    </svg>
+
+                    <span>Dashboard</span>
+
+                </a>
+
+            </div>
+
+            <div class="admin-nav-group">
+
+                <span class="admin-nav-label">
+                    STORE MANAGEMENT
+                </span>
+
+                <a href="/admin/products.html"
+                   class="admin-nav-link">
+
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.8"
+                         stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <path d="m12 2 9 5v10l-9 5-9-5V7l9-5Z"/>
+                        <path d="m3 7 9 5 9-5M12 12v10"/>
+                    </svg>
+
+                    <span>Products</span>
+
+                </a>
+
+                <a href="/admin/categories.html"
+                   class="admin-nav-link">
+
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.8"
+                         stroke-linecap="round">
+                        <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+                        <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+                        <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+                        <rect x="14" y="14" width="7" height="7" rx="1.5"/>
+                    </svg>
+
+                    <span>Categories</span>
+
+                </a>
+
+                <a href="/admin/orders.html"
+                   class="admin-nav-link">
+
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.8"
+                         stroke-linecap="round">
+                        <path d="M8 3h8l4 4v14H4V7l4-4Z"/>
+                        <path d="M8 3v5h8V3M8 13h8M8 17h5"/>
+                    </svg>
+
+                    <span>Orders</span>
+
+                </a>
+
+                <a href="/admin/promotions.html"
+                   class="admin-nav-link is-active"
+                   aria-current="page">
+
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.8"
+                         stroke-linecap="round">
+                        <path d="M3 10V5a2 2 0 0 1 2-2h5l11 11-7 7L3 10Z"/>
+                        <circle cx="7.5" cy="7.5" r="1"/>
+                    </svg>
+
+                    <span>Promotions</span>
+
+                    <span class="admin-nav-active-dot"></span>
+
+                </a>
+
+            </div>
+
+            <div class="admin-nav-group">
+
+                <span class="admin-nav-label">
+                    COMMUNICATION
+                </span>
+
+                <a href="/admin/notifications.html"
+                   class="admin-nav-link">
+
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.8"
+                         stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/>
+                        <path d="M10 21h4"/>
+                    </svg>
+
+                    <span>Notifications</span>
+
+                </a>
+
+            </div>
+
+            <div class="admin-nav-group">
+
+                <span class="admin-nav-label">
+                    GENERAL
+                </span>
+
+                <a href="/pages/account.html"
+                   class="admin-nav-link">
+
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.8"
+                         stroke-linecap="round">
+                        <circle cx="12" cy="8" r="4"/>
+                        <path d="M4.5 21a7.5 7.5 0 0 1 15 0"/>
+                    </svg>
+
+                    <span>My Account</span>
+
+                </a>
+
+                <a href="/" class="admin-nav-link">
+
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.8"
+                         stroke-linecap="round">
+                        <path d="M3 10 12 3l9 7v11H3V10Z"/>
+                        <path d="M9 21v-7h6v7"/>
+                    </svg>
+
+                    <span>View Store</span>
+
+                    <svg class="admin-nav-external-icon"
+                         viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.8"
+                         stroke-linecap="round">
+                        <path d="M14 5h5v5M19 5l-9 9"/>
+                        <path d="M19 14v5H5V5h5"/>
+                    </svg>
+
+                </a>
+
+            </div>
+
+        </nav>
+
+        <div class="admin-sidebar-bottom">
+
+            <div class="admin-sidebar-support">
+
+                <span class="admin-sidebar-support-icon">
+                    ✦
+                </span>
+
+                <strong>Make every offer count.</strong>
+
+                <p>
+                    Арнайы промокодтар жасап,
+                    сатып алушыларға жаңа ұсыныстар бер.
+                </p>
+
+                <a href="/admin/orders.html">
+                    Explore Orders →
+                </a>
+
+            </div>
+
+            <div class="admin-sidebar-profile">
+
+                <span class="admin-sidebar-avatar"
+                      id="admin-sidebar-avatar">
+                    A
+                </span>
+
+                <span class="admin-sidebar-profile-info">
+
+                    <strong id="admin-sidebar-name">
+                        Administrator
+                    </strong>
+
+                    <small id="admin-sidebar-role">
+                        Store Admin
+                    </small>
+
+                </span>
+
+                <button class="admin-sidebar-logout"
+                        type="button"
+                        id="admin-sidebar-logout-button"
+                        aria-label="Жүйеден шығу"
+                        title="Жүйеден шығу">
+
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.8"
+                         stroke-linecap="round">
+                        <path d="M10 17l5-5-5-5M15 12H3"/>
+                        <path d="M12 3h7a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-7"/>
+                    </svg>
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </aside>
+
+    <div class="admin-main-wrapper">
+
+        <header class="admin-topbar" id="admin-topbar">
+
+            <div class="admin-topbar-left">
+
+                <button class="admin-menu-toggle"
+                        type="button"
+                        id="admin-menu-toggle"
+                        aria-label="Басқару мәзірін ашу"
+                        aria-controls="admin-sidebar"
+                        aria-expanded="false">
+
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.8"
+                         stroke-linecap="round">
+                        <path d="M4 7h16M4 12h16M4 17h16"/>
+                    </svg>
+
+                </button>
+
+                <nav class="admin-breadcrumb"
+                     aria-label="Әкімші бөліміндегі навигация">
+
+                    <a href="/admin/dashboard.html">
+                        Admin
+                    </a>
+
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="2"
+                         stroke-linecap="round">
+                        <path d="m9 18 6-6-6-6"/>
+                    </svg>
+
+                    <span aria-current="page">
+                        Promotions
+                    </span>
+
+                </nav>
+
+            </div>
+
+            <div class="admin-topbar-actions">
+
+                <span class="admin-topbar-environment">
+                    <span class="admin-topbar-environment-dot"></span>
+                    Store Management
+                </span>
+
+                <a href="/admin/notifications.html"
+                   class="admin-topbar-icon-button"
+                   aria-label="Хабарламаларды басқару">
+
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.8"
+                         stroke-linecap="round">
+                        <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/>
+                        <path d="M10 21h4"/>
+                    </svg>
+
+                </a>
+
+                <a href="/"
+                   class="btn btn-outline admin-view-store-button">
+
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.8"
+                         stroke-linecap="round">
+                        <path d="M3 10 12 3l9 7v11H3V10Z"/>
+                        <path d="M9 21v-7h6v7"/>
+                    </svg>
+
+                    View Store
+
+                </a>
+
+                <a href="/pages/account.html"
+                   class="admin-topbar-profile"
+                   aria-label="Жеке кабинет">
+
+                    <span class="admin-topbar-avatar"
+                          id="admin-topbar-avatar">
+                        A
+                    </span>
+
+                    <span class="admin-topbar-profile-copy">
+                        <strong id="admin-topbar-name">Administrator</strong>
+                        <small>ADMIN</small>
+                    </span>
+
+                </a>
+
+            </div>
+
+        </header>
+
+        <main class="admin-main" id="main-content">
+
+            <div class="admin-page-container">
+
+                <div class="admin-auth-loading"
+                     id="admin-access-loading"
+                     role="status"
+                     aria-live="polite">
+
+                    <div class="loading-spinner"></div>
+
+                    <h2>Admin Access тексерілуде</h2>
+
+                    <p>
+                        Аккаунтың мен әкімші құқықтарын тексеріп жатырмыз...
+                    </p>
+
+                </div>
+
+                <section class="admin-access-denied hidden"
+                         id="admin-access-denied"
+                         aria-labelledby="admin-access-denied-title">
+
+                    <div class="admin-access-denied-icon">
+
+                        <svg viewBox="0 0 24 24"
+                             fill="none"
+                             stroke="currentColor"
+                             stroke-width="1.8"
+                             stroke-linecap="round"
+                             stroke-linejoin="round">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/>
+                            <path d="M8 8l8 8M16 8l-8 8"/>
+                        </svg>
+
+                    </div>
+
+                    <span class="section-eyebrow">
+                        RESTRICTED AREA
+                    </span>
+
+                    <h1 id="admin-access-denied-title">
+                        Қолжетімділік шектелген
+                    </h1>
+
+                    <p id="admin-access-denied-message">
+                        Промокодтарды басқару бөлімі тек
+                        ADMIN рөліндегі пайдаланушыларға арналған.
+                    </p>
+
+                    <div class="admin-access-denied-actions">
+
+                        <a href="/pages/login.html?redirect=%2Fadmin%2Fpromotions.html"
+                           class="btn btn-primary"
+                           id="admin-access-login-link">
+                            Жүйеге кіру
+                        </a>
+
+                        <a href="/" class="btn btn-outline">
+                            Дүкенге оралу
+                        </a>
+
+                    </div>
+
+                </section>
+
+                <div class="admin-promotions-content hidden"
+                     id="admin-promotions-content">
+
+                    <section class="admin-page-heading-section">
+
+                        <div class="admin-page-heading">
+
+                            <div>
+
+                                <span class="admin-eyebrow">
+                                    CAMPAIGN MANAGEMENT
+                                </span>
+
+                                <h1 class="admin-page-title">
+                                    Promotion <span class="gradient-text">Management.</span>
+                                </h1>
+
+                                <p class="admin-page-subtitle">
+                                    Жеңілдіктер жаса, промокодтарды басқар
+                                    және белсенді акцияларды бақыла.
+                                </p>
+
+                            </div>
+
+                            <div class="admin-page-heading-actions">
+
+                                <button class="btn btn-outline"
+                                        type="button"
+                                        id="admin-promotions-refresh-button">
+
+                                    <svg viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="1.8"
+                                         stroke-linecap="round">
+                                        <path d="M20 11a8 8 0 1 0-2 6"/>
+                                        <path d="M20 5v6h-6"/>
+                                    </svg>
+
+                                    Refresh
+
+                                </button>
+
+                                <button class="btn btn-primary"
+                                        type="button"
+                                        id="admin-add-promotion-button">
+
+                                    <svg viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="2"
+                                         stroke-linecap="round">
+                                        <path d="M12 5v14M5 12h14"/>
+                                    </svg>
+
+                                    Create Promotion
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+                    <section class="admin-promotions-intro-banner">
+
+                        <div class="admin-promotions-intro-content">
+
+                            <span class="admin-welcome-badge">
+                                ✦ NEXORA REWARDS STUDIO
+                            </span>
+
+                            <h2>
+                                Great products.<br>
+                                <span>Better offers.</span>
+                            </h2>
+
+                            <p>
+                                Сатып алушыларға ерекше ұсыныстар жаса.
+                                Пайыздық және бекітілген сомадағы
+                                жеңілдіктерді бір жерден басқар.
+                            </p>
+
+                            <button class="admin-welcome-link"
+                                    type="button"
+                                    id="admin-promotion-banner-create">
+
+                                Create Your First Offer
+
+                                <svg viewBox="0 0 24 24"
+                                     fill="none"
+                                     stroke="currentColor"
+                                     stroke-width="2"
+                                     stroke-linecap="round">
+                                    <path d="M5 12h14m-6-6 6 6-6 6"/>
+                                </svg>
+
+                            </button>
+
+                        </div>
+
+                        <div class="admin-promotions-intro-visual"
+                             aria-hidden="true">
+
+                            <div class="admin-promotions-intro-orbit"></div>
+
+                            <div class="admin-promotions-intro-tag">
+
+                                <svg viewBox="0 0 120 120"
+                                     fill="none"
+                                     stroke="currentColor"
+                                     stroke-width="3.5"
+                                     stroke-linecap="round"
+                                     stroke-linejoin="round">
+                                    <path d="M18 18h44l42 42-44 44L18 62V18Z"/>
+                                    <circle cx="43" cy="43" r="8"/>
+                                    <path d="m61 50 18 18M77 48l-20 40"/>
+                                </svg>
+
+                            </div>
+
+                            <span class="admin-promotions-intro-star">
+                                ✦
+                            </span>
+
+                            <span class="admin-promotions-intro-sparkle">
+                                ✧
+                            </span>
+
+                        </div>
+
+                    </section>
+
+                    <section class="admin-promotions-metrics"
+                             aria-labelledby="admin-promotions-metrics-title">
+
+                        <div class="admin-section-heading">
+
+                            <div>
+
+                                <span class="admin-eyebrow">
+                                    PROMOTION INSIGHTS
+                                </span>
+
+                                <h2 id="admin-promotions-metrics-title">
+                                    Campaign Overview
+                                </h2>
+
+                                <p>
+                                    Промокодтардың негізгі көрсеткіштері
+                                </p>
+
+                            </div>
+
+                            <span class="admin-section-heading-note">
+                                DATABASE METRICS
+                            </span>
+
+                        </div>
+
+                        <div class="admin-stats-grid">
+
+                            <article class="admin-stat-card">
+
+                                <div class="admin-stat-top">
+
+                                    <span class="admin-stat-icon admin-stat-icon-purple">
+
+                                        <svg viewBox="0 0 24 24"
+                                             fill="none"
+                                             stroke="currentColor"
+                                             stroke-width="1.8"
+                                             stroke-linecap="round">
+                                            <path d="M3 10V5a2 2 0 0 1 2-2h5l11 11-7 7L3 10Z"/>
+                                            <circle cx="7.5" cy="7.5" r="1"/>
+                                        </svg>
+
+                                    </span>
+
+                                    <span class="admin-stat-label-small">
+                                        CAMPAIGNS
+                                    </span>
+
+                                </div>
+
+                                <span class="admin-stat-title">
+                                    Total Promotions
+                                </span>
+
+                                <strong class="admin-stat-value"
+                                        id="admin-promotions-total">
+                                    —
+                                </strong>
+
+                                <span class="admin-stat-description">
+                                    Барлық промокодтар
+                                </span>
+
+                            </article>
+
+                            <article class="admin-stat-card">
+
+                                <div class="admin-stat-top">
+
+                                    <span class="admin-stat-icon admin-stat-icon-green">
+
+                                        <svg viewBox="0 0 24 24"
+                                             fill="none"
+                                             stroke="currentColor"
+                                             stroke-width="1.8"
+                                             stroke-linecap="round">
+                                            <circle cx="12" cy="12" r="9"/>
+                                            <path d="m8 12 3 3 5-6"/>
+                                        </svg>
+
+                                    </span>
+
+                                    <span class="admin-stat-label-small">
+                                        ENABLED
+                                    </span>
+
+                                </div>
+
+                                <span class="admin-stat-title">
+                                    Active Promotions
+                                </span>
+
+                                <strong class="admin-stat-value"
+                                        id="admin-promotions-active">
+                                    —
+                                </strong>
+
+                                <span class="admin-stat-description">
+                                    Белсенді промокодтар
+                                </span>
+
+                            </article>
+
+                            <article class="admin-stat-card">
+
+                                <div class="admin-stat-top">
+
+                                    <span class="admin-stat-icon admin-stat-icon-orange">
+
+                                        <svg viewBox="0 0 24 24"
+                                             fill="none"
+                                             stroke="currentColor"
+                                             stroke-width="1.8"
+                                             stroke-linecap="round">
+                                            <circle cx="12" cy="12" r="9"/>
+                                            <path d="M8 12h8"/>
+                                        </svg>
+
+                                    </span>
+
+                                    <span class="admin-stat-label-small">
+                                        DISABLED
+                                    </span>
+
+                                </div>
+
+                                <span class="admin-stat-title">
+                                    Inactive Promotions
+                                </span>
+
+                                <strong class="admin-stat-value"
+                                        id="admin-promotions-inactive">
+                                    —
+                                </strong>
+
+                                <span class="admin-stat-description">
+                                    Белсенді емес промокодтар
+                                </span>
+
+                            </article>
+
+                            <article class="admin-stat-card">
+
+                                <div class="admin-stat-top">
+
+                                    <span class="admin-stat-icon admin-stat-icon-blue">
+
+                                        <svg viewBox="0 0 24 24"
+                                             fill="none"
+                                             stroke="currentColor"
+                                             stroke-width="1.8"
+                                             stroke-linecap="round">
+                                            <circle cx="12" cy="12" r="9"/>
+                                            <path d="M8 8l8 8M16 8l-8 8"/>
+                                            <circle cx="8" cy="8" r="1"/>
+                                            <circle cx="16" cy="16" r="1"/>
+                                        </svg>
+
+                                    </span>
+
+                                    <span class="admin-stat-label-small">
+                                        DISCOUNT TYPES
+                                    </span>
+
+                                </div>
+
+                                <span class="admin-stat-title">
+                                    Percentage Offers
+                                </span>
+
+                                <strong class="admin-stat-value"
+                                        id="admin-promotions-percentage">
+                                    —
+                                </strong>
+
+                                <span class="admin-stat-description">
+                                    Пайыздық жеңілдіктер
+                                </span>
+
+                            </article>
+
+                        </div>
+
+                    </section>
+
+                    <section class="admin-promotions-management-section"
+                             id="admin-promotions-management"
+                             aria-labelledby="admin-promotions-management-title">
+
+                        <div class="admin-section-heading">
+
+                            <div>
+
+                                <span class="admin-eyebrow">
+                                    PROMOTION DIRECTORY
+                                </span>
+
+                                <h2 id="admin-promotions-management-title">
+                                    All Promotions
+                                </h2>
+
+                                <p>
+                                    Промокодтарды ізде, сүз, өңде
+                                    және олардың белсенділігін басқар
+                                </p>
+
+                            </div>
+
+                            <button class="admin-panel-link"
+                                    type="button"
+                                    id="admin-promotions-section-create">
+
+                                New Promotion
+
+                                <svg viewBox="0 0 24 24"
+                                     fill="none"
+                                     stroke="currentColor"
+                                     stroke-width="2"
+                                     stroke-linecap="round">
+                                    <path d="M5 12h14m-6-6 6 6-6 6"/>
+                                </svg>
+
+                            </button>
+
+                        </div>
+
+                        <div class="admin-dashboard-panel admin-promotions-panel">
+
+                            <div class="admin-promotions-toolbar">
+
+                                <form class="admin-promotions-search-form"
+                                      id="admin-promotions-search-form"
+                                      role="search">
+
+                                    <div class="admin-promotions-search-wrapper">
+
+                                        <svg viewBox="0 0 24 24"
+                                             fill="none"
+                                             stroke="currentColor"
+                                             stroke-width="1.8"
+                                             stroke-linecap="round">
+                                            <circle cx="11" cy="11" r="7"/>
+                                            <path d="m16 16 4 4"/>
+                                        </svg>
+
+                                        <input
+                                                type="search"
+                                                id="admin-promotions-search"
+                                                name="keyword"
+                                                placeholder="Промокод бойынша іздеу..."
+                                                autocomplete="off"
+                                                aria-label="Промокодтарды іздеу">
+
+                                    </div>
+
+                                    <button class="btn btn-primary"
+                                            type="submit"
+                                            id="admin-promotions-search-button">
+                                        Іздеу
+                                    </button>
+
+                                </form>
+
+                                <button class="btn btn-outline admin-promotions-filter-toggle"
+                                        type="button"
+                                        id="admin-promotions-filter-toggle"
+                                        aria-controls="admin-promotions-filters"
+                                        aria-expanded="true">
+
+                                    <svg viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="1.8"
+                                         stroke-linecap="round">
+                                        <path d="M4 7h16M7 12h10M10 17h4"/>
+                                    </svg>
+
+                                    Filters
+
+                                </button>
+
+                            </div>
+
+                            <div class="admin-promotions-status-tabs"
+                                 id="admin-promotions-status-tabs"
+                                 role="group"
+                                 aria-label="Промокод белсенділігі бойынша сүзу">
+
+                                <button
+                                        class="admin-promotions-status-tab is-active"
+                                        type="button"
+                                        data-status="ALL"
+                                        aria-pressed="true">
+                                    All Promotions
+                                </button>
+
+                                <button
+                                        class="admin-promotions-status-tab"
+                                        type="button"
+                                        data-status="ACTIVE"
+                                        aria-pressed="false">
+                                    Active
+                                </button>
+
+                                <button
+                                        class="admin-promotions-status-tab"
+                                        type="button"
+                                        data-status="INACTIVE"
+                                        aria-pressed="false">
+                                    Inactive
+                                </button>
+
+                            </div>
+
+                            <div class="admin-promotions-filters"
+                                 id="admin-promotions-filters">
+
+                                <form id="admin-promotions-filter-form"
+                                      class="admin-promotions-filter-form">
+
+                                    <div class="admin-filter-group">
+
+                                        <label for="admin-promotions-status-filter">
+                                            Status
+                                        </label>
+
+                                        <select
+                                                class="form-control admin-filter-select"
+                                                id="admin-promotions-status-filter"
+                                                name="status">
+
+                                            <option value="ALL">
+                                                All Statuses
+                                            </option>
+
+                                            <option value="ACTIVE">
+                                                Active
+                                            </option>
+
+                                            <option value="INACTIVE">
+                                                Inactive
+                                            </option>
+
+                                        </select>
+
+                                    </div>
+
+                                    <div class="admin-filter-group">
+
+                                        <label for="admin-promotions-type-filter">
+                                            Discount Type
+                                        </label>
+
+                                        <select
+                                                class="form-control admin-filter-select"
+                                                id="admin-promotions-type-filter"
+                                                name="discountType">
+
+                                            <option value="ALL">
+                                                All Types
+                                            </option>
+
+                                            <option value="PERCENTAGE">
+                                                Percentage
+                                            </option>
+
+                                            <option value="FIXED">
+                                                Fixed Amount
+                                            </option>
+
+                                        </select>
+
+                                    </div>
+
+                                    <div class="admin-filter-group">
+
+                                        <label for="admin-promotions-sort">
+                                            Sort By
+                                        </label>
+
+                                        <select
+                                                class="form-control admin-filter-select"
+                                                id="admin-promotions-sort"
+                                                name="sort">
+
+                                            <option value="id-desc">
+                                                Newest First
+                                            </option>
+
+                                            <option value="id-asc">
+                                                Oldest First
+                                            </option>
+
+                                            <option value="code-asc">
+                                                Code: A–Z
+                                            </option>
+
+                                            <option value="code-desc">
+                                                Code: Z–A
+                                            </option>
+
+                                            <option value="value-desc">
+                                                Value: High to Low
+                                            </option>
+
+                                            <option value="value-asc">
+                                                Value: Low to High
+                                            </option>
+
+                                        </select>
+
+                                    </div>
+
+                                    <div class="admin-filter-group">
+
+                                        <label for="admin-promotions-page-size">
+                                            Rows Per Page
+                                        </label>
+
+                                        <select
+                                                class="form-control admin-filter-select"
+                                                id="admin-promotions-page-size"
+                                                name="size">
+
+                                            <option value="10" selected>
+                                                10 Promotions
+                                            </option>
+
+                                            <option value="20">
+                                                20 Promotions
+                                            </option>
+
+                                            <option value="50">
+                                                50 Promotions
+                                            </option>
+
+                                        </select>
+
+                                    </div>
+
+                                    <div class="admin-filter-actions">
+
+                                        <button class="btn btn-primary"
+                                                type="submit"
+                                                id="admin-promotions-apply-filters">
+                                            Apply
+                                        </button>
+
+                                        <button class="btn btn-ghost"
+                                                type="reset"
+                                                id="admin-promotions-reset-filters">
+                                            Reset
+                                        </button>
+
+                                    </div>
+
+                                </form>
+
+                            </div>
+
+                            <div class="admin-promotions-list-header">
+
+                                <div>
+
+                                    <h3>Promotion Directory</h3>
+
+                                    <p id="admin-promotions-results-count"
+                                       aria-live="polite">
+                                        Промокодтар жүктелуде...
+                                    </p>
+
+                                </div>
+
+                                <span class="admin-products-list-caption">
+                                    MANAGE DISCOUNT CODES
+                                </span>
+
+                            </div>
+
+                            <div class="admin-promotions-loading"
+                                 id="admin-promotions-loading"
+                                 role="status"
+                                 aria-live="polite">
+
+                                <div class="skeleton"
+                                     style="height:54px;border-radius:12px;margin-bottom:14px"></div>
+
+                                <div class="skeleton"
+                                     style="height:80px;border-radius:12px;margin-bottom:14px"></div>
+
+                                <div class="skeleton"
+                                     style="height:80px;border-radius:12px;margin-bottom:14px"></div>
+
+                                <div class="skeleton"
+                                     style="height:80px;border-radius:12px;margin-bottom:14px"></div>
+
+                                <div class="skeleton"
+                                     style="height:80px;border-radius:12px"></div>
+
+                            </div>
+
+                            <div class="admin-products-error hidden"
+                                 id="admin-promotions-error"
+                                 role="alert">
+
+                                <span class="admin-panel-empty-icon">
+
+                                    <svg viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="1.8"
+                                         stroke-linecap="round">
+                                        <circle cx="12" cy="12" r="9"/>
+                                        <path d="M12 7v6M12 17h.01"/>
+                                    </svg>
+
+                                </span>
+
+                                <h3>
+                                    Промокодтарды жүктеу мүмкін болмады
+                                </h3>
+
+                                <p id="admin-promotions-error-message">
+                                    Сервермен байланыста қате орын алды.
+                                    Қайта байқап көр.
+                                </p>
+
+                                <button class="btn btn-primary"
+                                        type="button"
+                                        id="admin-promotions-retry-button">
+                                    Қайта жүктеу
+                                </button>
+
+                            </div>
+
+                            <div class="admin-panel-empty hidden"
+                                 id="admin-promotions-empty">
+
+                                <span class="admin-panel-empty-icon">
+
+                                    <svg viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="1.8"
+                                         stroke-linecap="round">
+                                        <path d="M3 10V5a2 2 0 0 1 2-2h5l11 11-7 7L3 10Z"/>
+                                        <circle cx="7.5" cy="7.5" r="1"/>
+                                    </svg>
+
+                                </span>
+
+                                <span class="section-eyebrow">
+                                    START YOUR FIRST CAMPAIGN
+                                </span>
+
+                                <h3>
+                                    Әзірге промокод жоқ
+                                </h3>
+
+                                <p>
+                                    Алғашқы промокодты жасап,
+                                    сатып алушыларға жеңілдік ұсын.
+                                </p>
+
+                                <button class="btn btn-primary"
+                                        type="button"
+                                        id="admin-promotions-empty-create">
+
+                                    <svg viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="2"
+                                         stroke-linecap="round">
+                                        <path d="M12 5v14M5 12h14"/>
+                                    </svg>
+
+                                    Create First Promotion
+
+                                </button>
+
+                            </div>
+
+                            <div class="admin-panel-empty hidden"
+                                 id="admin-promotions-filter-empty">
+
+                                <span class="admin-panel-empty-icon">
+
+                                    <svg viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="1.8"
+                                         stroke-linecap="round">
+                                        <circle cx="11" cy="11" r="7"/>
+                                        <path d="m16 16 4 4"/>
+                                    </svg>
+
+                                </span>
+
+                                <h3>
+                                    Промокод табылмады
+                                </h3>
+
+                                <p>
+                                    Бұл сүзгіге сәйкес промокод жоқ.
+                                    Басқа іздеу параметрін таңда.
+                                </p>
+
+                                <button class="btn btn-outline"
+                                        type="button"
+                                        id="admin-promotions-clear-search">
+                                    All Promotions
+                                </button>
+
+                            </div>
+
+                            <div class="admin-promotions-table-container hidden"
+                                 id="admin-promotions-table-container">
+
+                                <div class="admin-table-container">
+
+                                    <table class="admin-table admin-promotions-table">
+
+                                        <thead>
+
+                                        <tr>
+                                            <th scope="col">PROMO CODE</th>
+                                            <th scope="col">DISCOUNT TYPE</th>
+                                            <th scope="col">VALUE</th>
+                                            <th scope="col">STATUS</th>
+                                            <th scope="col">PROMOTION ID</th>
+                                            <th scope="col">ACTIONS</th>
+                                        </tr>
+
+                                        </thead>
+
+                                        <tbody id="admin-promotions-table-body"></tbody>
+
+                                    </table>
+
+                                </div>
+
+                            </div>
+
+                            <div class="admin-promotions-table-footer hidden"
+                                 id="admin-promotions-table-footer">
+
+                                <span id="admin-promotions-pagination-info"
+                                      aria-live="polite">
+                                    —
+                                </span>
+
+                                <nav class="pagination"
+                                     id="admin-promotions-pagination"
+                                     aria-label="Промокодтар беттері"></nav>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+                    <section class="admin-promotions-types-section"
+                             aria-labelledby="admin-promotions-types-title">
+
+                        <div class="admin-section-heading">
+
+                            <div>
+
+                                <span class="admin-eyebrow">
+                                    DISCOUNT STRATEGIES
+                                </span>
+
+                                <h2 id="admin-promotions-types-title">
+                                    Discount Types
+                                </h2>
+
+                                <p>
+                                    NEXORA жүйесіндегі жеңілдіктердің екі түрі
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                        <div class="admin-promotions-types-grid">
+
+                            <article class="admin-promotions-type-card">
+
+                                <span class="admin-promotions-type-icon">
+
+                                    <svg viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="1.8"
+                                         stroke-linecap="round">
+                                        <circle cx="7" cy="7" r="2"/>
+                                        <circle cx="17" cy="17" r="2"/>
+                                        <path d="M19 5 5 19"/>
+                                    </svg>
+
+                                </span>
+
+                                <span class="badge badge-primary">
+                                    PERCENTAGE
+                                </span>
+
+                                <h3>
+                                    Percentage Discount
+                                </h3>
+
+                                <p>
+                                    Себет сомасынан белгілі бір пайызды
+                                    шегереді. Мысалы, 10% жеңілдік
+                                    тауарлардың жалпы құнына
+                                    пропорционалды есептеледі.
+                                </p>
+
+                                <div class="admin-promotions-type-example">
+
+                                    <span>
+                                        Мысал
+                                    </span>
+
+                                    <strong>
+                                        50 000 ₸ − 10% = 45 000 ₸
+                                    </strong>
+
+                                </div>
+
+                            </article>
+
+                            <article class="admin-promotions-type-card">
+
+                                <span class="admin-promotions-type-icon">
+
+                                    <svg viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="1.8"
+                                         stroke-linecap="round">
+                                        <rect x="3" y="5" width="18" height="14" rx="3"/>
+                                        <path d="M3 10h18M8 15h4"/>
+                                    </svg>
+
+                                </span>
+
+                                <span class="badge badge-success">
+                                    FIXED
+                                </span>
+
+                                <h3>
+                                    Fixed Amount Discount
+                                </h3>
+
+                                <p>
+                                    Себет сомасынан нақты бекітілген
+                                    ақша мөлшерін шегереді.
+                                    Жеңілдік тапсырыс сомасынан
+                                    аспайтындай есептеледі.
+                                </p>
+
+                                <div class="admin-promotions-type-example">
+
+                                    <span>
+                                        Мысал
+                                    </span>
+
+                                    <strong>
+                                        50 000 ₸ − 5 000 ₸ = 45 000 ₸
+                                    </strong>
+
+                                </div>
+
+                            </article>
+
+                        </div>
+
+                    </section>
+
+                    <section class="admin-promotions-guide-section"
+                             aria-labelledby="admin-promotions-guide-title">
+
+                        <div class="admin-dashboard-panel admin-promotions-guide-panel">
+
+                            <div class="admin-promotions-guide-heading">
+
+                                <span class="admin-promotions-guide-icon">
+
+                                    <svg viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="1.8"
+                                         stroke-linecap="round">
+                                        <circle cx="12" cy="12" r="9"/>
+                                        <path d="M12 11v5M12 8h.01"/>
+                                    </svg>
+
+                                </span>
+
+                                <div>
+
+                                    <span class="admin-eyebrow">
+                                        IMPORTANT INFORMATION
+                                    </span>
+
+                                    <h2 id="admin-promotions-guide-title">
+                                        Promotion Rules
+                                    </h2>
+
+                                </div>
+
+                            </div>
+
+                            <div class="admin-promotions-guide-list">
+
+                                <div class="admin-promotions-guide-item">
+
+                                    <span class="admin-promotions-guide-number">
+                                        01
+                                    </span>
+
+                                    <div>
+
+                                        <strong>
+                                            Unique Promo Code
+                                        </strong>
+
+                                        <p>
+                                            Әр промокод бірегей болуы керек.
+                                            Кодты бас әріптермен енгіземіз.
+                                        </p>
+
+                                    </div>
+
+                                </div>
+
+                                <div class="admin-promotions-guide-item">
+
+                                    <span class="admin-promotions-guide-number">
+                                        02
+                                    </span>
+
+                                    <div>
+
+                                        <strong>
+                                            Active / Inactive
+                                        </strong>
+
+                                        <p>
+                                            Белсенді промокод Checkout кезінде
+                                            қолданылуы мүмкін. Белсенді емес
+                                            промокод жеңілдік бермейді.
+                                        </p>
+
+                                    </div>
+
+                                </div>
+
+                                <div class="admin-promotions-guide-item">
+
+                                    <span class="admin-promotions-guide-number">
+                                        03
+                                    </span>
+
+                                    <div>
+
+                                        <strong>
+                                            Server-side Validation
+                                        </strong>
+
+                                        <p>
+                                            Промокод пен жеңілдік сомасын
+                                            Backend тексереді. Соңғы
+                                            есептеуді сервер орындайды.
+                                        </p>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+                    <section class="admin-promotions-quick-actions"
+                             aria-labelledby="admin-promotions-quick-actions-title">
+
+                        <div class="admin-section-heading">
+
+                            <div>
+
+                                <span class="admin-eyebrow">
+                                    MARKETING WORKFLOW
+                                </span>
+
+                                <h2 id="admin-promotions-quick-actions-title">
+                                    Quick Actions
+                                </h2>
+
+                                <p>
+                                    Дүкенді басқарудың басқа бөлімдеріне өту
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                        <div class="admin-quick-actions-grid">
+
+                            <button type="button"
+                                    class="admin-quick-action-card"
+                                    id="admin-promotion-quick-create">
+
+                                <span class="admin-quick-action-icon admin-quick-action-purple">
+
+                                    <svg viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="1.8"
+                                         stroke-linecap="round">
+                                        <path d="M12 5v14M5 12h14"/>
+                                        <rect x="2" y="2" width="20" height="20" rx="5"/>
+                                    </svg>
+
+                                </span>
+
+                                <strong>Create Promotion</strong>
+
+                                <p>
+                                    Жаңа жеңілдік кодын жасау
+                                </p>
+
+                                <span class="admin-quick-action-arrow">
+                                    <svg viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="2"
+                                         stroke-linecap="round">
+                                        <path d="M5 12h14m-6-6 6 6-6 6"/>
+                                    </svg>
+                                </span>
+
+                            </button>
+
+                            <a href="/admin/orders.html"
+                               class="admin-quick-action-card">
+
+                                <span class="admin-quick-action-icon admin-quick-action-blue">
+
+                                    <svg viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="1.8"
+                                         stroke-linecap="round">
+                                        <path d="M8 3h8l4 4v14H4V7l4-4Z"/>
+                                        <path d="M8 3v5h8V3M8 13h8M8 17h5"/>
+                                    </svg>
+
+                                </span>
+
+                                <strong>Manage Orders</strong>
+
+                                <p>
+                                    Тапсырыстар мен жеңілдіктерді бақылау
+                                </p>
+
+                                <span class="admin-quick-action-arrow">
+                                    <svg viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="2"
+                                         stroke-linecap="round">
+                                        <path d="M5 12h14m-6-6 6 6-6 6"/>
+                                    </svg>
+                                </span>
+
+                            </a>
+
+                            <a href="/admin/products.html"
+                               class="admin-quick-action-card">
+
+                                <span class="admin-quick-action-icon admin-quick-action-orange">
+
+                                    <svg viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="1.8"
+                                         stroke-linecap="round">
+                                        <path d="m12 2 9 5v10l-9 5-9-5V7l9-5Z"/>
+                                        <path d="m3 7 9 5 9-5M12 12v10"/>
+                                    </svg>
+
+                                </span>
+
+                                <strong>Manage Products</strong>
+
+                                <p>
+                                    Каталогтағы өнімдерді басқару
+                                </p>
+
+                                <span class="admin-quick-action-arrow">
+                                    <svg viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="2"
+                                         stroke-linecap="round">
+                                        <path d="M5 12h14m-6-6 6 6-6 6"/>
+                                    </svg>
+                                </span>
+
+                            </a>
+
+                            <a href="/pages/catalog.html"
+                               class="admin-quick-action-card">
+
+                                <span class="admin-quick-action-icon admin-quick-action-green">
+
+                                    <svg viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="1.8"
+                                         stroke-linecap="round">
+                                        <rect x="3" y="3" width="7" height="7" rx="1"/>
+                                        <rect x="14" y="3" width="7" height="7" rx="1"/>
+                                        <rect x="3" y="14" width="7" height="7" rx="1"/>
+                                        <rect x="14" y="14" width="7" height="7" rx="1"/>
+                                    </svg>
+
+                                </span>
+
+                                <strong>View Storefront</strong>
+
+                                <p>
+                                    Дүкеннің каталогын қарап шығу
+                                </p>
+
+                                <span class="admin-quick-action-arrow">
+                                    <svg viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="2"
+                                         stroke-linecap="round">
+                                        <path d="M5 12h14m-6-6 6 6-6 6"/>
+                                    </svg>
+                                </span>
+
+                            </a>
+
+                        </div>
+
+                    </section>
+
+                    <footer class="admin-footer">
+
+                        <span>
+                            © 2026 NEXORA. Admin Management System.
+                        </span>
+
+                        <span>
+                            Built with Java · Spring Boot · PostgreSQL
+                        </span>
+
+                    </footer>
+
+                </div>
+
+            </div>
+
+        </main>
+
+    </div>
+
+</div>
+
+<div class="modal-backdrop"
+     id="admin-promotion-form-modal"
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="admin-promotion-form-modal-title"
+     aria-describedby="admin-promotion-form-modal-description"
+     hidden>
+
+    <div class="modal-panel admin-promotion-modal-panel">
+
+        <div class="modal-header">
+
+            <div>
+
+                <span class="admin-eyebrow"
+                      id="admin-promotion-form-eyebrow">
+                    PROMOTION EDITOR
+                </span>
+
+                <h2 class="modal-title"
+                    id="admin-promotion-form-modal-title">
+                    Create Promotion
+                </h2>
+
+            </div>
+
+            <button class="icon-button"
+                    type="button"
+                    id="admin-promotion-form-modal-close"
+                    aria-label="Терезені жабу">
+
+                <svg viewBox="0 0 24 24"
+                     fill="none"
+                     stroke="currentColor"
+                     stroke-width="2"
+                     stroke-linecap="round">
+                    <path d="M5 5l14 14M19 5 5 19"/>
+                </svg>
+
+            </button>
+
+        </div>
+
+        <form id="admin-promotion-form"
+              class="admin-promotion-form">
+
+            <div class="modal-body">
+
+                <p class="admin-promotion-form-description"
+                   id="admin-promotion-form-modal-description">
+                    Жаңа промокодтың атауын, жеңілдік түрін,
+                    мөлшерін және белсенділігін орнат.
+                </p>
+
+                <input type="hidden"
+                       id="admin-promotion-id"
+                       name="id"
+                       value="">
+
+                <div class="alert alert-danger hidden"
+                     id="admin-promotion-form-error"
+                     role="alert"
+                     aria-live="assertive"></div>
+
+                <div class="form-group">
+
+                    <label class="form-label form-label-required"
+                           for="admin-promotion-code">
+                        Promotion Code
+                    </label>
+
+                    <div class="admin-promotion-input-wrapper">
+
+                        <span class="admin-promotion-field-icon">
+
+                            <svg viewBox="0 0 24 24"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="1.8"
+                                 stroke-linecap="round">
+                                <path d="M3 10V5a2 2 0 0 1 2-2h5l11 11-7 7L3 10Z"/>
+                                <circle cx="7.5" cy="7.5" r="1"/>
+                            </svg>
+
+                        </span>
+
+                        <input
+                                class="form-control"
+                                type="text"
+                                id="admin-promotion-code"
+                                name="code"
+                                placeholder="WELCOME10"
+                                minlength="3"
+                                maxlength="50"
+                                pattern="[A-Za-z0-9_-]+"
+                                autocomplete="off"
+                                autocapitalize="characters"
+                                spellcheck="false"
+                                aria-describedby="admin-promotion-code-hint admin-promotion-code-error"
+                                required>
+
+                    </div>
+
+                    <p class="form-hint"
+                       id="admin-promotion-code-hint">
+                        Тек әріп, сан, дефис және төменгі сызықша қолдан.
+                        Код бірегей және бас әріппен сақталады.
+                    </p>
+
+                    <span class="form-error hidden"
+                          id="admin-promotion-code-error"
+                          role="alert"></span>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label class="form-label form-label-required"
+                           for="admin-promotion-discount-type">
+                        Discount Type
+                    </label>
+
+                    <select class="form-control"
+                            id="admin-promotion-discount-type"
+                            name="discountType"
+                            aria-describedby="admin-promotion-type-hint admin-promotion-type-error"
+                            required>
+
+                        <option value="PERCENTAGE">
+                            Percentage (%)
+                        </option>
+
+                        <option value="FIXED">
+                            Fixed Amount (₸)
+                        </option>
+
+                    </select>
+
+                    <p class="form-hint"
+                       id="admin-promotion-type-hint">
+                        PERCENTAGE — пайыздық, FIXED — нақты сомадағы жеңілдік.
+                    </p>
+
+                    <span class="form-error hidden"
+                          id="admin-promotion-type-error"
+                          role="alert"></span>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label class="form-label form-label-required"
+                           for="admin-promotion-value">
+                        Discount Value
+                    </label>
+
+                    <div class="admin-editor-input-suffix">
+
+                        <input
+                                class="form-control"
+                                type="number"
+                                id="admin-promotion-value"
+                                name="value"
+                                placeholder="10"
+                                min="0.01"
+                                max="100"
+                                step="0.01"
+                                inputmode="decimal"
+                                aria-describedby="admin-promotion-value-hint admin-promotion-value-error"
+                                required>
+
+                        <span id="admin-promotion-value-unit">
+                            %
+                        </span>
+
+                    </div>
+
+                    <p class="form-hint"
+                       id="admin-promotion-value-hint">
+                        Пайыздық жеңілдік үшін 0-ден жоғары,
+                        100-ден аспайтын мән енгіз.
+                    </p>
+
+                    <span class="form-error hidden"
+                          id="admin-promotion-value-error"
+                          role="alert"></span>
+
+                </div>
+
+                <div class="admin-promotion-activation-field">
+
+                    <div class="admin-promotion-activation-copy">
+
+                        <span class="admin-promotion-activation-icon">
+
+                            <svg viewBox="0 0 24 24"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="1.8"
+                                 stroke-linecap="round">
+                                <circle cx="12" cy="12" r="9"/>
+                                <path d="m8 12 3 3 5-6"/>
+                            </svg>
+
+                        </span>
+
+                        <div>
+
+                            <label for="admin-promotion-active">
+                                Activate Promotion
+                            </label>
+
+                            <p id="admin-promotion-active-hint">
+                                Белсенді болса, промокод Checkout
+                                кезінде қолданылуы мүмкін.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <label class="admin-promotion-switch">
+
+                        <input
+                                type="checkbox"
+                                id="admin-promotion-active"
+                                name="active"
+                                role="switch"
+                                aria-describedby="admin-promotion-active-hint"
+                                checked>
+
+                        <span class="admin-promotion-switch-track"
+                              aria-hidden="true">
+                            <span class="admin-promotion-switch-thumb"></span>
+                        </span>
+
+                    </label>
+
+                </div>
+
+                <div class="admin-promotion-preview">
+
+                    <div class="admin-promotion-preview-heading">
+
+                        <span class="admin-eyebrow">
+                            LIVE PREVIEW
+                        </span>
+
+                        <strong>
+                            Promotion Preview
+                        </strong>
+
+                    </div>
+
+                    <div class="admin-promotion-preview-card">
+
+                        <span class="admin-promotion-preview-icon">
+
+                            <svg viewBox="0 0 24 24"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="1.8"
+                                 stroke-linecap="round">
+                                <path d="M3 10V5a2 2 0 0 1 2-2h5l11 11-7 7L3 10Z"/>
+                                <circle cx="7.5" cy="7.5" r="1"/>
+                            </svg>
+
+                        </span>
+
+                        <div class="admin-promotion-preview-content">
+
+                            <span>
+                                YOUR PROMO CODE
+                            </span>
+
+                            <strong id="admin-promotion-preview-code">
+                                YOURCODE
+                            </strong>
+
+                            <p id="admin-promotion-preview-description">
+                                Жеңілдік мөлшерін енгіз
+                            </p>
+
+                        </div>
+
+                        <span class="badge badge-success"
+                              id="admin-promotion-preview-status">
+                            ACTIVE
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button class="btn btn-outline"
+                        type="button"
+                        id="admin-promotion-form-cancel">
+                    Cancel
+                </button>
+
+                <button class="btn btn-primary"
+                        type="submit"
+                        id="admin-promotion-save-button">
+
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="2"
+                         stroke-linecap="round">
+                        <path d="M5 4h12l3 3v13H4V4h1Z"/>
+                        <path d="M8 4v6h8V4M8 20v-7h8v7"/>
+                    </svg>
+
+                    <span id="admin-promotion-save-text">
+                        Save Promotion
+                    </span>
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<div class="modal-backdrop"
+     id="admin-promotion-status-modal"
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="admin-promotion-status-modal-title"
+     aria-describedby="admin-promotion-status-modal-description"
+     hidden>
+
+    <div class="modal-panel admin-promotion-status-modal-panel">
+
+        <div class="modal-header">
+
+            <h2 class="modal-title"
+                id="admin-promotion-status-modal-title">
+                Promotion Status
+            </h2>
+
+            <button class="icon-button"
+                    type="button"
+                    id="admin-promotion-status-close"
+                    aria-label="Терезені жабу">
+
+                <svg viewBox="0 0 24 24"
+                     fill="none"
+                     stroke="currentColor"
+                     stroke-width="2"
+                     stroke-linecap="round">
+                    <path d="M5 5l14 14M19 5 5 19"/>
+                </svg>
+
+            </button>
+
+        </div>
+
+        <div class="modal-body">
+
+            <div class="admin-promotion-status-icon">
+
+                <svg viewBox="0 0 24 24"
+                     fill="none"
+                     stroke="currentColor"
+                     stroke-width="1.8"
+                     stroke-linecap="round">
+                    <circle cx="12" cy="12" r="9"/>
+                    <path d="M12 7v5l3 2"/>
+                </svg>
+
+            </div>
+
+            <h3 id="admin-promotion-status-heading">
+                Промокод статусын өзгерту
+            </h3>
+
+            <p id="admin-promotion-status-modal-description">
+                Промокодтың белсенділігін өзгертуді раста.
+            </p>
+
+            <div class="admin-promotion-status-preview">
+
+                <span class="admin-promotion-status-preview-icon">
+
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.8"
+                         stroke-linecap="round">
+                        <path d="M3 10V5a2 2 0 0 1 2-2h5l11 11-7 7L3 10Z"/>
+                        <circle cx="7.5" cy="7.5" r="1"/>
+                    </svg>
+
+                </span>
+
+                <div>
+
+                    <strong id="admin-promotion-status-code">
+                        —
+                    </strong>
+
+                    <small id="admin-promotion-status-id">
+                        Promotion ID: —
+                    </small>
+
+                </div>
+
+            </div>
+
+            <div class="admin-promotion-status-transition">
+
+                <span id="admin-promotion-status-current">
+                    —
+                </span>
+
+                <svg viewBox="0 0 24 24"
+                     fill="none"
+                     stroke="currentColor"
+                     stroke-width="2"
+                     stroke-linecap="round">
+                    <path d="M5 12h14m-6-6 6 6-6 6"/>
+                </svg>
+
+                <strong id="admin-promotion-status-next">
+                    —
+                </strong>
+
+            </div>
+
+            <div class="alert alert-warning">
+
+                <svg viewBox="0 0 24 24"
+                     fill="none"
+                     stroke="currentColor"
+                     stroke-width="1.8"
+                     stroke-linecap="round">
+                    <circle cx="12" cy="12" r="9"/>
+                    <path d="M12 7v6M12 17h.01"/>
+                </svg>
+
+                <span>
+                    Белсенді емес промокодты жаңа тапсырыста
+                    қолдануға болмайды. Өзгеріс сервер
+                    растағаннан кейін күшіне енеді.
+                </span>
+
+            </div>
+
+            <div class="alert alert-danger hidden"
+                 id="admin-promotion-status-error"
+                 role="alert"></div>
+
+        </div>
+
+        <div class="modal-footer">
+
+            <button class="btn btn-outline"
+                    type="button"
+                    id="admin-promotion-status-cancel">
+                Cancel
+            </button>
+
+            <button class="btn btn-primary"
+                    type="button"
+                    id="admin-promotion-status-confirm">
+
+                <span id="admin-promotion-status-confirm-text">
+                    Confirm Change
+                </span>
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div class="modal-backdrop"
+     id="admin-promotion-delete-modal"
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="admin-promotion-delete-title"
+     aria-describedby="admin-promotion-delete-description"
+     hidden>
+
+    <div class="modal-panel admin-delete-modal-panel">
+
+        <div class="modal-header">
+
+            <h2 class="modal-title"
+                id="admin-promotion-delete-title">
+                Промокодты жою
+            </h2>
+
+            <button class="icon-button"
+                    type="button"
+                    id="admin-promotion-delete-close"
+                    aria-label="Терезені жабу">
+
+                <svg viewBox="0 0 24 24"
+                     fill="none"
+                     stroke="currentColor"
+                     stroke-width="2"
+                     stroke-linecap="round">
+                    <path d="M5 5l14 14M19 5 5 19"/>
+                </svg>
+
+            </button>
+
+        </div>
+
+        <div class="modal-body">
+
+            <div class="admin-delete-warning-icon">
+
+                <svg viewBox="0 0 24 24"
+                     fill="none"
+                     stroke="currentColor"
+                     stroke-width="1.8"
+                     stroke-linecap="round">
+                    <path d="M3 6h18M8 6V4h8v2M5 6l1 15h12l1-15M10 10v7M14 10v7"/>
+                </svg>
+
+            </div>
+
+            <h3 class="admin-delete-confirmation-heading">
+                Промокодты жойғың келе ме?
+            </h3>
+
+            <p id="admin-promotion-delete-description">
+                Таңдалған промокодты деректер базасынан
+                жою әрекетін раста.
+            </p>
+
+            <div class="admin-delete-product-preview">
+
+                <span class="admin-delete-product-icon">
+
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.8"
+                         stroke-linecap="round">
+                        <path d="M3 10V5a2 2 0 0 1 2-2h5l11 11-7 7L3 10Z"/>
+                        <circle cx="7.5" cy="7.5" r="1"/>
+                    </svg>
+
+                </span>
+
+                <div>
+
+                    <strong id="admin-promotion-delete-code">
+                        —
+                    </strong>
+
+                    <small id="admin-promotion-delete-id">
+                        Promotion ID: —
+                    </small>
+
+                </div>
+
+            </div>
+
+            <div class="admin-promotion-delete-summary">
+
+                <div>
+                    <span>Discount Type</span>
+                    <strong id="admin-promotion-delete-type">—</strong>
+                </div>
+
+                <div>
+                    <span>Discount Value</span>
+                    <strong id="admin-promotion-delete-value">—</strong>
+                </div>
+
+            </div>
+
+            <div class="alert alert-warning">
+
+                <svg viewBox="0 0 24 24"
+                     fill="none"
+                     stroke="currentColor"
+                     stroke-width="1.8"
+                     stroke-linecap="round">
+                    <circle cx="12" cy="12" r="9"/>
+                    <path d="M12 7v6M12 17h.01"/>
+                </svg>
+
+                <span>
+                    Бұл әрекет промокодты жоюға сұраныс жібереді.
+                    Егер ол тапсырыстармен байланысты болса,
+                    сервер жоюға рұқсат бермеуі мүмкін.
+                    Мұндай жағдайда белсенділігін өшіруге болады.
+                </span>
+
+            </div>
+
+            <div class="alert alert-danger hidden"
+                 id="admin-promotion-delete-error"
+                 role="alert"></div>
+
+        </div>
+
+        <div class="modal-footer">
+
+            <button class="btn btn-outline"
+                    type="button"
+                    id="admin-promotion-delete-cancel">
+                Болдырмау
+            </button>
+
+            <button class="btn btn-danger"
+                    type="button"
+                    id="admin-promotion-delete-confirm">
+
+                <svg viewBox="0 0 24 24"
+                     fill="none"
+                     stroke="currentColor"
+                     stroke-width="1.8"
+                     stroke-linecap="round">
+                    <path d="M3 6h18M8 6V4h8v2M5 6l1 15h12l1-15"/>
+                </svg>
+
+                <span id="admin-promotion-delete-confirm-text">
+                    Иә, жою
+                </span>
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div class="modal-backdrop"
+     id="admin-logout-modal"
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="admin-logout-modal-title"
+     aria-describedby="admin-logout-modal-description"
+     hidden>
+
+    <div class="modal-panel">
+
+        <div class="modal-header">
+
+            <h2 class="modal-title"
+                id="admin-logout-modal-title">
+                Жүйеден шығу
+            </h2>
+
+            <button class="icon-button"
+                    type="button"
+                    id="admin-logout-modal-close"
+                    aria-label="Терезені жабу">
+
+                <svg viewBox="0 0 24 24"
+                     fill="none"
+                     stroke="currentColor"
+                     stroke-width="2"
+                     stroke-linecap="round">
+                    <path d="M5 5l14 14M19 5 5 19"/>
+                </svg>
+
+            </button>
+
+        </div>
+
+        <div class="modal-body">
+
+            <p id="admin-logout-modal-description">
+                Admin аккаунтыңнан шыққың келе ме?
+                Жүйеден шыққаннан кейін басқару панеліне
+                қайта кіру үшін авторизация қажет болады.
+            </p>
+
+            <div class="alert alert-danger hidden"
+                 id="admin-logout-error"
+                 role="alert"></div>
+
+        </div>
+
+        <div class="modal-footer">
+
+            <button class="btn btn-outline"
+                    type="button"
+                    id="admin-logout-cancel">
+                Болдырмау
+            </button>
+
+            <button class="btn btn-danger"
+                    type="button"
+                    id="admin-logout-confirm">
+                Иә, шығу
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div class="toast-container"
+     id="toast-container"
+     role="region"
+     aria-label="Жүйелік хабарламалар"
+     aria-live="polite"></div>
+
+<script type="module" src="/js/app.js"></script>
+
+</body>
+</html>

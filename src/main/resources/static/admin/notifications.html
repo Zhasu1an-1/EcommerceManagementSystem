@@ -1,0 +1,2325 @@
+
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#584cf4">
+    <meta name="description" content="NEXORA Admin Panel — хабарламалар тарихын, алушыларды және жіберілу статустарын басқару.">
+
+    <title>Notification Management — NEXORA Admin</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/components.css">
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+
+<body class="admin-body" data-page="admin-notifications">
+
+<div class="admin-app" id="admin-app">
+
+    <a href="#main-content" class="visually-hidden skip-link">
+        Негізгі мазмұнға өту
+    </a>
+
+    <div class="admin-sidebar-overlay"
+         id="admin-sidebar-overlay"
+         aria-hidden="true"></div>
+
+    <aside class="admin-sidebar"
+           id="admin-sidebar"
+           aria-label="Әкімші навигациясы">
+
+        <div class="admin-sidebar-header">
+
+            <a href="/admin/dashboard.html"
+               class="brand admin-brand"
+               aria-label="NEXORA Admin Dashboard">
+
+                <span class="brand-icon">
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="2.3"
+                         stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <path d="M4 18V6l16 12V6"/>
+                        <path d="M8 9.5l8 5"/>
+                    </svg>
+                </span>
+
+                <span class="brand-name">
+                    NEX<span>ORA</span>
+                </span>
+
+            </a>
+
+            <button class="admin-sidebar-close"
+                    id="admin-sidebar-close"
+                    type="button"
+                    aria-label="Бүйірлік мәзірді жабу">
+
+                <svg viewBox="0 0 24 24"
+                     fill="none"
+                     stroke="currentColor"
+                     stroke-width="1.8"
+                     stroke-linecap="round">
+                    <path d="M5 5l14 14M19 5 5 19"/>
+                </svg>
+
+            </button>
+
+        </div>
+
+        <div class="admin-workspace-selector">
+
+            <span class="admin-workspace-icon">
+                <svg viewBox="0 0 24 24"
+                     fill="none"
+                     stroke="currentColor"
+                     stroke-width="1.8"
+                     stroke-linecap="round">
+                    <rect x="3" y="3" width="18" height="18" rx="4"/>
+                    <path d="M8 10h8M8 14h5"/>
+                </svg>
+            </span>
+
+            <span class="admin-workspace-info">
+                <strong>NEXORA Store</strong>
+                <small>Management Workspace</small>
+            </span>
+
+            <span class="admin-workspace-indicator"></span>
+
+        </div>
+
+        <nav class="admin-navigation"
+             aria-label="Басқару бөлімдері">
+
+            <div class="admin-nav-group">
+
+                <span class="admin-nav-label">
+                    OVERVIEW
+                </span>
+
+                <a href="/admin/dashboard.html"
+                   class="admin-nav-link">
+
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.8"
+                         stroke-linecap="round">
+                        <rect x="3" y="3" width="8" height="8" rx="2"/>
+                        <rect x="13" y="3" width="8" height="5" rx="2"/>
+                        <rect x="13" y="10" width="8" height="11" rx="2"/>
+                        <rect x="3" y="13" width="8" height="8" rx="2"/>
+                    </svg>
+
+                    <span>Dashboard</span>
+
+                </a>
+
+            </div>
+
+            <div class="admin-nav-group">
+
+                <span class="admin-nav-label">
+                    STORE MANAGEMENT
+                </span>
+
+                <a href="/admin/products.html"
+                   class="admin-nav-link">
+
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.8"
+                         stroke-linecap="round">
+                        <path d="m12 2 9 5v10l-9 5-9-5V7l9-5Z"/>
+                        <path d="m3 7 9 5 9-5M12 12v10"/>
+                    </svg>
+
+                    <span>Products</span>
+
+                </a>
+
+                <a href="/admin/categories.html"
+                   class="admin-nav-link">
+
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.8"
+                         stroke-linecap="round">
+                        <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+                        <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+                        <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+                        <rect x="14" y="14" width="7" height="7" rx="1.5"/>
+                    </svg>
+
+                    <span>Categories</span>
+
+                </a>
+
+                <a href="/admin/orders.html"
+                   class="admin-nav-link">
+
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.8"
+                         stroke-linecap="round">
+                        <path d="M8 3h8l4 4v14H4V7l4-4Z"/>
+                        <path d="M8 3v5h8V3M8 13h8M8 17h5"/>
+                    </svg>
+
+                    <span>Orders</span>
+
+                </a>
+
+                <a href="/admin/promotions.html"
+                   class="admin-nav-link">
+
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.8"
+                         stroke-linecap="round">
+                        <path d="M3 10V5a2 2 0 0 1 2-2h5l11 11-7 7L3 10Z"/>
+                        <circle cx="7.5" cy="7.5" r="1"/>
+                    </svg>
+
+                    <span>Promotions</span>
+
+                </a>
+
+            </div>
+
+            <div class="admin-nav-group">
+
+                <span class="admin-nav-label">
+                    COMMUNICATION
+                </span>
+
+                <a href="/admin/notifications.html"
+                   class="admin-nav-link is-active"
+                   aria-current="page">
+
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.8"
+                         stroke-linecap="round">
+                        <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/>
+                        <path d="M10 21h4"/>
+                    </svg>
+
+                    <span>Notifications</span>
+
+                    <span class="admin-nav-active-dot"></span>
+
+                </a>
+
+            </div>
+
+            <div class="admin-nav-group">
+
+                <span class="admin-nav-label">
+                    GENERAL
+                </span>
+
+                <a href="/pages/account.html"
+                   class="admin-nav-link">
+
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.8"
+                         stroke-linecap="round">
+                        <circle cx="12" cy="8" r="4"/>
+                        <path d="M4.5 21a7.5 7.5 0 0 1 15 0"/>
+                    </svg>
+
+                    <span>My Account</span>
+
+                </a>
+
+                <a href="/"
+                   class="admin-nav-link">
+
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.8"
+                         stroke-linecap="round">
+                        <path d="M3 10 12 3l9 7v11H3V10Z"/>
+                        <path d="M9 21v-7h6v7"/>
+                    </svg>
+
+                    <span>View Store</span>
+
+                    <svg class="admin-nav-external-icon"
+                         viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.8"
+                         stroke-linecap="round">
+                        <path d="M14 5h5v5M19 5l-9 9"/>
+                        <path d="M19 14v5H5V5h5"/>
+                    </svg>
+
+                </a>
+
+            </div>
+
+        </nav>
+
+        <div class="admin-sidebar-bottom">
+
+            <div class="admin-sidebar-support">
+
+                <span class="admin-sidebar-support-icon">
+                    ✦
+                </span>
+
+                <strong>Stay connected.</strong>
+
+                <p>
+                    Хабарламалардың жіберілуін
+                    және олардың нәтижелерін бақыла.
+                </p>
+
+                <a href="/admin/orders.html">
+                    Explore Orders →
+                </a>
+
+            </div>
+
+            <div class="admin-sidebar-profile">
+
+                <span class="admin-sidebar-avatar"
+                      id="admin-sidebar-avatar">
+                    A
+                </span>
+
+                <span class="admin-sidebar-profile-info">
+
+                    <strong id="admin-sidebar-name">
+                        Administrator
+                    </strong>
+
+                    <small id="admin-sidebar-role">
+                        Store Admin
+                    </small>
+
+                </span>
+
+                <button class="admin-sidebar-logout"
+                        type="button"
+                        id="admin-sidebar-logout-button"
+                        aria-label="Жүйеден шығу"
+                        title="Жүйеден шығу">
+
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.8"
+                         stroke-linecap="round">
+                        <path d="M10 17l5-5-5-5M15 12H3"/>
+                        <path d="M12 3h7a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-7"/>
+                    </svg>
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </aside>
+
+    <div class="admin-main-wrapper">
+
+        <header class="admin-topbar" id="admin-topbar">
+
+            <div class="admin-topbar-left">
+
+                <button class="admin-menu-toggle"
+                        type="button"
+                        id="admin-menu-toggle"
+                        aria-label="Басқару мәзірін ашу"
+                        aria-controls="admin-sidebar"
+                        aria-expanded="false">
+
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.8"
+                         stroke-linecap="round">
+                        <path d="M4 7h16M4 12h16M4 17h16"/>
+                    </svg>
+
+                </button>
+
+                <nav class="admin-breadcrumb"
+                     aria-label="Әкімші бөліміндегі навигация">
+
+                    <a href="/admin/dashboard.html">
+                        Admin
+                    </a>
+
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="2"
+                         stroke-linecap="round">
+                        <path d="m9 18 6-6-6-6"/>
+                    </svg>
+
+                    <span aria-current="page">
+                        Notifications
+                    </span>
+
+                </nav>
+
+            </div>
+
+            <div class="admin-topbar-actions">
+
+                <span class="admin-topbar-environment">
+
+                    <span class="admin-topbar-environment-dot"></span>
+
+                    Store Management
+
+                </span>
+
+                <a href="/admin/notifications.html"
+                   class="admin-topbar-icon-button is-active"
+                   aria-label="Хабарламаларды басқару"
+                   aria-current="page">
+
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.8"
+                         stroke-linecap="round">
+                        <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/>
+                        <path d="M10 21h4"/>
+                    </svg>
+
+                </a>
+
+                <a href="/"
+                   class="btn btn-outline admin-view-store-button">
+
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.8"
+                         stroke-linecap="round">
+                        <path d="M3 10 12 3l9 7v11H3V10Z"/>
+                        <path d="M9 21v-7h6v7"/>
+                    </svg>
+
+                    View Store
+
+                </a>
+
+                <a href="/pages/account.html"
+                   class="admin-topbar-profile"
+                   aria-label="Жеке кабинет">
+
+                    <span class="admin-topbar-avatar"
+                          id="admin-topbar-avatar">
+                        A
+                    </span>
+
+                    <span class="admin-topbar-profile-copy">
+
+                        <strong id="admin-topbar-name">
+                            Administrator
+                        </strong>
+
+                        <small>ADMIN</small>
+
+                    </span>
+
+                </a>
+
+            </div>
+
+        </header>
+
+        <main class="admin-main" id="main-content">
+
+            <div class="admin-page-container">
+
+                <div class="admin-auth-loading"
+                     id="admin-access-loading"
+                     role="status"
+                     aria-live="polite">
+
+                    <div class="loading-spinner"></div>
+
+                    <h2>
+                        Admin Access тексерілуде
+                    </h2>
+
+                    <p>
+                        Аккаунтың мен әкімші құқықтарын тексеріп жатырмыз...
+                    </p>
+
+                </div>
+
+                <section class="admin-access-denied hidden"
+                         id="admin-access-denied"
+                         aria-labelledby="admin-access-denied-title">
+
+                    <div class="admin-access-denied-icon">
+
+                        <svg viewBox="0 0 24 24"
+                             fill="none"
+                             stroke="currentColor"
+                             stroke-width="1.8"
+                             stroke-linecap="round"
+                             stroke-linejoin="round">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/>
+                            <path d="M8 8l8 8M16 8l-8 8"/>
+                        </svg>
+
+                    </div>
+
+                    <span class="section-eyebrow">
+                        RESTRICTED AREA
+                    </span>
+
+                    <h1 id="admin-access-denied-title">
+                        Қолжетімділік шектелген
+                    </h1>
+
+                    <p id="admin-access-denied-message">
+                        Хабарламаларды басқару бөлімі
+                        тек ADMIN рөліндегі пайдаланушыларға арналған.
+                    </p>
+
+                    <div class="admin-access-denied-actions">
+
+                        <a href="/pages/login.html?redirect=%2Fadmin%2Fnotifications.html"
+                           class="btn btn-primary"
+                           id="admin-access-login-link">
+                            Жүйеге кіру
+                        </a>
+
+                        <a href="/" class="btn btn-outline">
+                            Дүкенге оралу
+                        </a>
+
+                    </div>
+
+                </section>
+
+                <div class="admin-notifications-content hidden"
+                     id="admin-notifications-content">
+
+                    <section class="admin-page-heading-section">
+
+                        <div class="admin-page-heading">
+
+                            <div>
+
+                                <span class="admin-eyebrow">
+                                    CUSTOMER COMMUNICATION
+                                </span>
+
+                                <h1 class="admin-page-title">
+                                    Notification <span class="gradient-text">Management.</span>
+                                </h1>
+
+                                <p class="admin-page-subtitle">
+                                    Хабарламаларды, олардың алушыларын
+                                    және жіберілу нәтижелерін басқар.
+                                </p>
+
+                            </div>
+
+                            <div class="admin-page-heading-actions">
+
+                                <button class="btn btn-outline"
+                                        type="button"
+                                        id="admin-notifications-refresh-button">
+
+                                    <svg viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="1.8"
+                                         stroke-linecap="round">
+                                        <path d="M20 11a8 8 0 1 0-2 6"/>
+                                        <path d="M20 5v6h-6"/>
+                                    </svg>
+
+                                    Refresh
+
+                                </button>
+
+                                <button class="btn btn-primary"
+                                        type="button"
+                                        id="admin-compose-notification-button"
+                                        hidden>
+
+                                    <svg viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="2"
+                                         stroke-linecap="round">
+                                        <path d="M12 5v14M5 12h14"/>
+                                    </svg>
+
+                                    New Notification
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+                    <section class="admin-notifications-intro-banner">
+
+                        <div class="admin-notifications-intro-content">
+
+                            <span class="admin-welcome-badge">
+                                ✦ NEXORA COMMUNICATION CENTER
+                            </span>
+
+                            <h2>
+                                Every message.<br>
+                                <span>Every connection.</span>
+                            </h2>
+
+                            <p>
+                                Хабарламалар ағынын бақыла,
+                                жіберілу нәтижелерін қадағала
+                                және сатып алушылармен байланысты басқар.
+                            </p>
+
+                            <a href="#admin-notifications-management"
+                               class="admin-welcome-link">
+
+                                Explore Notifications
+
+                                <svg viewBox="0 0 24 24"
+                                     fill="none"
+                                     stroke="currentColor"
+                                     stroke-width="2"
+                                     stroke-linecap="round">
+                                    <path d="M5 12h14m-6-6 6 6-6 6"/>
+                                </svg>
+
+                            </a>
+
+                        </div>
+
+                        <div class="admin-notifications-intro-visual"
+                             aria-hidden="true">
+
+                            <div class="admin-notifications-intro-orbit"></div>
+
+                            <div class="admin-notifications-intro-bell">
+
+                                <svg viewBox="0 0 120 120"
+                                     fill="none"
+                                     stroke="currentColor"
+                                     stroke-width="3.5"
+                                     stroke-linecap="round"
+                                     stroke-linejoin="round">
+                                    <path d="M88 44a28 28 0 0 0-56 0c0 31-12 33-12 43h80c0-10-12-12-12-43"/>
+                                    <path d="M51 100c2 10 16 10 18 0"/>
+                                    <path d="M60 10v6"/>
+                                </svg>
+
+                            </div>
+
+                            <span class="admin-notifications-intro-star">
+                                ✦
+                            </span>
+
+                            <span class="admin-notifications-intro-sparkle">
+                                ✧
+                            </span>
+
+                        </div>
+
+                    </section>
+
+                    <section class="admin-notifications-metrics"
+                             aria-labelledby="admin-notifications-metrics-title">
+
+                        <div class="admin-section-heading">
+
+                            <div>
+
+                                <span class="admin-eyebrow">
+                                    DELIVERY ANALYTICS
+                                </span>
+
+                                <h2 id="admin-notifications-metrics-title">
+                                    Notification Overview
+                                </h2>
+
+                                <p>
+                                    Хабарламалардың ағымдағы статистикасы
+                                </p>
+
+                            </div>
+
+                            <span class="admin-section-heading-note">
+                                DATABASE METRICS
+                            </span>
+
+                        </div>
+
+                        <div class="admin-stats-grid">
+
+                            <article class="admin-stat-card">
+
+                                <div class="admin-stat-top">
+
+                                    <span class="admin-stat-icon admin-stat-icon-purple">
+
+                                        <svg viewBox="0 0 24 24"
+                                             fill="none"
+                                             stroke="currentColor"
+                                             stroke-width="1.8"
+                                             stroke-linecap="round">
+                                            <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/>
+                                            <path d="M10 21h4"/>
+                                        </svg>
+
+                                    </span>
+
+                                    <span class="admin-stat-label-small">
+                                        ALL MESSAGES
+                                    </span>
+
+                                </div>
+
+                                <span class="admin-stat-title">
+                                    Total Notifications
+                                </span>
+
+                                <strong class="admin-stat-value"
+                                        id="admin-notifications-total">
+                                    —
+                                </strong>
+
+                                <span class="admin-stat-description">
+                                    Жүйедегі барлық хабарламалар
+                                </span>
+
+                            </article>
+
+                            <article class="admin-stat-card">
+
+                                <div class="admin-stat-top">
+
+                                    <span class="admin-stat-icon admin-stat-icon-green">
+
+                                        <svg viewBox="0 0 24 24"
+                                             fill="none"
+                                             stroke="currentColor"
+                                             stroke-width="1.8"
+                                             stroke-linecap="round">
+                                            <circle cx="12" cy="12" r="9"/>
+                                            <path d="m8 12 3 3 5-6"/>
+                                        </svg>
+
+                                    </span>
+
+                                    <span class="admin-stat-label-small">
+                                        SUCCESS
+                                    </span>
+
+                                </div>
+
+                                <span class="admin-stat-title">
+                                    Sent Notifications
+                                </span>
+
+                                <strong class="admin-stat-value"
+                                        id="admin-notifications-sent">
+                                    —
+                                </strong>
+
+                                <span class="admin-stat-description">
+                                    SENT статусындағы хабарламалар
+                                </span>
+
+                            </article>
+
+                            <article class="admin-stat-card">
+
+                                <div class="admin-stat-top">
+
+                                    <span class="admin-stat-icon admin-stat-icon-orange">
+
+                                        <svg viewBox="0 0 24 24"
+                                             fill="none"
+                                             stroke="currentColor"
+                                             stroke-width="1.8"
+                                             stroke-linecap="round">
+                                            <circle cx="12" cy="12" r="9"/>
+                                            <path d="M12 7v5l3 2"/>
+                                        </svg>
+
+                                    </span>
+
+                                    <span class="admin-stat-label-small">
+                                        IN PROGRESS
+                                    </span>
+
+                                </div>
+
+                                <span class="admin-stat-title">
+                                    Pending Notifications
+                                </span>
+
+                                <strong class="admin-stat-value"
+                                        id="admin-notifications-pending">
+                                    —
+                                </strong>
+
+                                <span class="admin-stat-description">
+                                    PENDING статусындағы хабарламалар
+                                </span>
+
+                            </article>
+
+                            <article class="admin-stat-card">
+
+                                <div class="admin-stat-top">
+
+                                    <span class="admin-stat-icon admin-stat-icon-blue">
+
+                                        <svg viewBox="0 0 24 24"
+                                             fill="none"
+                                             stroke="currentColor"
+                                             stroke-width="1.8"
+                                             stroke-linecap="round">
+                                            <circle cx="12" cy="12" r="9"/>
+                                            <path d="M8 8l8 8M16 8l-8 8"/>
+                                        </svg>
+
+                                    </span>
+
+                                    <span class="admin-stat-label-small">
+                                        ATTENTION
+                                    </span>
+
+                                </div>
+
+                                <span class="admin-stat-title">
+                                    Failed Notifications
+                                </span>
+
+                                <strong class="admin-stat-value"
+                                        id="admin-notifications-failed">
+                                    —
+                                </strong>
+
+                                <span class="admin-stat-description">
+                                    FAILED статусындағы хабарламалар
+                                </span>
+
+                            </article>
+
+                        </div>
+
+                    </section>
+
+                    <section class="admin-notifications-management-section"
+                             id="admin-notifications-management"
+                             aria-labelledby="admin-notifications-management-title">
+
+                        <div class="admin-section-heading">
+
+                            <div>
+
+                                <span class="admin-eyebrow">
+                                    COMMUNICATION HISTORY
+                                </span>
+
+                                <h2 id="admin-notifications-management-title">
+                                    All Notifications
+                                </h2>
+
+                                <p>
+                                    Хабарламаларды іздеу, сүзу
+                                    және толық ақпаратын қарау
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                        <div class="admin-dashboard-panel admin-notifications-panel">
+
+                            <div class="admin-notifications-toolbar">
+
+                                <form class="admin-notifications-search-form"
+                                      id="admin-notifications-search-form"
+                                      role="search">
+
+                                    <div class="admin-notifications-search-wrapper">
+
+                                        <svg viewBox="0 0 24 24"
+                                             fill="none"
+                                             stroke="currentColor"
+                                             stroke-width="1.8"
+                                             stroke-linecap="round">
+                                            <circle cx="11" cy="11" r="7"/>
+                                            <path d="m16 16 4 4"/>
+                                        </svg>
+
+                                        <input
+                                                type="search"
+                                                id="admin-notifications-search"
+                                                name="keyword"
+                                                placeholder="Хабарлама мәтіні немесе алушы..."
+                                                autocomplete="off"
+                                                aria-label="Хабарламаларды іздеу">
+
+                                    </div>
+
+                                    <button class="btn btn-primary"
+                                            type="submit"
+                                            id="admin-notifications-search-button">
+                                        Іздеу
+                                    </button>
+
+                                </form>
+
+                                <button class="btn btn-outline admin-notifications-filter-toggle"
+                                        type="button"
+                                        id="admin-notifications-filter-toggle"
+                                        aria-controls="admin-notifications-filters"
+                                        aria-expanded="true">
+
+                                    <svg viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="1.8"
+                                         stroke-linecap="round">
+                                        <path d="M4 7h16M7 12h10M10 17h4"/>
+                                    </svg>
+
+                                    Filters
+
+                                </button>
+
+                            </div>
+
+                            <div class="admin-notifications-status-tabs"
+                                 id="admin-notifications-status-tabs"
+                                 role="group"
+                                 aria-label="Хабарлама статусы бойынша сүзу">
+
+                                <button
+                                        class="admin-notifications-status-tab is-active"
+                                        type="button"
+                                        data-status="ALL"
+                                        aria-pressed="true">
+                                    All Messages
+                                </button>
+
+                                <button
+                                        class="admin-notifications-status-tab"
+                                        type="button"
+                                        data-status="SENT"
+                                        aria-pressed="false">
+                                    Sent
+                                </button>
+
+                                <button
+                                        class="admin-notifications-status-tab"
+                                        type="button"
+                                        data-status="PENDING"
+                                        aria-pressed="false">
+                                    Pending
+                                </button>
+
+                                <button
+                                        class="admin-notifications-status-tab"
+                                        type="button"
+                                        data-status="FAILED"
+                                        aria-pressed="false">
+                                    Failed
+                                </button>
+
+                            </div>
+
+                            <div class="admin-notifications-filters"
+                                 id="admin-notifications-filters">
+
+                                <form id="admin-notifications-filter-form"
+                                      class="admin-notifications-filter-form">
+
+                                    <div class="admin-filter-group">
+
+                                        <label for="admin-notifications-status-filter">
+                                            Delivery Status
+                                        </label>
+
+                                        <select
+                                                class="form-control admin-filter-select"
+                                                id="admin-notifications-status-filter"
+                                                name="status">
+
+                                            <option value="ALL">
+                                                All Statuses
+                                            </option>
+
+                                            <option value="SENT">
+                                                Sent
+                                            </option>
+
+                                            <option value="PENDING">
+                                                Pending
+                                            </option>
+
+                                            <option value="FAILED">
+                                                Failed
+                                            </option>
+
+                                        </select>
+
+                                    </div>
+
+                                    <div class="admin-filter-group">
+
+                                        <label for="admin-notifications-sort">
+                                            Sort By
+                                        </label>
+
+                                        <select
+                                                class="form-control admin-filter-select"
+                                                id="admin-notifications-sort"
+                                                name="sort">
+
+                                            <option value="newest">
+                                                Newest First
+                                            </option>
+
+                                            <option value="oldest">
+                                                Oldest First
+                                            </option>
+
+                                            <option value="status-asc">
+                                                Status: A–Z
+                                            </option>
+
+                                            <option value="status-desc">
+                                                Status: Z–A
+                                            </option>
+
+                                        </select>
+
+                                    </div>
+
+                                    <div class="admin-filter-group">
+
+                                        <label for="admin-notifications-page-size">
+                                            Rows Per Page
+                                        </label>
+
+                                        <select
+                                                class="form-control admin-filter-select"
+                                                id="admin-notifications-page-size"
+                                                name="size">
+
+                                            <option value="10" selected>
+                                                10 Notifications
+                                            </option>
+
+                                            <option value="20">
+                                                20 Notifications
+                                            </option>
+
+                                            <option value="50">
+                                                50 Notifications
+                                            </option>
+
+                                        </select>
+
+                                    </div>
+
+                                    <div class="admin-filter-actions">
+
+                                        <button class="btn btn-primary"
+                                                type="submit"
+                                                id="admin-notifications-apply-filters">
+                                            Apply
+                                        </button>
+
+                                        <button class="btn btn-ghost"
+                                                type="reset"
+                                                id="admin-notifications-reset-filters">
+                                            Reset
+                                        </button>
+
+                                    </div>
+
+                                </form>
+
+                            </div>
+
+                            <div class="admin-notifications-list-header">
+
+                                <div>
+
+                                    <h3>
+                                        Notification Directory
+                                    </h3>
+
+                                    <p id="admin-notifications-results-count"
+                                       aria-live="polite">
+                                        Хабарламалар жүктелуде...
+                                    </p>
+
+                                </div>
+
+                                <span class="admin-products-list-caption">
+                                    MESSAGE DELIVERY LOG
+                                </span>
+
+                            </div>
+
+                            <div class="admin-notifications-loading"
+                                 id="admin-notifications-loading"
+                                 role="status"
+                                 aria-live="polite">
+
+                                <div class="skeleton"
+                                     style="height:54px;border-radius:12px;margin-bottom:14px"></div>
+
+                                <div class="skeleton"
+                                     style="height:80px;border-radius:12px;margin-bottom:14px"></div>
+
+                                <div class="skeleton"
+                                     style="height:80px;border-radius:12px;margin-bottom:14px"></div>
+
+                                <div class="skeleton"
+                                     style="height:80px;border-radius:12px;margin-bottom:14px"></div>
+
+                                <div class="skeleton"
+                                     style="height:80px;border-radius:12px"></div>
+
+                            </div>
+
+                            <div class="admin-products-error hidden"
+                                 id="admin-notifications-error"
+                                 role="alert">
+
+                                <span class="admin-panel-empty-icon">
+
+                                    <svg viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="1.8"
+                                         stroke-linecap="round">
+                                        <circle cx="12" cy="12" r="9"/>
+                                        <path d="M12 7v6M12 17h.01"/>
+                                    </svg>
+
+                                </span>
+
+                                <h3>
+                                    Хабарламаларды жүктеу мүмкін болмады
+                                </h3>
+
+                                <p id="admin-notifications-error-message">
+                                    Серверден деректер алу кезінде қате орын алды.
+                                    Қайта байқап көр.
+                                </p>
+
+                                <button class="btn btn-primary"
+                                        type="button"
+                                        id="admin-notifications-retry-button">
+                                    Қайта жүктеу
+                                </button>
+
+                            </div>
+
+                            <div class="admin-panel-empty hidden"
+                                 id="admin-notifications-empty">
+
+                                <span class="admin-panel-empty-icon">
+
+                                    <svg viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="1.8"
+                                         stroke-linecap="round">
+                                        <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/>
+                                        <path d="M10 21h4"/>
+                                    </svg>
+
+                                </span>
+
+                                <span class="section-eyebrow">
+                                    NO MESSAGES YET
+                                </span>
+
+                                <h3>
+                                    Әзірге хабарламалар жоқ
+                                </h3>
+
+                                <p>
+                                    Жүйеде хабарламалар пайда болған кезде
+                                    олардың тарихы осы жерде көрсетіледі.
+                                </p>
+
+                                <a href="/admin/orders.html"
+                                   class="btn btn-outline">
+                                    View Orders
+                                </a>
+
+                            </div>
+
+                            <div class="admin-panel-empty hidden"
+                                 id="admin-notifications-filter-empty">
+
+                                <span class="admin-panel-empty-icon">
+
+                                    <svg viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="1.8"
+                                         stroke-linecap="round">
+                                        <circle cx="11" cy="11" r="7"/>
+                                        <path d="m16 16 4 4"/>
+                                    </svg>
+
+                                </span>
+
+                                <h3>
+                                    Хабарлама табылмады
+                                </h3>
+
+                                <p>
+                                    Таңдалған сүзгілерге сәйкес хабарлама жоқ.
+                                    Іздеуді өзгертіп немесе сүзгіні тазалап көр.
+                                </p>
+
+                                <button class="btn btn-outline"
+                                        type="button"
+                                        id="admin-notifications-clear-search">
+                                    All Notifications
+                                </button>
+
+                            </div>
+
+                            <div class="admin-notifications-table-container hidden"
+                                 id="admin-notifications-table-container">
+
+                                <div class="admin-table-container">
+
+                                    <table class="admin-table admin-notifications-table">
+
+                                        <thead>
+
+                                        <tr>
+                                            <th scope="col">NOTIFICATION ID</th>
+                                            <th scope="col">RECIPIENT</th>
+                                            <th scope="col">MESSAGE</th>
+                                            <th scope="col">CHANNEL</th>
+                                            <th scope="col">STATUS</th>
+                                            <th scope="col">DATE</th>
+                                            <th scope="col">ACTIONS</th>
+                                        </tr>
+
+                                        </thead>
+
+                                        <tbody id="admin-notifications-table-body"></tbody>
+
+                                    </table>
+
+                                </div>
+
+                            </div>
+
+                            <div class="admin-notifications-table-footer hidden"
+                                 id="admin-notifications-table-footer">
+
+                                <span id="admin-notifications-pagination-info"
+                                      aria-live="polite">
+                                    —
+                                </span>
+
+                                <nav class="pagination"
+                                     id="admin-notifications-pagination"
+                                     aria-label="Хабарламалар беттері"></nav>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+                    <section class="admin-notifications-status-guide-section"
+                             aria-labelledby="admin-notifications-status-guide-title">
+
+                        <div class="admin-section-heading">
+
+                            <div>
+
+                                <span class="admin-eyebrow">
+                                    DELIVERY STATES
+                                </span>
+
+                                <h2 id="admin-notifications-status-guide-title">
+                                    Delivery Status Guide
+                                </h2>
+
+                                <p>
+                                    Хабарламаның жіберілу нәтижесін түсіну
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                        <div class="admin-notifications-status-guide-grid">
+
+                            <article class="admin-notifications-guide-card">
+
+                                <span class="admin-notifications-guide-icon admin-notifications-guide-success">
+
+                                    <svg viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="1.8"
+                                         stroke-linecap="round">
+                                        <circle cx="12" cy="12" r="9"/>
+                                        <path d="m8 12 3 3 5-6"/>
+                                    </svg>
+
+                                </span>
+
+                                <span class="badge badge-success">
+                                    SENT
+                                </span>
+
+                                <h3>
+                                    Successfully Sent
+                                </h3>
+
+                                <p>
+                                    Хабарламаны жіберу операциясы
+                                    сәтті аяқталды.
+                                </p>
+
+                            </article>
+
+                            <article class="admin-notifications-guide-card">
+
+                                <span class="admin-notifications-guide-icon admin-notifications-guide-warning">
+
+                                    <svg viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="1.8"
+                                         stroke-linecap="round">
+                                        <circle cx="12" cy="12" r="9"/>
+                                        <path d="M12 7v5l3 2"/>
+                                    </svg>
+
+                                </span>
+
+                                <span class="badge badge-warning">
+                                    PENDING
+                                </span>
+
+                                <h3>
+                                    Awaiting Result
+                                </h3>
+
+                                <p>
+                                    Хабарлама жіберілу кезегінде немесе
+                                    өңделу нәтижесін күтіп тұр.
+                                </p>
+
+                            </article>
+
+                            <article class="admin-notifications-guide-card">
+
+                                <span class="admin-notifications-guide-icon admin-notifications-guide-danger">
+
+                                    <svg viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="1.8"
+                                         stroke-linecap="round">
+                                        <circle cx="12" cy="12" r="9"/>
+                                        <path d="M8 8l8 8M16 8l-8 8"/>
+                                    </svg>
+
+                                </span>
+
+                                <span class="badge badge-danger">
+                                    FAILED
+                                </span>
+
+                                <h3>
+                                    Delivery Failed
+                                </h3>
+
+                                <p>
+                                    Хабарлама жіберу операциясы
+                                    сәтсіз аяқталды.
+                                </p>
+
+                            </article>
+
+                        </div>
+
+                    </section>
+
+                    <section class="admin-notifications-architecture-section"
+                             aria-labelledby="admin-notifications-architecture-title">
+
+                        <div class="admin-dashboard-panel admin-notifications-architecture-panel">
+
+                            <div class="admin-notifications-architecture-heading">
+
+                                <span class="admin-notifications-architecture-icon">
+
+                                    <svg viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="1.8"
+                                         stroke-linecap="round">
+                                        <path d="M4 4h7v7H4zM13 13h7v7h-7z"/>
+                                        <path d="M11 7h5v6M7 11v6h6"/>
+                                    </svg>
+
+                                </span>
+
+                                <div>
+
+                                    <span class="admin-eyebrow">
+                                        SYSTEM ARCHITECTURE
+                                    </span>
+
+                                    <h2 id="admin-notifications-architecture-title">
+                                        Adapter Pattern Integration
+                                    </h2>
+
+                                </div>
+
+                            </div>
+
+                            <p class="admin-notifications-architecture-description">
+                                NEXORA Backend жүйесіндегі хабарламалар
+                                модулі Adapter Design Pattern негізінде
+                                жасалған. Бұл әртүрлі хабарлама
+                                жеткізу сервистерін бір интерфейс
+                                арқылы пайдалануға мүмкіндік береді.
+                            </p>
+
+                            <div class="admin-notifications-architecture-flow">
+
+                                <div class="admin-notifications-architecture-step">
+
+                                    <span class="admin-notifications-architecture-step-icon">
+
+                                        <svg viewBox="0 0 24 24"
+                                             fill="none"
+                                             stroke="currentColor"
+                                             stroke-width="1.8"
+                                             stroke-linecap="round">
+                                            <path d="M8 3h8l4 4v14H4V7l4-4Z"/>
+                                            <path d="M8 3v5h8V3M8 13h8M8 17h5"/>
+                                        </svg>
+
+                                    </span>
+
+                                    <strong>
+                                        Business Service
+                                    </strong>
+
+                                    <small>
+                                        Notification request
+                                    </small>
+
+                                </div>
+
+                                <span class="admin-notifications-architecture-arrow"
+                                      aria-hidden="true">
+
+                                    <svg viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="2"
+                                         stroke-linecap="round">
+                                        <path d="M5 12h14m-6-6 6 6-6 6"/>
+                                    </svg>
+
+                                </span>
+
+                                <div class="admin-notifications-architecture-step">
+
+                                    <span class="admin-notifications-architecture-step-icon">
+
+                                        <svg viewBox="0 0 24 24"
+                                             fill="none"
+                                             stroke="currentColor"
+                                             stroke-width="1.8"
+                                             stroke-linecap="round">
+                                            <rect x="3" y="3" width="18" height="18" rx="4"/>
+                                            <path d="M8 8h8M8 12h8M8 16h5"/>
+                                        </svg>
+
+                                    </span>
+
+                                    <strong>
+                                        SMS Adapter
+                                    </strong>
+
+                                    <small>
+                                        Service integration
+                                    </small>
+
+                                </div>
+
+                                <span class="admin-notifications-architecture-arrow"
+                                      aria-hidden="true">
+
+                                    <svg viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="2"
+                                         stroke-linecap="round">
+                                        <path d="M5 12h14m-6-6 6 6-6 6"/>
+                                    </svg>
+
+                                </span>
+
+                                <div class="admin-notifications-architecture-step">
+
+                                    <span class="admin-notifications-architecture-step-icon">
+
+                                        <svg viewBox="0 0 24 24"
+                                             fill="none"
+                                             stroke="currentColor"
+                                             stroke-width="1.8"
+                                             stroke-linecap="round">
+                                            <circle cx="12" cy="12" r="9"/>
+                                            <path d="m8 12 3 3 5-6"/>
+                                        </svg>
+
+                                    </span>
+
+                                    <strong>
+                                        Delivery Result
+                                    </strong>
+
+                                    <small>
+                                        Status recorded
+                                    </small>
+
+                                </div>
+
+                            </div>
+
+                            <div class="admin-notifications-architecture-note">
+
+                                <svg viewBox="0 0 24 24"
+                                     fill="none"
+                                     stroke="currentColor"
+                                     stroke-width="1.8"
+                                     stroke-linecap="round">
+                                    <circle cx="12" cy="12" r="9"/>
+                                    <path d="M12 11v5M12 8h.01"/>
+                                </svg>
+
+                                <p>
+                                    Бұл оқу жобасындағы SMS жіберу
+                                    симуляцияланған. SENT статусы нақты
+                                    телефонға SMS жеткізілгенін білдірмейді.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+                    <section class="admin-notifications-quick-actions"
+                             aria-labelledby="admin-notifications-quick-actions-title">
+
+                        <div class="admin-section-heading">
+
+                            <div>
+
+                                <span class="admin-eyebrow">
+                                    RELATED WORKFLOWS
+                                </span>
+
+                                <h2 id="admin-notifications-quick-actions-title">
+                                    Quick Navigation
+                                </h2>
+
+                                <p>
+                                    Басқа басқару бөлімдеріне жылдам өту
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                        <div class="admin-quick-actions-grid">
+
+                            <a href="/admin/orders.html"
+                               class="admin-quick-action-card">
+
+                                <span class="admin-quick-action-icon admin-quick-action-purple">
+
+                                    <svg viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="1.8"
+                                         stroke-linecap="round">
+                                        <path d="M8 3h8l4 4v14H4V7l4-4Z"/>
+                                        <path d="M8 3v5h8V3M8 13h8M8 17h5"/>
+                                    </svg>
+
+                                </span>
+
+                                <strong>
+                                    Manage Orders
+                                </strong>
+
+                                <p>
+                                    Тапсырыстар мен олардың статустары
+                                </p>
+
+                                <span class="admin-quick-action-arrow">
+                                    <svg viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="2"
+                                         stroke-linecap="round">
+                                        <path d="M5 12h14m-6-6 6 6-6 6"/>
+                                    </svg>
+                                </span>
+
+                            </a>
+
+                            <a href="/admin/dashboard.html"
+                               class="admin-quick-action-card">
+
+                                <span class="admin-quick-action-icon admin-quick-action-blue">
+
+                                    <svg viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="1.8"
+                                         stroke-linecap="round">
+                                        <rect x="3" y="3" width="8" height="8" rx="2"/>
+                                        <rect x="13" y="3" width="8" height="5" rx="2"/>
+                                        <rect x="13" y="10" width="8" height="11" rx="2"/>
+                                        <rect x="3" y="13" width="8" height="8" rx="2"/>
+                                    </svg>
+
+                                </span>
+
+                                <strong>
+                                    Dashboard
+                                </strong>
+
+                                <p>
+                                    Жүйенің негізгі көрсеткіштері
+                                </p>
+
+                                <span class="admin-quick-action-arrow">
+                                    <svg viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="2"
+                                         stroke-linecap="round">
+                                        <path d="M5 12h14m-6-6 6 6-6 6"/>
+                                    </svg>
+                                </span>
+
+                            </a>
+
+                            <a href="/admin/promotions.html"
+                               class="admin-quick-action-card">
+
+                                <span class="admin-quick-action-icon admin-quick-action-orange">
+
+                                    <svg viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="1.8"
+                                         stroke-linecap="round">
+                                        <path d="M3 10V5a2 2 0 0 1 2-2h5l11 11-7 7L3 10Z"/>
+                                        <circle cx="7.5" cy="7.5" r="1"/>
+                                    </svg>
+
+                                </span>
+
+                                <strong>
+                                    Promotions
+                                </strong>
+
+                                <p>
+                                    Промокодтар мен жеңілдіктер
+                                </p>
+
+                                <span class="admin-quick-action-arrow">
+                                    <svg viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="2"
+                                         stroke-linecap="round">
+                                        <path d="M5 12h14m-6-6 6 6-6 6"/>
+                                    </svg>
+                                </span>
+
+                            </a>
+
+                            <a href="/pages/notifications.html"
+                               class="admin-quick-action-card">
+
+                                <span class="admin-quick-action-icon admin-quick-action-green">
+
+                                    <svg viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="1.8"
+                                         stroke-linecap="round">
+                                        <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/>
+                                        <path d="M10 21h4"/>
+                                    </svg>
+
+                                </span>
+
+                                <strong>
+                                    Customer View
+                                </strong>
+
+                                <p>
+                                    Хабарламалардың клиенттік көрінісі
+                                </p>
+
+                                <span class="admin-quick-action-arrow">
+                                    <svg viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="2"
+                                         stroke-linecap="round">
+                                        <path d="M5 12h14m-6-6 6 6-6 6"/>
+                                    </svg>
+                                </span>
+
+                            </a>
+
+                        </div>
+
+                    </section>
+
+                    <footer class="admin-footer">
+
+                        <span>
+                            © 2026 NEXORA. Admin Management System.
+                        </span>
+
+                        <span>
+                            Built with Java · Spring Boot · PostgreSQL
+                        </span>
+
+                    </footer>
+
+                </div>
+
+            </div>
+
+        </main>
+
+    </div>
+
+</div>
+
+<div class="modal-backdrop"
+     id="admin-notification-details-modal"
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="admin-notification-details-title"
+     aria-describedby="admin-notification-details-description"
+     hidden>
+
+    <div class="modal-panel admin-notification-details-panel">
+
+        <div class="modal-header">
+
+            <div>
+
+                <span class="admin-eyebrow">
+                    MESSAGE INFORMATION
+                </span>
+
+                <h2 class="modal-title"
+                    id="admin-notification-details-title">
+                    Notification Details
+                </h2>
+
+            </div>
+
+            <button class="icon-button"
+                    type="button"
+                    id="admin-notification-details-close"
+                    aria-label="Терезені жабу">
+
+                <svg viewBox="0 0 24 24"
+                     fill="none"
+                     stroke="currentColor"
+                     stroke-width="2"
+                     stroke-linecap="round">
+                    <path d="M5 5l14 14M19 5 5 19"/>
+                </svg>
+
+            </button>
+
+        </div>
+
+        <div class="modal-body">
+
+            <p class="admin-notification-details-intro"
+               id="admin-notification-details-description">
+                Хабарламаның мазмұны мен жіберілу нәтижесі.
+            </p>
+
+            <div class="admin-notification-details-overview">
+
+                <div class="admin-notification-details-identity">
+
+                    <span>
+                        NOTIFICATION NUMBER
+                    </span>
+
+                    <strong id="admin-notification-detail-number">
+                        #—
+                    </strong>
+
+                </div>
+
+                <span class="badge badge-neutral"
+                      id="admin-notification-detail-status">
+                    —
+                </span>
+
+            </div>
+
+            <dl class="admin-notification-details-info">
+
+                <div class="admin-notification-details-info-row">
+
+                    <dt>
+                        Notification ID
+                    </dt>
+
+                    <dd id="admin-notification-detail-id">
+                        —
+                    </dd>
+
+                </div>
+
+                <div class="admin-notification-details-info-row">
+
+                    <dt>
+                        Recipient
+                    </dt>
+
+                    <dd id="admin-notification-detail-recipient">
+                        —
+                    </dd>
+
+                </div>
+
+                <div class="admin-notification-details-info-row">
+
+                    <dt>
+                        Recipient ID
+                    </dt>
+
+                    <dd id="admin-notification-detail-user-id">
+                        —
+                    </dd>
+
+                </div>
+
+                <div class="admin-notification-details-info-row">
+
+                    <dt>
+                        Delivery Channel
+                    </dt>
+
+                    <dd id="admin-notification-detail-channel">
+                        —
+                    </dd>
+
+                </div>
+
+                <div class="admin-notification-details-info-row">
+
+                    <dt>
+                        Created At
+                    </dt>
+
+                    <dd id="admin-notification-detail-created-at">
+                        —
+                    </dd>
+
+                </div>
+
+                <div class="admin-notification-details-info-row">
+
+                    <dt>
+                        Delivery Status
+                    </dt>
+
+                    <dd id="admin-notification-detail-status-text">
+                        —
+                    </dd>
+
+                </div>
+
+            </dl>
+
+            <div class="admin-notification-detail-message-section">
+
+                <div class="admin-notification-detail-message-heading">
+
+                    <span class="admin-notification-detail-message-icon">
+
+                        <svg viewBox="0 0 24 24"
+                             fill="none"
+                             stroke="currentColor"
+                             stroke-width="1.8"
+                             stroke-linecap="round">
+                            <rect x="3" y="4" width="18" height="16" rx="3"/>
+                            <path d="M7 9h10M7 13h10M7 17h6"/>
+                        </svg>
+
+                    </span>
+
+                    <h3>
+                        Message Content
+                    </h3>
+
+                </div>
+
+                <p id="admin-notification-detail-message">
+                    —
+                </p>
+
+            </div>
+
+            <div class="alert alert-danger hidden"
+                 id="admin-notification-detail-failure"
+                 role="status">
+
+                <svg viewBox="0 0 24 24"
+                     fill="none"
+                     stroke="currentColor"
+                     stroke-width="1.8"
+                     stroke-linecap="round">
+                    <circle cx="12" cy="12" r="9"/>
+                    <path d="M8 8l8 8M16 8l-8 8"/>
+                </svg>
+
+                <span id="admin-notification-detail-failure-message">
+                    Хабарлама жіберу сәтсіз аяқталды.
+                </span>
+
+            </div>
+
+            <div class="admin-notification-detail-technical-note">
+
+                <svg viewBox="0 0 24 24"
+                     fill="none"
+                     stroke="currentColor"
+                     stroke-width="1.8"
+                     stroke-linecap="round">
+                    <circle cx="12" cy="12" r="9"/>
+                    <path d="M12 11v5M12 8h.01"/>
+                </svg>
+
+                <p>
+                    Хабарлама статусы жүйедегі жеткізу
+                    операциясының нәтижесін көрсетеді.
+                    Бұл жобада SMS сервисі симуляцияланған.
+                </p>
+
+            </div>
+
+        </div>
+
+        <div class="modal-footer">
+
+            <button class="btn btn-outline"
+                    type="button"
+                    id="admin-notification-details-done">
+                Close
+            </button>
+
+            <button class="btn btn-primary"
+                    type="button"
+                    id="admin-notification-details-copy">
+
+                <svg viewBox="0 0 24 24"
+                     fill="none"
+                     stroke="currentColor"
+                     stroke-width="1.8"
+                     stroke-linecap="round">
+                    <rect x="8" y="8" width="12" height="12" rx="2"/>
+                    <path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/>
+                </svg>
+
+                Copy Message
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div class="modal-backdrop"
+     id="admin-notification-compose-modal"
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="admin-notification-compose-title"
+     aria-describedby="admin-notification-compose-description"
+     hidden>
+
+    <div class="modal-panel admin-notification-compose-panel">
+
+        <div class="modal-header">
+
+            <div>
+
+                <span class="admin-eyebrow">
+                    MESSAGE COMPOSER
+                </span>
+
+                <h2 class="modal-title"
+                    id="admin-notification-compose-title">
+                    New Notification
+                </h2>
+
+            </div>
+
+            <button class="icon-button"
+                    type="button"
+                    id="admin-notification-compose-close"
+                    aria-label="Терезені жабу">
+
+                <svg viewBox="0 0 24 24"
+                     fill="none"
+                     stroke="currentColor"
+                     stroke-width="2"
+                     stroke-linecap="round">
+                    <path d="M5 5l14 14M19 5 5 19"/>
+                </svg>
+
+            </button>
+
+        </div>
+
+        <form id="admin-notification-compose-form">
+
+            <div class="modal-body">
+
+                <p id="admin-notification-compose-description">
+                    Хабарламаны жіберу үшін алушыны және
+                    хабарлама мәтінін енгіз.
+                </p>
+
+                <div class="alert alert-danger hidden"
+                     id="admin-notification-compose-error"
+                     role="alert"
+                     aria-live="assertive"></div>
+
+                <div class="form-group">
+
+                    <label class="form-label form-label-required"
+                           for="admin-notification-recipient-id">
+                        Recipient User ID
+                    </label>
+
+                    <div class="admin-notification-compose-input-wrapper">
+
+                        <span class="admin-notification-compose-field-icon">
+
+                            <svg viewBox="0 0 24 24"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="1.8"
+                                 stroke-linecap="round">
+                                <circle cx="12" cy="8" r="4"/>
+                                <path d="M4.5 21a7.5 7.5 0 0 1 15 0"/>
+                            </svg>
+
+                        </span>
+
+                        <input
+                                class="form-control"
+                                type="number"
+                                id="admin-notification-recipient-id"
+                                name="userId"
+                                placeholder="Мысалы: 5"
+                                min="1"
+                                step="1"
+                                inputmode="numeric"
+                                aria-describedby="admin-notification-recipient-hint admin-notification-recipient-error"
+                                required>
+
+                    </div>
+
+                    <p class="form-hint"
+                       id="admin-notification-recipient-hint">
+                        Хабарлама жіберілетін пайдаланушының ID нөмірі.
+                    </p>
+
+                    <span class="form-error hidden"
+                          id="admin-notification-recipient-error"
+                          role="alert"></span>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label class="form-label form-label-required"
+                           for="admin-notification-message">
+                        Message
+                    </label>
+
+                    <textarea
+                            class="form-control admin-notification-message-input"
+                            id="admin-notification-message"
+                            name="message"
+                            placeholder="Хабарлама мәтінін енгіз..."
+                            rows="6"
+                            minlength="1"
+                            maxlength="1000"
+                            aria-describedby="admin-notification-message-hint admin-notification-message-error"
+                            required></textarea>
+
+                    <div class="admin-editor-field-footer">
+
+                        <span class="form-hint"
+                              id="admin-notification-message-hint">
+                            Қысқа әрі түсінікті хабарлама жаз.
+                        </span>
+
+                        <span class="admin-character-count"
+                              id="admin-notification-message-count">
+                            0 / 1000
+                        </span>
+
+                    </div>
+
+                    <span class="form-error hidden"
+                          id="admin-notification-message-error"
+                          role="alert"></span>
+
+                </div>
+
+                <div class="admin-notification-compose-preview">
+
+                    <div class="admin-notification-compose-preview-heading">
+
+                        <span class="admin-eyebrow">
+                            MESSAGE PREVIEW
+                        </span>
+
+                        <strong>
+                            Your Notification
+                        </strong>
+
+                    </div>
+
+                    <div class="admin-notification-compose-preview-content">
+
+                        <span class="admin-notification-compose-preview-icon">
+
+                            <svg viewBox="0 0 24 24"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="1.8"
+                                 stroke-linecap="round">
+                                <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/>
+                                <path d="M10 21h4"/>
+                            </svg>
+
+                        </span>
+
+                        <div>
+
+                            <strong>
+                                NEXORA Notification
+                            </strong>
+
+                            <p id="admin-notification-message-preview">
+                                Хабарлама мәтіні осы жерде көрсетіледі.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="alert alert-warning">
+
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.8"
+                         stroke-linecap="round">
+                        <circle cx="12" cy="12" r="9"/>
+                        <path d="M12 7v6M12 17h.01"/>
+                    </svg>
+
+                    <span>
+                        Бұл интерфейс оқу жобасындағы хабарлама
+                        жіберу модуліне арналған. Нақты жіберу
+                        әрекеті Backend API қолдаған жағдайда
+                        іске қосылады.
+                    </span>
+
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button class="btn btn-outline"
+                        type="button"
+                        id="admin-notification-compose-cancel">
+                    Cancel
+                </button>
+
+                <button class="btn btn-primary"
+                        type="submit"
+                        id="admin-notification-send-button">
+
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.8"
+                         stroke-linecap="round">
+                        <path d="m22 2-7 20-4-9-9-4 20-7Z"/>
+                        <path d="M22 2 11 13"/>
+                    </svg>
+
+                    <span id="admin-notification-send-text">
+                        Send Notification
+                    </span>
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<div class="modal-backdrop"
+     id="admin-logout-modal"
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="admin-logout-modal-title"
+     aria-describedby="admin-logout-modal-description"
+     hidden>
+
+    <div class="modal-panel">
+
+        <div class="modal-header">
+
+            <h2 class="modal-title"
+                id="admin-logout-modal-title">
+                Жүйеден шығу
+            </h2>
+
+            <button class="icon-button"
+                    type="button"
+                    id="admin-logout-modal-close"
+                    aria-label="Терезені жабу">
+
+                <svg viewBox="0 0 24 24"
+                     fill="none"
+                     stroke="currentColor"
+                     stroke-width="2"
+                     stroke-linecap="round">
+                    <path d="M5 5l14 14M19 5 5 19"/>
+                </svg>
+
+            </button>
+
+        </div>
+
+        <div class="modal-body">
+
+            <p id="admin-logout-modal-description">
+                Admin аккаунтыңнан шыққың келе ме?
+                Жүйеден шыққаннан кейін басқару панеліне
+                қайта кіру үшін авторизация қажет болады.
+            </p>
+
+            <div class="alert alert-danger hidden"
+                 id="admin-logout-error"
+                 role="alert"></div>
+
+        </div>
+
+        <div class="modal-footer">
+
+            <button class="btn btn-outline"
+                    type="button"
+                    id="admin-logout-cancel">
+                Болдырмау
+            </button>
+
+            <button class="btn btn-danger"
+                    type="button"
+                    id="admin-logout-confirm">
+                Иә, шығу
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div class="toast-container"
+     id="toast-container"
+     role="region"
+     aria-label="Жүйелік хабарламалар"
+     aria-live="polite"></div>
+
+<script type="module" src="/js/app.js"></script>
+
+</body>
+</html>

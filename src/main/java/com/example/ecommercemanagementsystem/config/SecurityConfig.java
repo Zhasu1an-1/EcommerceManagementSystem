@@ -117,6 +117,8 @@ public class SecurityConfig {
                                 "/",
                                 "/index.html",
                                 "/favicon.ico",
+                                "/pages/**",
+                                "/admin/**",
                                 "/css/**",
                                 "/js/**",
                                 "/images/**",

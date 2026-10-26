@@ -10,9 +10,12 @@ import com.example.ecommercemanagementsystem.repository.ProductRepository;
 import com.example.ecommercemanagementsystem.repository.UserRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.math.BigDecimal;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -40,7 +43,9 @@ public class AdminController {
     }
 
     @GetMapping("/dashboard")
+    @Transactional(readOnly = true)
     public ResponseEntity<DashboardResponse> getDashboard() {
+
         DashboardResponse response = new DashboardResponse(
                 userRepository.count(),
                 productRepository.count(),
@@ -52,7 +57,8 @@ public class AdminController {
                 orderRepository.countByStatus(OrderStatus.DELIVERED),
                 orderRepository.countByStatus(OrderStatus.CANCELLED),
                 paymentRepository.countByStatus(PaymentStatus.SUCCESS),
-                paymentRepository.countByStatus(PaymentStatus.FAILED)
+                paymentRepository.countByStatus(PaymentStatus.FAILED),
+                paymentRepository.sumAmountByStatus(PaymentStatus.SUCCESS)
         );
 
         return ResponseEntity.ok(response);
@@ -69,7 +75,8 @@ public class AdminController {
             long deliveredOrders,
             long cancelledOrders,
             long successfulPayments,
-            long failedPayments
+            long failedPayments,
+            BigDecimal totalRevenue
     ) {
     }
 }

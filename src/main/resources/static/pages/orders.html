@@ -1,0 +1,1095 @@
+
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#584cf4">
+    <meta name="description" content="NEXORA — тапсырыстар тарихын қараңыз, төлемдерді және тапсырыстарыңыздың статустарын бақылаңыз.">
+
+    <title>Менің тапсырыстарым — NEXORA</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/components.css">
+    <link rel="stylesheet" href="/css/shop.css">
+</head>
+
+<body data-page="orders">
+
+<div class="site-wrapper">
+
+    <a href="#main-content" class="visually-hidden skip-link">
+        Негізгі мазмұнға өту
+    </a>
+
+    <div class="announcement-bar">
+        <div class="container announcement-inner">
+            <span>✦ Жаңа коллекциялар мен ерекше ұсыныстар</span>
+            <a href="/pages/catalog.html" class="announcement-link">
+                Каталогты қарау →
+            </a>
+        </div>
+    </div>
+
+    <header class="site-header" id="site-header">
+
+        <div class="container header-inner">
+
+            <button
+                    class="icon-button mobile-menu-toggle"
+                    type="button"
+                    id="mobile-menu-button"
+                    aria-label="Мәзірді ашу"
+                    aria-controls="mobile-menu"
+                    aria-expanded="false">
+                <svg viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="1.8"
+                     stroke-linecap="round">
+                    <path d="M4 7h16M4 12h16M4 17h16"/>
+                </svg>
+            </button>
+
+            <a href="/" class="brand" aria-label="NEXORA басты бет">
+                <span class="brand-icon">
+                    <svg viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="2.3"
+                         stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 18V6l16 12V6"/>
+                        <path d="M8 9.5l8 5"/>
+                    </svg>
+                </span>
+                <span class="brand-name">NEX<span>ORA</span></span>
+            </a>
+
+            <form class="header-search"
+                  id="header-search-form"
+                  action="/pages/catalog.html"
+                  method="get"
+                  role="search">
+                <div class="search-bar">
+                    <svg class="search-icon" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor"
+                         stroke-width="1.8" stroke-linecap="round">
+                        <circle cx="11" cy="11" r="7"/>
+                        <path d="m16 16 4 4"/>
+                    </svg>
+
+                    <input class="search-input"
+                           id="header-search-input"
+                           type="search"
+                           name="keyword"
+                           placeholder="Қандай тауар іздеп жүрсіз?"
+                           autocomplete="off"
+                           aria-label="Тауар іздеу">
+
+                    <button class="search-button" type="submit"
+                            aria-label="Іздеу">
+                        <svg viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" stroke-width="2"
+                             stroke-linecap="round">
+                            <path d="M5 12h14m-6-6 6 6-6 6"/>
+                        </svg>
+                    </button>
+                </div>
+            </form>
+
+            <div class="header-actions">
+
+                <a href="/pages/notifications.html"
+                   class="icon-button"
+                   id="header-notifications-link"
+                   aria-label="Хабарламалар">
+                    <svg viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="1.8"
+                         stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/>
+                        <path d="M10 21h4"/>
+                    </svg>
+                </a>
+
+                <a href="/pages/account.html"
+                   class="icon-button"
+                   id="header-account-link"
+                   aria-label="Жеке кабинет">
+                    <svg viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="1.8"
+                         stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="8" r="4"/>
+                        <path d="M4.5 21a7.5 7.5 0 0 1 15 0"/>
+                    </svg>
+                </a>
+
+                <a href="/pages/cart.html"
+                   class="icon-button"
+                   id="header-cart-link"
+                   aria-label="Себет">
+                    <svg viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="1.8"
+                         stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 4h2l2.2 11h11.6l2-8H6"/>
+                        <circle cx="9" cy="20" r="1"/>
+                        <circle cx="18" cy="20" r="1"/>
+                    </svg>
+                    <span class="icon-count" id="cart-count" hidden>0</span>
+                </a>
+
+            </div>
+
+        </div>
+
+        <nav class="nav-bar" aria-label="Негізгі навигация">
+            <div class="container nav-inner">
+
+                <div class="primary-nav">
+                    <a href="/" class="nav-link">
+                        Басты бет
+                    </a>
+
+                    <a href="/pages/catalog.html" class="nav-link">
+                        Барлық тауарлар
+                    </a>
+
+                    <a href="/pages/catalog.html?categoryId=1" class="nav-link">
+                        Электроника
+                    </a>
+
+                    <a href="/pages/catalog.html?categoryId=2" class="nav-link">
+                        Киім
+                    </a>
+
+                    <a href="/pages/catalog.html?categoryId=3" class="nav-link">
+                        Кітаптар
+                    </a>
+                </div>
+
+                <a href="/pages/catalog.html" class="nav-promo">
+                    <svg viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="1.8"
+                         stroke-linecap="round">
+                        <path d="m12 2 2.5 7.5L22 12l-7.5 2.5L12 22l-2.5-7.5L2 12l7.5-2.5L12 2Z"/>
+                    </svg>
+                    Discover More
+                </a>
+
+            </div>
+        </nav>
+
+    </header>
+
+    <div class="mobile-overlay" id="mobile-overlay"></div>
+
+    <aside class="mobile-menu"
+           id="mobile-menu"
+           aria-label="Мобильді навигация"
+           aria-hidden="true">
+
+        <div class="mobile-menu-header">
+
+            <a href="/" class="brand">
+                <span class="brand-icon">
+                    <svg viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="2.3"
+                         stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 18V6l16 12V6"/>
+                        <path d="M8 9.5l8 5"/>
+                    </svg>
+                </span>
+                <span class="brand-name">NEX<span>ORA</span></span>
+            </a>
+
+            <button class="icon-button"
+                    type="button"
+                    id="mobile-menu-close"
+                    aria-label="Мәзірді жабу">
+                <svg viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round">
+                    <path d="M5 5l14 14M19 5 5 19"/>
+                </svg>
+            </button>
+
+        </div>
+
+        <div class="mobile-menu-body">
+
+            <a href="/" class="mobile-menu-link">
+                Басты бет
+            </a>
+
+            <a href="/pages/catalog.html" class="mobile-menu-link">
+                Барлық тауарлар
+            </a>
+
+            <a href="/pages/catalog.html?categoryId=1" class="mobile-menu-link">
+                Электроника
+            </a>
+
+            <a href="/pages/catalog.html?categoryId=2" class="mobile-menu-link">
+                Киім
+            </a>
+
+            <a href="/pages/catalog.html?categoryId=3" class="mobile-menu-link">
+                Кітаптар
+            </a>
+
+            <a href="/pages/cart.html" class="mobile-menu-link">
+                Менің себетім
+            </a>
+
+            <a href="/pages/orders.html" class="mobile-menu-link is-active"
+               aria-current="page">
+                Тапсырыстарым
+            </a>
+
+            <a href="/pages/account.html" class="mobile-menu-link">
+                Жеке кабинет
+            </a>
+
+        </div>
+
+        <div class="mobile-menu-footer">
+            <a href="/pages/login.html"
+               class="btn btn-primary btn-block">
+                Жүйеге кіру
+            </a>
+        </div>
+
+    </aside>
+
+    <main class="site-main" id="main-content">
+
+        <div class="container">
+
+            <nav class="breadcrumb" aria-label="Сіз тұрған бөлім">
+                <a href="/">Басты бет</a>
+
+                <svg viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round">
+                    <path d="m9 18 6-6-6-6"/>
+                </svg>
+
+                <span class="breadcrumb-current">
+                    Менің тапсырыстарым
+                </span>
+            </nav>
+
+        </div>
+
+        <section class="orders-page-section">
+
+            <div class="container">
+
+                <div class="orders-page-header">
+
+                    <div class="orders-page-heading">
+
+                        <span class="section-eyebrow">
+                            YOUR PURCHASE JOURNEY
+                        </span>
+
+                        <h1 class="page-title">
+                            Менің <span class="gradient-text">тапсырыстарым.</span>
+                        </h1>
+
+                        <p class="page-description">
+                            Барлық тапсырысың бір жерде.
+                            Олардың статусын, сомасын және
+                            төлем жағдайын оңай бақыла.
+                        </p>
+
+                    </div>
+
+                    <a href="/pages/catalog.html"
+                       class="btn btn-primary btn-lg">
+
+                        <svg viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" stroke-width="1.8"
+                             stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 4h2l2.2 11h11.6l2-8H6"/>
+                            <circle cx="9" cy="20" r="1"/>
+                            <circle cx="18" cy="20" r="1"/>
+                        </svg>
+
+                        Shopping жалғастыру
+
+                    </a>
+
+                </div>
+
+                <div class="orders-intro-banner">
+
+                    <div class="orders-intro-content">
+
+                        <span class="orders-intro-eyebrow">
+                            NEXORA ORDER CENTER
+                        </span>
+
+                        <h2>
+                            Әр тапсырыс.<br>
+                            <span>Бір жерде.</span>
+                        </h2>
+
+                        <p>
+                            Тапсырыстарыңның тарихын қара,
+                            төлемдерін тексер және
+                            жеткізу кезеңдерін бақыла.
+                        </p>
+
+                        <a href="#orders-section"
+                           class="orders-intro-link">
+                            Тапсырыстарымды көру
+
+                            <svg viewBox="0 0 24 24" fill="none"
+                                 stroke="currentColor" stroke-width="2"
+                                 stroke-linecap="round">
+                                <path d="M5 12h14m-6-6 6 6-6 6"/>
+                            </svg>
+                        </a>
+
+                    </div>
+
+                    <div class="orders-intro-visual" aria-hidden="true">
+
+                        <div class="orders-intro-orbit"></div>
+
+                        <div class="orders-intro-package">
+                            <svg viewBox="0 0 120 120" fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="3"
+                                 stroke-linecap="round"
+                                 stroke-linejoin="round">
+                                <path d="m60 13 43 24v47l-43 24-43-24V37l43-24Z"/>
+                                <path d="m17 37 43 25 43-25M60 62v46"/>
+                                <path d="m39 25 43 25M82 50v18"/>
+                            </svg>
+                        </div>
+
+                        <span class="orders-intro-sparkle orders-intro-sparkle-one">
+                            ✦
+                        </span>
+
+                        <span class="orders-intro-sparkle orders-intro-sparkle-two">
+                            ✧
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <div class="orders-content-section" id="orders-section">
+
+                    <div class="orders-section-heading">
+
+                        <div>
+                            <span class="section-eyebrow">
+                                ORDER HISTORY
+                            </span>
+
+                            <h2 class="section-title">
+                                Тапсырыстар <span class="gradient-text">тарихы.</span>
+                            </h2>
+                        </div>
+
+                        <span class="orders-count-badge hidden"
+                              id="orders-total-count"
+                              aria-live="polite">
+                            0 тапсырыс
+                        </span>
+
+                    </div>
+
+                    <div class="orders-loading-state"
+                         id="orders-loading"
+                         role="status"
+                         aria-live="polite">
+
+                        <div class="orders-loading-header">
+                            <div class="skeleton"
+                                 style="height:44px;width:100%;max-width:650px;border-radius:14px"></div>
+                        </div>
+
+                        <div class="orders-loading-list">
+
+                            <div class="orders-loading-card">
+                                <div class="skeleton"
+                                     style="height:24px;width:190px;margin-bottom:20px"></div>
+
+                                <div class="skeleton"
+                                     style="height:15px;width:55%;margin-bottom:26px"></div>
+
+                                <div class="skeleton"
+                                     style="height:92px;width:100%;margin-bottom:22px"></div>
+
+                                <div class="skeleton"
+                                     style="height:42px;width:145px"></div>
+                            </div>
+
+                            <div class="orders-loading-card">
+                                <div class="skeleton"
+                                     style="height:24px;width:210px;margin-bottom:20px"></div>
+
+                                <div class="skeleton"
+                                     style="height:15px;width:60%;margin-bottom:26px"></div>
+
+                                <div class="skeleton"
+                                     style="height:92px;width:100%;margin-bottom:22px"></div>
+
+                                <div class="skeleton"
+                                     style="height:42px;width:145px"></div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="empty-state hidden"
+                         id="orders-auth-required">
+
+                        <div class="empty-state-icon">
+                            <svg viewBox="0 0 24 24" fill="none"
+                                 stroke="currentColor" stroke-width="1.8"
+                                 stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="8" r="4"/>
+                                <path d="M4.5 21a7.5 7.5 0 0 1 15 0"/>
+                            </svg>
+                        </div>
+
+                        <span class="section-eyebrow">
+                            SIGN IN TO CONTINUE
+                        </span>
+
+                        <h2 class="empty-state-title">
+                            Алдымен жүйеге кір
+                        </h2>
+
+                        <p class="empty-state-text">
+                            Тапсырыстарыңның тарихын көру үшін
+                            NEXORA аккаунтыңа кіру қажет.
+                        </p>
+
+                        <div class="orders-empty-actions">
+
+                            <a href="/pages/login.html?redirect=%2Fpages%2Forders.html"
+                               class="btn btn-primary btn-lg">
+                                Жүйеге кіру
+                            </a>
+
+                            <a href="/pages/register.html"
+                               class="btn btn-outline btn-lg">
+                                Тіркелу
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                    <div class="empty-state hidden"
+                         id="orders-empty">
+
+                        <div class="empty-state-icon">
+                            <svg viewBox="0 0 24 24" fill="none"
+                                 stroke="currentColor" stroke-width="1.8"
+                                 stroke-linecap="round"
+                                 stroke-linejoin="round">
+                                <path d="M8 3h8l4 4v14H4V7l4-4Z"/>
+                                <path d="M8 3v5h8V3M8 13h8M8 17h5"/>
+                            </svg>
+                        </div>
+
+                        <span class="section-eyebrow">
+                            YOUR NEXT JOURNEY STARTS HERE
+                        </span>
+
+                        <h2 class="empty-state-title"
+                            id="orders-empty-title">
+                            Әзірге тапсырыс жоқ
+                        </h2>
+
+                        <p class="empty-state-text"
+                           id="orders-empty-message">
+                            Сен әлі тапсырыс жасамадың.
+                            Каталогты зерттеп, өзіңе ұнаған
+                            алғашқы тауарыңды таңда.
+                        </p>
+
+                        <a href="/pages/catalog.html"
+                           class="btn btn-primary btn-lg">
+
+                            Каталогты ашу
+
+                            <svg viewBox="0 0 24 24" fill="none"
+                                 stroke="currentColor" stroke-width="2"
+                                 stroke-linecap="round">
+                                <path d="M5 12h14m-6-6 6 6-6 6"/>
+                            </svg>
+
+                        </a>
+
+                    </div>
+
+                    <div class="empty-state hidden"
+                         id="orders-error"
+                         role="alert">
+
+                        <div class="empty-state-icon">
+                            <svg viewBox="0 0 24 24" fill="none"
+                                 stroke="currentColor" stroke-width="1.8"
+                                 stroke-linecap="round">
+                                <circle cx="12" cy="12" r="9"/>
+                                <path d="M12 7v6M12 17h.01"/>
+                            </svg>
+                        </div>
+
+                        <h2 class="empty-state-title">
+                            Тапсырыстарды жүктеу мүмкін болмады
+                        </h2>
+
+                        <p class="empty-state-text"
+                           id="orders-error-message">
+                            Сервермен байланыста мәселе туындады.
+                            Қайта байқап көр.
+                        </p>
+
+                        <button class="btn btn-primary"
+                                type="button"
+                                id="orders-retry-button">
+                            Қайта жүктеу
+                        </button>
+
+                    </div>
+
+                    <div class="orders-main-content hidden"
+                         id="orders-content">
+
+                        <div class="orders-toolbar">
+
+                            <div class="orders-status-tabs"
+                                 id="orders-status-tabs"
+                                 role="group"
+                                 aria-label="Тапсырыс статусы бойынша сүзу">
+
+                                <button class="orders-status-tab is-active"
+                                        type="button"
+                                        data-status="ALL"
+                                        aria-pressed="true">
+                                    Барлығы
+                                </button>
+
+                                <button class="orders-status-tab"
+                                        type="button"
+                                        data-status="PENDING"
+                                        aria-pressed="false">
+                                    Күтілуде
+                                </button>
+
+                                <button class="orders-status-tab"
+                                        type="button"
+                                        data-status="CONFIRMED"
+                                        aria-pressed="false">
+                                    Расталған
+                                </button>
+
+                                <button class="orders-status-tab"
+                                        type="button"
+                                        data-status="SHIPPED"
+                                        aria-pressed="false">
+                                    Жолда
+                                </button>
+
+                                <button class="orders-status-tab"
+                                        type="button"
+                                        data-status="DELIVERED"
+                                        aria-pressed="false">
+                                    Жеткізілген
+                                </button>
+
+                                <button class="orders-status-tab"
+                                        type="button"
+                                        data-status="CANCELLED"
+                                        aria-pressed="false">
+                                    Бас тартылған
+                                </button>
+
+                            </div>
+
+                            <div class="orders-sort-wrapper">
+
+                                <label for="orders-sort">
+                                    Сұрыптау:
+                                </label>
+
+                                <select id="orders-sort"
+                                        class="orders-sort-select"
+                                        name="sort"
+                                        aria-label="Тапсырыстарды сұрыптау">
+
+                                    <option value="newest">
+                                        Алдымен жаңалары
+                                    </option>
+
+                                    <option value="oldest">
+                                        Алдымен ескілері
+                                    </option>
+
+                                    <option value="price-desc">
+                                        Сомасы: жоғарыдан
+                                    </option>
+
+                                    <option value="price-asc">
+                                        Сомасы: төменнен
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                        </div>
+
+                        <div class="orders-results-header">
+
+                            <p id="orders-result-count"
+                               aria-live="polite">
+                                Тапсырыстар жүктелуде...
+                            </p>
+
+                            <button class="orders-refresh-button"
+                                    type="button"
+                                    id="orders-refresh-button">
+
+                                <svg viewBox="0 0 24 24" fill="none"
+                                     stroke="currentColor"
+                                     stroke-width="1.8"
+                                     stroke-linecap="round">
+                                    <path d="M20 11a8 8 0 1 0-2 6"/>
+                                    <path d="M20 5v6h-6"/>
+                                </svg>
+
+                                Жаңарту
+
+                            </button>
+
+                        </div>
+
+                        <div class="orders-list"
+                             id="orders-list"
+                             aria-live="polite"></div>
+
+                        <div class="empty-state hidden"
+                             id="orders-filter-empty">
+
+                            <div class="empty-state-icon">
+                                <svg viewBox="0 0 24 24" fill="none"
+                                     stroke="currentColor"
+                                     stroke-width="1.8"
+                                     stroke-linecap="round"
+                                     stroke-linejoin="round">
+                                    <circle cx="11" cy="11" r="7"/>
+                                    <path d="m16 16 4 4"/>
+                                </svg>
+                            </div>
+
+                            <h3 class="empty-state-title">
+                                Бұл статуста тапсырыс жоқ
+                            </h3>
+
+                            <p class="empty-state-text">
+                                Басқа статусты таңда немесе
+                                барлық тапсырыстарыңды көр.
+                            </p>
+
+                            <button class="btn btn-outline"
+                                    type="button"
+                                    id="orders-reset-filter">
+                                Барлық тапсырыстар
+                            </button>
+
+                        </div>
+
+                        <nav class="pagination"
+                             id="orders-pagination"
+                             aria-label="Тапсырыстар беттері"></nav>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <section class="section orders-status-guide-section">
+
+            <div class="container">
+
+                <div class="section-header">
+
+                    <div class="section-heading">
+
+                        <span class="section-eyebrow">
+                            UNDERSTAND YOUR ORDER
+                        </span>
+
+                        <h2 class="section-title">
+                            Тапсырыс <span class="gradient-text">кезеңдері.</span>
+                        </h2>
+
+                        <p class="section-description">
+                            Әр статус тапсырысыңның қай кезеңде
+                            тұрғанын білдіреді.
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div class="orders-status-guide">
+
+                    <div class="orders-guide-card">
+
+                        <span class="orders-guide-icon orders-guide-pending">
+                            <svg viewBox="0 0 24 24" fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="1.8"
+                                 stroke-linecap="round"
+                                 stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="9"/>
+                                <path d="M12 7v5l3 2"/>
+                            </svg>
+                        </span>
+
+                        <span class="badge badge-warning">
+                            PENDING
+                        </span>
+
+                        <h3>Күтілуде</h3>
+
+                        <p>
+                            Тапсырыс құрылды. Төлем немесе
+                            растау кезеңі күтілуде.
+                        </p>
+
+                    </div>
+
+                    <div class="orders-guide-card">
+
+                        <span class="orders-guide-icon orders-guide-confirmed">
+                            <svg viewBox="0 0 24 24" fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="1.8"
+                                 stroke-linecap="round"
+                                 stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="9"/>
+                                <path d="m8 12 3 3 5-6"/>
+                            </svg>
+                        </span>
+
+                        <span class="badge badge-primary">
+                            CONFIRMED
+                        </span>
+
+                        <h3>Расталды</h3>
+
+                        <p>
+                            Тапсырыс расталып,
+                            келесі кезеңге дайындалуда.
+                        </p>
+
+                    </div>
+
+                    <div class="orders-guide-card">
+
+                        <span class="orders-guide-icon orders-guide-shipped">
+                            <svg viewBox="0 0 24 24" fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="1.8"
+                                 stroke-linecap="round"
+                                 stroke-linejoin="round">
+                                <path d="M3 7h11v10H3zM14 10h4l3 4v3h-7z"/>
+                                <circle cx="7.5" cy="18" r="2"/>
+                                <circle cx="17.5" cy="18" r="2"/>
+                            </svg>
+                        </span>
+
+                        <span class="badge badge-primary">
+                            SHIPPED
+                        </span>
+
+                        <h3>Жолда</h3>
+
+                        <p>
+                            Тапсырыс жеткізу кезеңіне өтті.
+                        </p>
+
+                    </div>
+
+                    <div class="orders-guide-card">
+
+                        <span class="orders-guide-icon orders-guide-delivered">
+                            <svg viewBox="0 0 24 24" fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="1.8"
+                                 stroke-linecap="round"
+                                 stroke-linejoin="round">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/>
+                                <path d="m9 12 2 2 4-4"/>
+                            </svg>
+                        </span>
+
+                        <span class="badge badge-success">
+                            DELIVERED
+                        </span>
+
+                        <h3>Жеткізілді</h3>
+
+                        <p>
+                            Тапсырыс сәтті аяқталды.
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <p class="orders-guide-footnote">
+                    CANCELLED статусы тапсырыстың күшін жойғанын білдіреді.
+                    Нақты статус әр тапсырыстың мәліметінде көрсетіледі.
+                </p>
+
+            </div>
+
+        </section>
+
+        <section class="orders-bottom-section">
+
+            <div class="container">
+
+                <div class="orders-bottom-banner">
+
+                    <div class="orders-bottom-content">
+
+                        <span class="section-eyebrow">
+                            YOUR NEXT DISCOVERY
+                        </span>
+
+                        <h2>
+                            Келесі таңдауың<br>
+                            <span>осы жерден басталады.</span>
+                        </h2>
+
+                        <p>
+                            Жаңа технологиялар мен күнделікті
+                            өмірге арналған өнімдерді зертте.
+                        </p>
+
+                        <a href="/pages/catalog.html"
+                           class="btn btn-dark btn-lg">
+
+                            Каталогты көру
+
+                            <svg viewBox="0 0 24 24" fill="none"
+                                 stroke="currentColor" stroke-width="2"
+                                 stroke-linecap="round">
+                                <path d="M5 12h14m-6-6 6 6-6 6"/>
+                            </svg>
+
+                        </a>
+
+                    </div>
+
+                    <div class="orders-bottom-visual" aria-hidden="true">
+                        <span>N.</span>
+                        <span class="orders-bottom-star">✦</span>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <footer class="site-footer" id="site-footer">
+
+        <div class="container">
+
+            <div class="footer-top">
+
+                <div class="footer-brand">
+
+                    <a href="/" class="brand">
+
+                        <span class="brand-icon">
+                            <svg viewBox="0 0 24 24" fill="none"
+                                 stroke="currentColor" stroke-width="2.3"
+                                 stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M4 18V6l16 12V6"/>
+                                <path d="M8 9.5l8 5"/>
+                            </svg>
+                        </span>
+
+                        <span class="brand-name">
+                            NEX<span>ORA</span>
+                        </span>
+
+                    </a>
+
+                    <p class="footer-description">
+                        Жаңа идеялар. Жаңа мүмкіндіктер.
+                        Технология мен стильді біріктіретін
+                        заманауи интернет-дүкен.
+                    </p>
+
+                    <div class="footer-socials">
+
+                        <a href="/pages/catalog.html"
+                           class="footer-social-link"
+                           aria-label="Каталог">
+                            <svg viewBox="0 0 24 24" fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="1.8"
+                                 stroke-linecap="round"
+                                 stroke-linejoin="round">
+                                <rect x="3" y="3" width="7" height="7" rx="1"/>
+                                <rect x="14" y="3" width="7" height="7" rx="1"/>
+                                <rect x="3" y="14" width="7" height="7" rx="1"/>
+                                <rect x="14" y="14" width="7" height="7" rx="1"/>
+                            </svg>
+                        </a>
+
+                        <a href="/pages/account.html"
+                           class="footer-social-link"
+                           aria-label="Жеке кабинет">
+                            <svg viewBox="0 0 24 24" fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="1.8"
+                                 stroke-linecap="round"
+                                 stroke-linejoin="round">
+                                <circle cx="12" cy="8" r="4"/>
+                                <path d="M4.5 21a7.5 7.5 0 0 1 15 0"/>
+                            </svg>
+                        </a>
+
+                        <a href="/pages/orders.html"
+                           class="footer-social-link"
+                           aria-label="Тапсырыстар">
+                            <svg viewBox="0 0 24 24" fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="1.8"
+                                 stroke-linecap="round"
+                                 stroke-linejoin="round">
+                                <path d="M8 3h8l4 4v14H4V7l4-4Z"/>
+                                <path d="M8 3v5h8V3M8 13h8M8 17h5"/>
+                            </svg>
+                        </a>
+
+                    </div>
+
+                </div>
+
+                <div class="footer-column">
+
+                    <h3 class="footer-heading">Дүкен</h3>
+
+                    <div class="footer-links">
+                        <a href="/pages/catalog.html" class="footer-link">
+                            Барлық тауарлар
+                        </a>
+
+                        <a href="/pages/catalog.html?categoryId=1" class="footer-link">
+                            Электроника
+                        </a>
+
+                        <a href="/pages/catalog.html?categoryId=2" class="footer-link">
+                            Киім
+                        </a>
+
+                        <a href="/pages/catalog.html?categoryId=3" class="footer-link">
+                            Кітаптар
+                        </a>
+                    </div>
+
+                </div>
+
+                <div class="footer-column">
+
+                    <h3 class="footer-heading">Аккаунт</h3>
+
+                    <div class="footer-links">
+                        <a href="/pages/login.html" class="footer-link">
+                            Жүйеге кіру
+                        </a>
+
+                        <a href="/pages/register.html" class="footer-link">
+                            Тіркелу
+                        </a>
+
+                        <a href="/pages/account.html" class="footer-link">
+                            Жеке кабинет
+                        </a>
+
+                        <a href="/pages/orders.html" class="footer-link">
+                            Тапсырыстарым
+                        </a>
+                    </div>
+
+                </div>
+
+                <div class="footer-column">
+
+                    <h3 class="footer-heading">Қосымша</h3>
+
+                    <div class="footer-links">
+                        <a href="/pages/cart.html" class="footer-link">
+                            Менің себетім
+                        </a>
+
+                        <a href="/pages/notifications.html" class="footer-link">
+                            Хабарламалар
+                        </a>
+
+                        <a href="/pages/checkout.html" class="footer-link">
+                            Тапсырыс рәсімдеу
+                        </a>
+
+                        <a href="/admin/dashboard.html" class="footer-link">
+                            Admin Panel
+                        </a>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="footer-bottom">
+
+                <span>
+                    © 2026 NEXORA. Ecommerce Management System.
+                </span>
+
+                <div class="footer-bottom-links">
+                    <span>Built with Spring Boot & JavaScript</span>
+                    <span>Made for the next generation ✦</span>
+                </div>
+
+            </div>
+
+        </div>
+
+    </footer>
+
+</div>
+
+<div class="toast-container"
+     id="toast-container"
+     role="region"
+     aria-label="Жүйелік хабарламалар"
+     aria-live="polite"></div>
+
+<script type="module" src="/js/app.js"></script>
+
+</body>
+</html>

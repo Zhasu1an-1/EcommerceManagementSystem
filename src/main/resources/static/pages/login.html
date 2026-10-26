@@ -1,0 +1,973 @@
+
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#584cf4">
+    <meta name="description" content="NEXORA аккаунтыңызға кіріп, тапсырыстарыңызды, себетіңізді және жеке кабинетіңізді басқарыңыз.">
+
+    <title>Жүйеге кіру — NEXORA</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/components.css">
+    <link rel="stylesheet" href="/css/auth.css">
+</head>
+
+<body data-page="login">
+
+<div class="site-wrapper">
+
+    <a href="#main-content" class="visually-hidden skip-link">
+        Негізгі мазмұнға өту
+    </a>
+
+    <div class="announcement-bar">
+        <div class="container announcement-inner">
+            <span>✦ Жаңа коллекциялар мен ерекше ұсыныстар</span>
+            <a href="/pages/catalog.html" class="announcement-link">
+                Каталогты қарау →
+            </a>
+        </div>
+    </div>
+
+    <header class="site-header" id="site-header">
+
+        <div class="container header-inner">
+
+            <button
+                    class="icon-button mobile-menu-toggle"
+                    type="button"
+                    id="mobile-menu-button"
+                    aria-label="Мәзірді ашу"
+                    aria-controls="mobile-menu"
+                    aria-expanded="false">
+
+                <svg viewBox="0 0 24 24"
+                     fill="none"
+                     stroke="currentColor"
+                     stroke-width="1.8"
+                     stroke-linecap="round">
+                    <path d="M4 7h16M4 12h16M4 17h16"/>
+                </svg>
+            </button>
+
+            <a href="/" class="brand" aria-label="NEXORA басты бет">
+
+                <span class="brand-icon">
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="2.3"
+                         stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <path d="M4 18V6l16 12V6"/>
+                        <path d="M8 9.5l8 5"/>
+                    </svg>
+                </span>
+
+                <span class="brand-name">
+                    NEX<span>ORA</span>
+                </span>
+
+            </a>
+
+            <form
+                    class="header-search"
+                    id="header-search-form"
+                    action="/pages/catalog.html"
+                    method="get"
+                    role="search">
+
+                <div class="search-bar">
+
+                    <svg class="search-icon"
+                         viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.8"
+                         stroke-linecap="round">
+                        <circle cx="11" cy="11" r="7"/>
+                        <path d="m16 16 4 4"/>
+                    </svg>
+
+                    <input
+                            class="search-input"
+                            id="header-search-input"
+                            type="search"
+                            name="keyword"
+                            placeholder="Қандай тауар іздеп жүрсіз?"
+                            autocomplete="off"
+                            aria-label="Тауар іздеу">
+
+                    <button class="search-button"
+                            type="submit"
+                            aria-label="Іздеу">
+
+                        <svg viewBox="0 0 24 24"
+                             fill="none"
+                             stroke="currentColor"
+                             stroke-width="2"
+                             stroke-linecap="round">
+                            <path d="M5 12h14m-6-6 6 6-6 6"/>
+                        </svg>
+
+                    </button>
+
+                </div>
+            </form>
+
+            <div class="header-actions">
+
+                <a href="/pages/notifications.html"
+                   class="icon-button"
+                   id="header-notifications-link"
+                   aria-label="Хабарламалар">
+
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.8"
+                         stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/>
+                        <path d="M10 21h4"/>
+                    </svg>
+
+                </a>
+
+                <a href="/pages/account.html"
+                   class="icon-button"
+                   id="header-account-link"
+                   aria-label="Жеке кабинет">
+
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.8"
+                         stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <circle cx="12" cy="8" r="4"/>
+                        <path d="M4.5 21a7.5 7.5 0 0 1 15 0"/>
+                    </svg>
+
+                </a>
+
+                <a href="/pages/cart.html"
+                   class="icon-button"
+                   id="header-cart-link"
+                   aria-label="Себет">
+
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.8"
+                         stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <path d="M3 4h2l2.2 11h11.6l2-8H6"/>
+                        <circle cx="9" cy="20" r="1"/>
+                        <circle cx="18" cy="20" r="1"/>
+                    </svg>
+
+                    <span class="icon-count" id="cart-count" hidden>0</span>
+
+                </a>
+
+            </div>
+        </div>
+
+        <nav class="nav-bar" aria-label="Негізгі навигация">
+
+            <div class="container nav-inner">
+
+                <div class="primary-nav">
+                    <a href="/" class="nav-link">
+                        Басты бет
+                    </a>
+
+                    <a href="/pages/catalog.html" class="nav-link">
+                        Барлық тауарлар
+                    </a>
+
+                    <a href="/pages/catalog.html?categoryId=1" class="nav-link">
+                        Электроника
+                    </a>
+
+                    <a href="/pages/catalog.html?categoryId=2" class="nav-link">
+                        Киім
+                    </a>
+
+                    <a href="/pages/catalog.html?categoryId=3" class="nav-link">
+                        Кітаптар
+                    </a>
+                </div>
+
+                <a href="/pages/catalog.html" class="nav-promo">
+
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.8"
+                         stroke-linecap="round">
+                        <path d="m12 2 2.5 7.5L22 12l-7.5 2.5L12 22l-2.5-7.5L2 12l7.5-2.5L12 2Z"/>
+                    </svg>
+
+                    Discover More
+
+                </a>
+
+            </div>
+        </nav>
+
+    </header>
+
+    <div class="mobile-overlay" id="mobile-overlay"></div>
+
+    <aside class="mobile-menu"
+           id="mobile-menu"
+           aria-label="Мобильді навигация"
+           aria-hidden="true">
+
+        <div class="mobile-menu-header">
+
+            <a href="/" class="brand">
+
+                <span class="brand-icon">
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="2.3"
+                         stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <path d="M4 18V6l16 12V6"/>
+                        <path d="M8 9.5l8 5"/>
+                    </svg>
+                </span>
+
+                <span class="brand-name">
+                    NEX<span>ORA</span>
+                </span>
+
+            </a>
+
+            <button class="icon-button"
+                    type="button"
+                    id="mobile-menu-close"
+                    aria-label="Мәзірді жабу">
+
+                <svg viewBox="0 0 24 24"
+                     fill="none"
+                     stroke="currentColor"
+                     stroke-width="2"
+                     stroke-linecap="round">
+                    <path d="M5 5l14 14M19 5 5 19"/>
+                </svg>
+
+            </button>
+
+        </div>
+
+        <div class="mobile-menu-body">
+
+            <a href="/" class="mobile-menu-link">
+                Басты бет
+            </a>
+
+            <a href="/pages/catalog.html" class="mobile-menu-link">
+                Барлық тауарлар
+            </a>
+
+            <a href="/pages/catalog.html?categoryId=1" class="mobile-menu-link">
+                Электроника
+            </a>
+
+            <a href="/pages/catalog.html?categoryId=2" class="mobile-menu-link">
+                Киім
+            </a>
+
+            <a href="/pages/catalog.html?categoryId=3" class="mobile-menu-link">
+                Кітаптар
+            </a>
+
+            <a href="/pages/cart.html" class="mobile-menu-link">
+                Менің себетім
+            </a>
+
+            <a href="/pages/orders.html" class="mobile-menu-link">
+                Тапсырыстарым
+            </a>
+
+            <a href="/pages/account.html" class="mobile-menu-link">
+                Жеке кабинет
+            </a>
+
+        </div>
+
+        <div class="mobile-menu-footer">
+            <a href="/pages/register.html"
+               class="btn btn-primary btn-block">
+                Аккаунт ашу
+            </a>
+        </div>
+
+    </aside>
+
+    <main class="site-main" id="main-content">
+
+        <section class="auth-page-section">
+
+            <div class="container">
+
+                <nav class="breadcrumb" aria-label="Сіз тұрған бөлім">
+
+                    <a href="/">Басты бет</a>
+
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="2"
+                         stroke-linecap="round">
+                        <path d="m9 18 6-6-6-6"/>
+                    </svg>
+
+                    <span class="breadcrumb-current">
+                        Жүйеге кіру
+                    </span>
+
+                </nav>
+
+                <div class="auth-layout">
+
+                    <div class="auth-showcase">
+
+                        <div class="auth-showcase-glow auth-showcase-glow-one"></div>
+                        <div class="auth-showcase-glow auth-showcase-glow-two"></div>
+
+                        <div class="auth-showcase-content">
+
+                            <span class="auth-showcase-eyebrow">
+                                <span class="auth-showcase-dot"></span>
+                                THE NEXORA EXPERIENCE
+                            </span>
+
+                            <h1 class="auth-showcase-title">
+                                Сенің әлемің.<br>
+                                <span>Сенің таңдауың.</span>
+                            </h1>
+
+                            <p class="auth-showcase-description">
+                                Бір аккаунт — барлық мүмкіндіктер.
+                                Өзіңе ұнайтын өнімдерді таңда,
+                                тапсырыс жаса және сатып алуларыңды
+                                бір жерден басқар.
+                            </p>
+
+                            <div class="auth-showcase-features">
+
+                                <div class="auth-showcase-feature">
+
+                                    <span class="auth-showcase-feature-icon">
+                                        <svg viewBox="0 0 24 24"
+                                             fill="none"
+                                             stroke="currentColor"
+                                             stroke-width="1.8"
+                                             stroke-linecap="round"
+                                             stroke-linejoin="round">
+                                            <path d="M3 4h2l2.2 11h11.6l2-8H6"/>
+                                            <circle cx="9" cy="20" r="1"/>
+                                            <circle cx="18" cy="20" r="1"/>
+                                        </svg>
+                                    </span>
+
+                                    <div>
+                                        <strong>Smart Shopping</strong>
+                                        <span>Жеке себет және жылдам тапсырыс</span>
+                                    </div>
+
+                                </div>
+
+                                <div class="auth-showcase-feature">
+
+                                    <span class="auth-showcase-feature-icon">
+                                        <svg viewBox="0 0 24 24"
+                                             fill="none"
+                                             stroke="currentColor"
+                                             stroke-width="1.8"
+                                             stroke-linecap="round"
+                                             stroke-linejoin="round">
+                                            <path d="M8 3h8l4 4v14H4V7l4-4Z"/>
+                                            <path d="M8 3v5h8V3M8 13h8M8 17h5"/>
+                                        </svg>
+                                    </span>
+
+                                    <div>
+                                        <strong>Order Tracking</strong>
+                                        <span>Тапсырыс тарихы мен статустары</span>
+                                    </div>
+
+                                </div>
+
+                                <div class="auth-showcase-feature">
+
+                                    <span class="auth-showcase-feature-icon">
+                                        <svg viewBox="0 0 24 24"
+                                             fill="none"
+                                             stroke="currentColor"
+                                             stroke-width="1.8"
+                                             stroke-linecap="round"
+                                             stroke-linejoin="round">
+                                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/>
+                                            <path d="m9 12 2 2 4-4"/>
+                                        </svg>
+                                    </span>
+
+                                    <div>
+                                        <strong>Secure Account</strong>
+                                        <span>Spring Security арқылы қорғалған</span>
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="auth-showcase-art" aria-hidden="true">
+
+                            <div class="auth-art-orbit auth-art-orbit-outer"></div>
+                            <div class="auth-art-orbit auth-art-orbit-inner"></div>
+
+                            <div class="auth-art-core">
+                                <span>N.</span>
+                            </div>
+
+                            <div class="auth-art-floating auth-art-floating-one">
+                                <span>✦</span>
+                            </div>
+
+                            <div class="auth-art-floating auth-art-floating-two">
+                                <svg viewBox="0 0 24 24"
+                                     fill="none"
+                                     stroke="currentColor"
+                                     stroke-width="1.8"
+                                     stroke-linecap="round">
+                                    <path d="m5 12 5 5L20 7"/>
+                                </svg>
+                            </div>
+
+                        </div>
+
+                        <div class="auth-showcase-bottom">
+
+                            <span class="auth-showcase-bottom-line"></span>
+
+                            <span>
+                                DISCOVER WHAT'S NEXT
+                            </span>
+
+                            <span class="auth-showcase-bottom-star">
+                                ✦
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                    <div class="auth-form-panel">
+
+                        <div class="auth-form-content">
+
+                            <div class="auth-form-heading">
+
+                                <span class="auth-eyebrow">
+                                    WELCOME BACK
+                                </span>
+
+                                <h2 class="auth-title">
+                                    Қайта <span class="gradient-text">қош келдің!</span>
+                                </h2>
+
+                                <p class="auth-description">
+                                    NEXORA аккаунтыңа кіріп,
+                                    сатып алуды жалғастыр.
+                                </p>
+
+                            </div>
+
+                            <div class="auth-redirect-notice hidden"
+                                 id="login-redirect-notice"
+                                 role="status">
+
+                                <svg viewBox="0 0 24 24"
+                                     fill="none"
+                                     stroke="currentColor"
+                                     stroke-width="1.8"
+                                     stroke-linecap="round"
+                                     stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="9"/>
+                                    <path d="M12 11v5M12 8h.01"/>
+                                </svg>
+
+                                <span>
+                                    Жалғастыру үшін аккаунтыңа кір.
+                                    Содан кейін алдыңғы бетке ораласың.
+                                </span>
+
+                            </div>
+
+                            <div class="auth-authenticated-state hidden"
+                                 id="login-authenticated"
+                                 role="status">
+
+                                <span class="auth-authenticated-icon">
+
+                                    <svg viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="2"
+                                         stroke-linecap="round"
+                                         stroke-linejoin="round">
+                                        <path d="m5 12 5 5L20 7"/>
+                                    </svg>
+
+                                </span>
+
+                                <h3>
+                                    Сен жүйеге кіргенсің!
+                                </h3>
+
+                                <p id="login-authenticated-message">
+                                    Аккаунтың белсенді.
+                                    Сатып алуды жалғастыра аласың.
+                                </p>
+
+                                <a href="/pages/account.html"
+                                   class="btn btn-primary btn-block"
+                                   id="login-continue-link">
+                                    Жеке кабинетке өту
+                                </a>
+
+                            </div>
+
+                            <form id="login-form"
+                                  class="auth-form"
+                                  autocomplete="on">
+
+                                <div class="auth-form-error hidden"
+                                     id="login-error"
+                                     role="alert"
+                                     aria-live="assertive"></div>
+
+                                <div class="form-group auth-form-field">
+
+                                    <label class="form-label form-label-required"
+                                           for="login-email">
+                                        Email address
+                                    </label>
+
+                                    <div class="auth-input-wrap">
+
+                                        <svg class="auth-field-icon"
+                                             viewBox="0 0 24 24"
+                                             fill="none"
+                                             stroke="currentColor"
+                                             stroke-width="1.8"
+                                             stroke-linecap="round"
+                                             stroke-linejoin="round">
+                                            <rect x="3" y="5" width="18" height="14" rx="3"/>
+                                            <path d="m4 7 8 6 8-6"/>
+                                        </svg>
+
+                                        <input
+                                                class="form-control auth-input"
+                                                id="login-email"
+                                                type="email"
+                                                name="email"
+                                                placeholder="you@example.com"
+                                                autocomplete="email"
+                                                inputmode="email"
+                                                maxlength="255"
+                                                aria-describedby="login-email-error"
+                                                required>
+
+                                    </div>
+
+                                    <span class="form-error hidden"
+                                          id="login-email-error"
+                                          role="alert"></span>
+
+                                </div>
+
+                                <div class="form-group auth-form-field">
+
+                                    <label class="form-label form-label-required"
+                                           for="login-password">
+                                        Password
+                                    </label>
+
+                                    <div class="auth-input-wrap">
+
+                                        <svg class="auth-field-icon"
+                                             viewBox="0 0 24 24"
+                                             fill="none"
+                                             stroke="currentColor"
+                                             stroke-width="1.8"
+                                             stroke-linecap="round"
+                                             stroke-linejoin="round">
+                                            <rect x="5" y="10" width="14" height="11" rx="2"/>
+                                            <path d="M8 10V7a4 4 0 0 1 8 0v3"/>
+                                        </svg>
+
+                                        <input
+                                                class="form-control auth-input auth-password-input"
+                                                id="login-password"
+                                                type="password"
+                                                name="password"
+                                                placeholder="Құпиясөзіңді енгіз"
+                                                autocomplete="current-password"
+                                                aria-describedby="login-password-error"
+                                                required>
+
+                                        <button
+                                                class="auth-password-toggle"
+                                                id="login-password-toggle"
+                                                type="button"
+                                                aria-label="Құпиясөзді көрсету"
+                                                aria-controls="login-password"
+                                                aria-pressed="false">
+
+                                            <svg viewBox="0 0 24 24"
+                                                 fill="none"
+                                                 stroke="currentColor"
+                                                 stroke-width="1.8"
+                                                 stroke-linecap="round"
+                                                 stroke-linejoin="round">
+                                                <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/>
+                                                <circle cx="12" cy="12" r="3"/>
+                                            </svg>
+
+                                        </button>
+
+                                    </div>
+
+                                    <span class="form-error hidden"
+                                          id="login-password-error"
+                                          role="alert"></span>
+
+                                </div>
+
+                                <div class="auth-form-options">
+
+                                    <span class="auth-security-note">
+
+                                        <svg viewBox="0 0 24 24"
+                                             fill="none"
+                                             stroke="currentColor"
+                                             stroke-width="1.8"
+                                             stroke-linecap="round"
+                                             stroke-linejoin="round">
+                                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/>
+                                            <path d="m9 12 2 2 4-4"/>
+                                        </svg>
+
+                                        Secure sign in
+
+                                    </span>
+
+                                </div>
+
+                                <button
+                                        class="btn btn-primary btn-xl btn-block auth-submit"
+                                        id="login-submit-button"
+                                        type="submit">
+
+                                    <span id="login-submit-text">
+                                        Жүйеге кіру
+                                    </span>
+
+                                    <svg viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="2"
+                                         stroke-linecap="round"
+                                         stroke-linejoin="round">
+                                        <path d="M5 12h14m-6-6 6 6-6 6"/>
+                                    </svg>
+
+                                </button>
+
+                                <div class="auth-submit-feedback hidden"
+                                     id="login-submit-feedback"
+                                     role="status"
+                                     aria-live="polite"></div>
+
+                            </form>
+
+                            <div class="auth-divider">
+                                <span>NEW TO NEXORA?</span>
+                            </div>
+
+                            <div class="auth-register-prompt">
+
+                                <p>
+                                    Әлі аккаунтың жоқ па?
+                                </p>
+
+                                <a href="/pages/register.html"
+                                   class="btn btn-outline btn-lg btn-block"
+                                   id="login-register-link">
+
+                                    Жаңа аккаунт ашу
+
+                                    <svg viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="2"
+                                         stroke-linecap="round"
+                                         stroke-linejoin="round">
+                                        <path d="M5 12h14m-6-6 6 6-6 6"/>
+                                    </svg>
+
+                                </a>
+
+                            </div>
+
+                            <div class="auth-form-footer">
+
+                                <span class="auth-form-footer-icon">
+
+                                    <svg viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="1.8"
+                                         stroke-linecap="round"
+                                         stroke-linejoin="round">
+                                        <rect x="5" y="10" width="14" height="11" rx="2"/>
+                                        <path d="M8 10V7a4 4 0 0 1 8 0v3"/>
+                                    </svg>
+
+                                </span>
+
+                                <p>
+                                    Аккаунтың Spring Security арқылы
+                                    қорғалады. Кіру үшін email мен
+                                    құпиясөз жеткілікті.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="auth-bottom-navigation">
+
+                    <a href="/">
+
+                        <svg viewBox="0 0 24 24"
+                             fill="none"
+                             stroke="currentColor"
+                             stroke-width="1.8"
+                             stroke-linecap="round">
+                            <path d="m12 19-7-7 7-7M5 12h14"/>
+                        </svg>
+
+                        Басты бетке оралу
+
+                    </a>
+
+                    <span>
+                        ✦ NEXORA — Discover What's Next
+                    </span>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <footer class="site-footer" id="site-footer">
+
+        <div class="container">
+
+            <div class="footer-top">
+
+                <div class="footer-brand">
+
+                    <a href="/" class="brand">
+
+                        <span class="brand-icon">
+                            <svg viewBox="0 0 24 24"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="2.3"
+                                 stroke-linecap="round"
+                                 stroke-linejoin="round">
+                                <path d="M4 18V6l16 12V6"/>
+                                <path d="M8 9.5l8 5"/>
+                            </svg>
+                        </span>
+
+                        <span class="brand-name">
+                            NEX<span>ORA</span>
+                        </span>
+
+                    </a>
+
+                    <p class="footer-description">
+                        Жаңа идеялар. Жаңа мүмкіндіктер.
+                        Технология мен стильді біріктіретін
+                        заманауи интернет-дүкен.
+                    </p>
+
+                    <div class="footer-socials">
+
+                        <a href="/pages/catalog.html"
+                           class="footer-social-link"
+                           aria-label="Каталог">
+                            <svg viewBox="0 0 24 24"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="1.8"
+                                 stroke-linecap="round"
+                                 stroke-linejoin="round">
+                                <rect x="3" y="3" width="7" height="7" rx="1"/>
+                                <rect x="14" y="3" width="7" height="7" rx="1"/>
+                                <rect x="3" y="14" width="7" height="7" rx="1"/>
+                                <rect x="14" y="14" width="7" height="7" rx="1"/>
+                            </svg>
+                        </a>
+
+                        <a href="/pages/account.html"
+                           class="footer-social-link"
+                           aria-label="Жеке кабинет">
+                            <svg viewBox="0 0 24 24"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="1.8"
+                                 stroke-linecap="round"
+                                 stroke-linejoin="round">
+                                <circle cx="12" cy="8" r="4"/>
+                                <path d="M4.5 21a7.5 7.5 0 0 1 15 0"/>
+                            </svg>
+                        </a>
+
+                        <a href="/pages/orders.html"
+                           class="footer-social-link"
+                           aria-label="Тапсырыстар">
+                            <svg viewBox="0 0 24 24"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="1.8"
+                                 stroke-linecap="round"
+                                 stroke-linejoin="round">
+                                <path d="M8 3h8l4 4v14H4V7l4-4Z"/>
+                                <path d="M8 3v5h8V3M8 13h8M8 17h5"/>
+                            </svg>
+                        </a>
+
+                    </div>
+
+                </div>
+
+                <div class="footer-column">
+
+                    <h3 class="footer-heading">Дүкен</h3>
+
+                    <div class="footer-links">
+                        <a href="/pages/catalog.html" class="footer-link">
+                            Барлық тауарлар
+                        </a>
+                        <a href="/pages/catalog.html?categoryId=1" class="footer-link">
+                            Электроника
+                        </a>
+                        <a href="/pages/catalog.html?categoryId=2" class="footer-link">
+                            Киім
+                        </a>
+                        <a href="/pages/catalog.html?categoryId=3" class="footer-link">
+                            Кітаптар
+                        </a>
+                    </div>
+
+                </div>
+
+                <div class="footer-column">
+
+                    <h3 class="footer-heading">Аккаунт</h3>
+
+                    <div class="footer-links">
+                        <a href="/pages/login.html" class="footer-link">
+                            Жүйеге кіру
+                        </a>
+                        <a href="/pages/register.html" class="footer-link">
+                            Тіркелу
+                        </a>
+                        <a href="/pages/account.html" class="footer-link">
+                            Жеке кабинет
+                        </a>
+                        <a href="/pages/orders.html" class="footer-link">
+                            Тапсырыстарым
+                        </a>
+                    </div>
+
+                </div>
+
+                <div class="footer-column">
+
+                    <h3 class="footer-heading">Қосымша</h3>
+
+                    <div class="footer-links">
+                        <a href="/pages/cart.html" class="footer-link">
+                            Менің себетім
+                        </a>
+                        <a href="/pages/notifications.html" class="footer-link">
+                            Хабарламалар
+                        </a>
+                        <a href="/pages/checkout.html" class="footer-link">
+                            Тапсырыс рәсімдеу
+                        </a>
+                        <a href="/admin/dashboard.html" class="footer-link">
+                            Admin Panel
+                        </a>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="footer-bottom">
+
+                <span>
+                    © 2026 NEXORA. Ecommerce ManagementSystem.
+                </span>
+
+                <div class="footer-bottom-links">
+                    <span>Built with Spring Boot & JavaScript</span>
+                    <span>Made for the next generation ✦</span>
+                </div>
+
+            </div>
+
+        </div>
+
+    </footer>
+
+</div>
+
+<div class="toast-container"
+     id="toast-container"
+     role="region"
+     aria-label="Жүйелік хабарламалар"
+     aria-live="polite"></div>
+
+<script type="module" src="/js/app.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,1974 @@
+
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#584cf4">
+    <meta name="description" content="NEXORA Admin Panel — тауар категорияларын басқару, қосу, өңдеу және жою.">
+
+    <title>Category Management — NEXORA Admin</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/components.css">
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+
+<body class="admin-body" data-page="admin-categories">
+
+<div class="admin-app" id="admin-app">
+
+    <a href="#main-content" class="visually-hidden skip-link">
+        Негізгі мазмұнға өту
+    </a>
+
+    <div class="admin-sidebar-overlay"
+         id="admin-sidebar-overlay"
+         aria-hidden="true"></div>
+
+    <aside class="admin-sidebar"
+           id="admin-sidebar"
+           aria-label="Әкімші навигациясы">
+
+        <div class="admin-sidebar-header">
+
+            <a href="/admin/dashboard.html"
+               class="brand admin-brand"
+               aria-label="NEXORA Admin Dashboard">
+
+                <span class="brand-icon">
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="2.3"
+                         stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <path d="M4 18V6l16 12V6"/>
+                        <path d="M8 9.5l8 5"/>
+                    </svg>
+                </span>
+
+                <span class="brand-name">
+                    NEX<span>ORA</span>
+                </span>
+
+            </a>
+
+            <button
+                    class="admin-sidebar-close"
+                    id="admin-sidebar-close"
+                    type="button"
+                    aria-label="Бүйірлік мәзірді жабу">
+
+                <svg viewBox="0 0 24 24"
+                     fill="none"
+                     stroke="currentColor"
+                     stroke-width="1.8"
+                     stroke-linecap="round">
+                    <path d="M5 5l14 14M19 5 5 19"/>
+                </svg>
+
+            </button>
+
+        </div>
+
+        <div class="admin-workspace-selector">
+
+            <span class="admin-workspace-icon">
+                <svg viewBox="0 0 24 24"
+                     fill="none"
+                     stroke="currentColor"
+                     stroke-width="1.8"
+                     stroke-linecap="round">
+                    <rect x="3" y="3" width="18" height="18" rx="4"/>
+                    <path d="M8 10h8M8 14h5"/>
+                </svg>
+            </span>
+
+            <span class="admin-workspace-info">
+                <strong>NEXORA Store</strong>
+                <small>Management Workspace</small>
+            </span>
+
+            <span class="admin-workspace-indicator"></span>
+
+        </div>
+
+        <nav class="admin-navigation" aria-label="Басқару бөлімдері">
+
+            <div class="admin-nav-group">
+
+                <span class="admin-nav-label">
+                    OVERVIEW
+                </span>
+
+                <a href="/admin/dashboard.html"
+                   class="admin-nav-link">
+
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.8"
+                         stroke-linecap="round">
+                        <rect x="3" y="3" width="8" height="8" rx="2"/>
+                        <rect x="13" y="3" width="8" height="5" rx="2"/>
+                        <rect x="13" y="10" width="8" height="11" rx="2"/>
+                        <rect x="3" y="13" width="8" height="8" rx="2"/>
+                    </svg>
+
+                    <span>Dashboard</span>
+
+                </a>
+
+            </div>
+
+            <div class="admin-nav-group">
+
+                <span class="admin-nav-label">
+                    STORE MANAGEMENT
+                </span>
+
+                <a href="/admin/products.html"
+                   class="admin-nav-link">
+
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.8"
+                         stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <path d="m12 2 9 5v10l-9 5-9-5V7l9-5Z"/>
+                        <path d="m3 7 9 5 9-5M12 12v10"/>
+                    </svg>
+
+                    <span>Products</span>
+
+                </a>
+
+                <a href="/admin/categories.html"
+                   class="admin-nav-link is-active"
+                   aria-current="page">
+
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.8"
+                         stroke-linecap="round">
+                        <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+                        <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+                        <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+                        <rect x="14" y="14" width="7" height="7" rx="1.5"/>
+                    </svg>
+
+                    <span>Categories</span>
+
+                    <span class="admin-nav-active-dot"></span>
+
+                </a>
+
+                <a href="/admin/orders.html"
+                   class="admin-nav-link">
+
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.8"
+                         stroke-linecap="round">
+                        <path d="M8 3h8l4 4v14H4V7l4-4Z"/>
+                        <path d="M8 3v5h8V3M8 13h8M8 17h5"/>
+                    </svg>
+
+                    <span>Orders</span>
+
+                </a>
+
+                <a href="/admin/promotions.html"
+                   class="admin-nav-link">
+
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.8"
+                         stroke-linecap="round">
+                        <path d="M3 10V5a2 2 0 0 1 2-2h5l11 11-7 7L3 10Z"/>
+                        <circle cx="7.5" cy="7.5" r="1"/>
+                    </svg>
+
+                    <span>Promotions</span>
+
+                </a>
+
+            </div>
+
+            <div class="admin-nav-group">
+
+                <span class="admin-nav-label">
+                    COMMUNICATION
+                </span>
+
+                <a href="/admin/notifications.html"
+                   class="admin-nav-link">
+
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.8"
+                         stroke-linecap="round">
+                        <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/>
+                        <path d="M10 21h4"/>
+                    </svg>
+
+                    <span>Notifications</span>
+
+                </a>
+
+            </div>
+
+            <div class="admin-nav-group">
+
+                <span class="admin-nav-label">
+                    GENERAL
+                </span>
+
+                <a href="/pages/account.html"
+                   class="admin-nav-link">
+
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.8"
+                         stroke-linecap="round">
+                        <circle cx="12" cy="8" r="4"/>
+                        <path d="M4.5 21a7.5 7.5 0 0 1 15 0"/>
+                    </svg>
+
+                    <span>My Account</span>
+
+                </a>
+
+                <a href="/"
+                   class="admin-nav-link">
+
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.8"
+                         stroke-linecap="round">
+                        <path d="M3 10 12 3l9 7v11H3V10Z"/>
+                        <path d="M9 21v-7h6v7"/>
+                    </svg>
+
+                    <span>View Store</span>
+
+                    <svg class="admin-nav-external-icon"
+                         viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.8"
+                         stroke-linecap="round">
+                        <path d="M14 5h5v5M19 5l-9 9"/>
+                        <path d="M19 14v5H5V5h5"/>
+                    </svg>
+
+                </a>
+
+            </div>
+
+        </nav>
+
+        <div class="admin-sidebar-bottom">
+
+            <div class="admin-sidebar-support">
+
+                <span class="admin-sidebar-support-icon">
+                    ✦
+                </span>
+
+                <strong>Organize with purpose.</strong>
+
+                <p>
+                    Категориялар арқылы каталогты
+                    ыңғайлы әрі түсінікті ет.
+                </p>
+
+                <a href="/admin/products.html">
+                    Explore Products →
+                </a>
+
+            </div>
+
+            <div class="admin-sidebar-profile">
+
+                <span class="admin-sidebar-avatar"
+                      id="admin-sidebar-avatar">
+                    A
+                </span>
+
+                <span class="admin-sidebar-profile-info">
+
+                    <strong id="admin-sidebar-name">
+                        Administrator
+                    </strong>
+
+                    <small id="admin-sidebar-role">
+                        Store Admin
+                    </small>
+
+                </span>
+
+                <button
+                        class="admin-sidebar-logout"
+                        type="button"
+                        id="admin-sidebar-logout-button"
+                        aria-label="Жүйеден шығу"
+                        title="Жүйеден шығу">
+
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.8"
+                         stroke-linecap="round">
+                        <path d="M10 17l5-5-5-5M15 12H3"/>
+                        <path d="M12 3h7a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-7"/>
+                    </svg>
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </aside>
+
+    <div class="admin-main-wrapper">
+
+        <header class="admin-topbar" id="admin-topbar">
+
+            <div class="admin-topbar-left">
+
+                <button
+                        class="admin-menu-toggle"
+                        type="button"
+                        id="admin-menu-toggle"
+                        aria-label="Басқару мәзірін ашу"
+                        aria-controls="admin-sidebar"
+                        aria-expanded="false">
+
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.8"
+                         stroke-linecap="round">
+                        <path d="M4 7h16M4 12h16M4 17h16"/>
+                    </svg>
+
+                </button>
+
+                <nav class="admin-breadcrumb"
+                     aria-label="Әкімші бөліміндегі навигация">
+
+                    <a href="/admin/dashboard.html">
+                        Admin
+                    </a>
+
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="2"
+                         stroke-linecap="round">
+                        <path d="m9 18 6-6-6-6"/>
+                    </svg>
+
+                    <span aria-current="page">
+                        Categories
+                    </span>
+
+                </nav>
+
+            </div>
+
+            <div class="admin-topbar-actions">
+
+                <span class="admin-topbar-environment">
+
+                    <span class="admin-topbar-environment-dot"></span>
+
+                    Store Management
+
+                </span>
+
+                <a href="/admin/notifications.html"
+                   class="admin-topbar-icon-button"
+                   aria-label="Хабарламаларды басқару">
+
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.8"
+                         stroke-linecap="round">
+                        <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/>
+                        <path d="M10 21h4"/>
+                    </svg>
+
+                </a>
+
+                <a href="/"
+                   class="btn btn-outline admin-view-store-button">
+
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.8"
+                         stroke-linecap="round">
+                        <path d="M3 10 12 3l9 7v11H3V10Z"/>
+                        <path d="M9 21v-7h6v7"/>
+                    </svg>
+
+                    View Store
+
+                </a>
+
+                <a href="/pages/account.html"
+                   class="admin-topbar-profile"
+                   aria-label="Жеке кабинет">
+
+                    <span class="admin-topbar-avatar"
+                          id="admin-topbar-avatar">
+                        A
+                    </span>
+
+                    <span class="admin-topbar-profile-copy">
+
+                        <strong id="admin-topbar-name">
+                            Administrator
+                        </strong>
+
+                        <small>ADMIN</small>
+
+                    </span>
+
+                </a>
+
+            </div>
+
+        </header>
+
+        <main class="admin-main" id="main-content">
+
+            <div class="admin-page-container">
+
+                <div class="admin-auth-loading"
+                     id="admin-access-loading"
+                     role="status"
+                     aria-live="polite">
+
+                    <div class="loading-spinner"></div>
+
+                    <h2>
+                        Admin Access тексерілуде
+                    </h2>
+
+                    <p>
+                        Аккаунтың мен әкімші құқықтарын тексеріп жатырмыз...
+                    </p>
+
+                </div>
+
+                <section class="admin-access-denied hidden"
+                         id="admin-access-denied"
+                         aria-labelledby="admin-access-denied-title">
+
+                    <div class="admin-access-denied-icon">
+
+                        <svg viewBox="0 0 24 24"
+                             fill="none"
+                             stroke="currentColor"
+                             stroke-width="1.8"
+                             stroke-linecap="round"
+                             stroke-linejoin="round">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/>
+                            <path d="M8 8l8 8M16 8l-8 8"/>
+                        </svg>
+
+                    </div>
+
+                    <span class="section-eyebrow">
+                        RESTRICTED AREA
+                    </span>
+
+                    <h1 id="admin-access-denied-title">
+                        Қолжетімділік шектелген
+                    </h1>
+
+                    <p id="admin-access-denied-message">
+                        Категорияларды басқару тек ADMIN
+                        рөліндегі пайдаланушыларға арналған.
+                    </p>
+
+                    <div class="admin-access-denied-actions">
+
+                        <a href="/pages/login.html?redirect=%2Fadmin%2Fcategories.html"
+                           class="btn btn-primary"
+                           id="admin-access-login-link">
+                            Жүйеге кіру
+                        </a>
+
+                        <a href="/" class="btn btn-outline">
+                            Дүкенге оралу
+                        </a>
+
+                    </div>
+
+                </section>
+
+                <div class="admin-categories-content hidden"
+                     id="admin-categories-content">
+
+                    <section class="admin-page-heading-section">
+
+                        <div class="admin-page-heading">
+
+                            <div>
+
+                                <span class="admin-eyebrow">
+                                    CATALOG ORGANIZATION
+                                </span>
+
+                                <h1 class="admin-page-title">
+                                    Category <span class="gradient-text">Management.</span>
+                                </h1>
+
+                                <p class="admin-page-subtitle">
+                                    Категорияларды қос, өңде және басқар.
+                                    Тауарлар каталогының құрылымын ретте.
+                                </p>
+
+                            </div>
+
+                            <div class="admin-page-heading-actions">
+
+                                <button
+                                        class="btn btn-outline"
+                                        type="button"
+                                        id="admin-categories-refresh-button">
+
+                                    <svg viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="1.8"
+                                         stroke-linecap="round">
+                                        <path d="M20 11a8 8 0 1 0-2 6"/>
+                                        <path d="M20 5v6h-6"/>
+                                    </svg>
+
+                                    Refresh
+
+                                </button>
+
+                                <button
+                                        class="btn btn-primary"
+                                        type="button"
+                                        id="admin-add-category-button">
+
+                                    <svg viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="2"
+                                         stroke-linecap="round">
+                                        <path d="M12 5v14M5 12h14"/>
+                                    </svg>
+
+                                    Add Category
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+                    <section class="admin-categories-intro-banner">
+
+                        <div class="admin-categories-intro-content">
+
+                            <span class="admin-welcome-badge">
+                                ✦ ORGANIZE THE EXPERIENCE
+                            </span>
+
+                            <h2>
+                                Better categories.<br>
+                                <span>Better discoveries.</span>
+                            </h2>
+
+                            <p>
+                                Дұрыс ұйымдастырылған каталог
+                                сатып алушыларға керекті өнімдерін
+                                жылдам табуға көмектеседі.
+                            </p>
+
+                            <button
+                                    class="admin-welcome-link"
+                                    type="button"
+                                    id="admin-category-banner-add">
+
+                                Create New Category
+
+                                <svg viewBox="0 0 24 24"
+                                     fill="none"
+                                     stroke="currentColor"
+                                     stroke-width="2"
+                                     stroke-linecap="round">
+                                    <path d="M5 12h14m-6-6 6 6-6 6"/>
+                                </svg>
+
+                            </button>
+
+                        </div>
+
+                        <div class="admin-categories-intro-visual"
+                             aria-hidden="true">
+
+                            <div class="admin-categories-intro-orbit"></div>
+
+                            <div class="admin-categories-intro-grid">
+
+                                <span>
+                                    <svg viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="1.7"
+                                         stroke-linecap="round">
+                                        <rect x="3" y="3" width="18" height="18" rx="4"/>
+                                        <path d="M8 8h8M8 12h8M8 16h5"/>
+                                    </svg>
+                                </span>
+
+                                <span>
+                                    <svg viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="1.7"
+                                         stroke-linecap="round">
+                                        <path d="m12 2 9 5v10l-9 5-9-5V7l9-5Z"/>
+                                        <path d="m3 7 9 5 9-5M12 12v10"/>
+                                    </svg>
+                                </span>
+
+                                <span>
+                                    <svg viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="1.7"
+                                         stroke-linecap="round">
+                                        <rect x="3" y="3" width="7" height="7" rx="1"/>
+                                        <rect x="14" y="3" width="7" height="7" rx="1"/>
+                                        <rect x="3" y="14" width="7" height="7" rx="1"/>
+                                        <rect x="14" y="14" width="7" height="7" rx="1"/>
+                                    </svg>
+                                </span>
+
+                                <span>
+                                    ✦
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+                    <section class="admin-categories-metrics"
+                             aria-labelledby="admin-categories-metrics-title">
+
+                        <div class="admin-section-heading">
+
+                            <div>
+
+                                <span class="admin-eyebrow">
+                                    CATALOG OVERVIEW
+                                </span>
+
+                                <h2 id="admin-categories-metrics-title">
+                                    Category Insights
+                                </h2>
+
+                                <p>
+                                    Категориялар құрылымының көрсеткіштері
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                        <div class="admin-stats-grid">
+
+                            <article class="admin-stat-card">
+
+                                <div class="admin-stat-top">
+
+                                    <span class="admin-stat-icon admin-stat-icon-purple">
+
+                                        <svg viewBox="0 0 24 24"
+                                             fill="none"
+                                             stroke="currentColor"
+                                             stroke-width="1.8"
+                                             stroke-linecap="round">
+                                            <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+                                            <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+                                            <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+                                            <rect x="14" y="14" width="7" height="7" rx="1.5"/>
+                                        </svg>
+
+                                    </span>
+
+                                    <span class="admin-stat-label-small">
+                                        CATEGORIES
+                                    </span>
+
+                                </div>
+
+                                <span class="admin-stat-title">
+                                    Total Categories
+                                </span>
+
+                                <strong class="admin-stat-value"
+                                        id="admin-categories-total">
+                                    —
+                                </strong>
+
+                                <span class="admin-stat-description">
+                                    Барлық категориялар
+                                </span>
+
+                            </article>
+
+                            <article class="admin-stat-card">
+
+                                <div class="admin-stat-top">
+
+                                    <span class="admin-stat-icon admin-stat-icon-blue">
+
+                                        <svg viewBox="0 0 24 24"
+                                             fill="none"
+                                             stroke="currentColor"
+                                             stroke-width="1.8"
+                                             stroke-linecap="round">
+                                            <path d="m12 2 9 5v10l-9 5-9-5V7l9-5Z"/>
+                                            <path d="m3 7 9 5 9-5M12 12v10"/>
+                                        </svg>
+
+                                    </span>
+
+                                    <span class="admin-stat-label-small">
+                                        PRODUCTS
+                                    </span>
+
+                                </div>
+
+                                <span class="admin-stat-title">
+                                    Catalog Products
+                                </span>
+
+                                <strong class="admin-stat-value"
+                                        id="admin-categories-products-count">
+                                    —
+                                </strong>
+
+                                <span class="admin-stat-description">
+                                    Категорияларға тиесілі тауарлар
+                                </span>
+
+                            </article>
+
+                            <article class="admin-stat-card">
+
+                                <div class="admin-stat-top">
+
+                                    <span class="admin-stat-icon admin-stat-icon-green">
+
+                                        <svg viewBox="0 0 24 24"
+                                             fill="none"
+                                             stroke="currentColor"
+                                             stroke-width="1.8"
+                                             stroke-linecap="round">
+                                            <circle cx="12" cy="12" r="9"/>
+                                            <path d="m8 12 3 3 5-6"/>
+                                        </svg>
+
+                                    </span>
+
+                                    <span class="admin-stat-label-small">
+                                        ORGANIZED
+                                    </span>
+
+                                </div>
+
+                                <span class="admin-stat-title">
+                                    Used Categories
+                                </span>
+
+                                <strong class="admin-stat-value"
+                                        id="admin-categories-used-count">
+                                    —
+                                </strong>
+
+                                <span class="admin-stat-description">
+                                    Кемінде бір тауары бар категориялар
+                                </span>
+
+                            </article>
+
+                            <article class="admin-stat-card">
+
+                                <div class="admin-stat-top">
+
+                                    <span class="admin-stat-icon admin-stat-icon-orange">
+
+                                        <svg viewBox="0 0 24 24"
+                                             fill="none"
+                                             stroke="currentColor"
+                                             stroke-width="1.8"
+                                             stroke-linecap="round">
+                                            <circle cx="12" cy="12" r="9"/>
+                                            <path d="M8 12h8"/>
+                                        </svg>
+
+                                    </span>
+
+                                    <span class="admin-stat-label-small">
+                                        AVAILABLE
+                                    </span>
+
+                                </div>
+
+                                <span class="admin-stat-title">
+                                    Empty Categories
+                                </span>
+
+                                <strong class="admin-stat-value"
+                                        id="admin-categories-empty-count">
+                                    —
+                                </strong>
+
+                                <span class="admin-stat-description">
+                                    Әзірге тауары жоқ категориялар
+                                </span>
+
+                            </article>
+
+                        </div>
+
+                    </section>
+
+                    <section class="admin-categories-management-section"
+                             aria-labelledby="admin-categories-management-title">
+
+                        <div class="admin-section-heading">
+
+                            <div>
+
+                                <span class="admin-eyebrow">
+                                    CATEGORY DIRECTORY
+                                </span>
+
+                                <h2 id="admin-categories-management-title">
+                                    All Categories
+                                </h2>
+
+                                <p>
+                                    Категория атауларын, сипаттамаларын
+                                    және оларға тиесілі тауарларды басқар
+                                </p>
+
+                            </div>
+
+                            <a href="/admin/products.html"
+                               class="admin-panel-link">
+
+                                View Products
+
+                                <svg viewBox="0 0 24 24"
+                                     fill="none"
+                                     stroke="currentColor"
+                                     stroke-width="2"
+                                     stroke-linecap="round">
+                                    <path d="M5 12h14m-6-6 6 6-6 6"/>
+                                </svg>
+
+                            </a>
+
+                        </div>
+
+                        <div class="admin-dashboard-panel admin-categories-panel">
+
+                            <div class="admin-categories-toolbar">
+
+                                <form
+                                        class="admin-categories-search-form"
+                                        id="admin-categories-search-form"
+                                        role="search">
+
+                                    <div class="admin-categories-search-wrapper">
+
+                                        <svg viewBox="0 0 24 24"
+                                             fill="none"
+                                             stroke="currentColor"
+                                             stroke-width="1.8"
+                                             stroke-linecap="round">
+                                            <circle cx="11" cy="11" r="7"/>
+                                            <path d="m16 16 4 4"/>
+                                        </svg>
+
+                                        <input
+                                                type="search"
+                                                id="admin-categories-search"
+                                                name="keyword"
+                                                placeholder="Категория атауы бойынша іздеу..."
+                                                autocomplete="off"
+                                                aria-label="Категорияларды іздеу">
+
+                                    </div>
+
+                                    <button
+                                            class="btn btn-primary"
+                                            type="submit"
+                                            id="admin-categories-search-button">
+                                        Іздеу
+                                    </button>
+
+                                </form>
+
+                                <div class="admin-categories-toolbar-actions">
+
+                                    <label
+                                            class="visually-hidden"
+                                            for="admin-categories-sort">
+                                        Категорияларды сұрыптау
+                                    </label>
+
+                                    <select
+                                            id="admin-categories-sort"
+                                            class="form-control admin-filter-select">
+
+                                        <option value="id-desc">
+                                            Алдымен жаңалары
+                                        </option>
+
+                                        <option value="id-asc">
+                                            Алдымен ескілері
+                                        </option>
+
+                                        <option value="name-asc">
+                                            Атауы: A–Z
+                                        </option>
+
+                                        <option value="name-desc">
+                                            Атауы: Z–A
+                                        </option>
+
+                                        <option value="products-desc">
+                                            Тауар саны: көптен
+                                        </option>
+
+                                        <option value="products-asc">
+                                            Тауар саны: аздан
+                                        </option>
+
+                                    </select>
+
+                                    <button
+                                            type="button"
+                                            class="btn btn-outline"
+                                            id="admin-categories-clear-filters"
+                                            aria-label="Сүзгілерді тазарту">
+
+                                        <svg viewBox="0 0 24 24"
+                                             fill="none"
+                                             stroke="currentColor"
+                                             stroke-width="1.8"
+                                             stroke-linecap="round">
+                                            <path d="M20 11a8 8 0 1 0-2 6"/>
+                                            <path d="M20 5v6h-6"/>
+                                        </svg>
+
+                                        Reset
+
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+                            <div class="admin-categories-list-header">
+
+                                <div>
+
+                                    <h3>
+                                        Category Directory
+                                    </h3>
+
+                                    <p id="admin-categories-results-count"
+                                       aria-live="polite">
+                                        Категориялар жүктелуде...
+                                    </p>
+
+                                </div>
+
+                                <span class="admin-products-list-caption">
+                                    MANAGE YOUR CATEGORIES
+                                </span>
+
+                            </div>
+
+                            <div class="admin-categories-loading"
+                                 id="admin-categories-loading"
+                                 role="status"
+                                 aria-live="polite">
+
+                                <div class="skeleton"
+                                     style="height:55px;border-radius:12px;margin-bottom:14px"></div>
+
+                                <div class="skeleton"
+                                     style="height:82px;border-radius:12px;margin-bottom:14px"></div>
+
+                                <div class="skeleton"
+                                     style="height:82px;border-radius:12px;margin-bottom:14px"></div>
+
+                                <div class="skeleton"
+                                     style="height:82px;border-radius:12px;margin-bottom:14px"></div>
+
+                                <div class="skeleton"
+                                     style="height:82px;border-radius:12px"></div>
+
+                            </div>
+
+                            <div class="admin-products-error hidden"
+                                 id="admin-categories-error"
+                                 role="alert">
+
+                                <span class="admin-panel-empty-icon">
+
+                                    <svg viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="1.8"
+                                         stroke-linecap="round">
+                                        <circle cx="12" cy="12" r="9"/>
+                                        <path d="M12 7v6M12 17h.01"/>
+                                    </svg>
+
+                                </span>
+
+                                <h3>
+                                    Категорияларды жүктеу мүмкін болмады
+                                </h3>
+
+                                <p id="admin-categories-error-message">
+                                    Сервермен байланыста қате орын алды.
+                                    Қайта байқап көр.
+                                </p>
+
+                                <button
+                                        class="btn btn-primary"
+                                        type="button"
+                                        id="admin-categories-retry-button">
+                                    Қайта жүктеу
+                                </button>
+
+                            </div>
+
+                            <div class="admin-panel-empty hidden"
+                                 id="admin-categories-empty">
+
+                                <span class="admin-panel-empty-icon">
+
+                                    <svg viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="1.8"
+                                         stroke-linecap="round">
+                                        <rect x="3" y="3" width="7" height="7" rx="1"/>
+                                        <rect x="14" y="3" width="7" height="7" rx="1"/>
+                                        <rect x="3" y="14" width="7" height="7" rx="1"/>
+                                        <rect x="14" y="14" width="7" height="7" rx="1"/>
+                                    </svg>
+
+                                </span>
+
+                                <span class="section-eyebrow">
+                                    BUILD YOUR STRUCTURE
+                                </span>
+
+                                <h3>
+                                    Категориялар әзірге жоқ
+                                </h3>
+
+                                <p>
+                                    Бірінші категорияны қосып,
+                                    дүкен каталогының құрылымын жаса.
+                                </p>
+
+                                <button
+                                        type="button"
+                                        class="btn btn-primary"
+                                        id="admin-categories-empty-add">
+
+                                    <svg viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="2"
+                                         stroke-linecap="round">
+                                        <path d="M12 5v14M5 12h14"/>
+                                    </svg>
+
+                                    Add First Category
+
+                                </button>
+
+                            </div>
+
+                            <div class="admin-panel-empty hidden"
+                                 id="admin-categories-filter-empty">
+
+                                <span class="admin-panel-empty-icon">
+
+                                    <svg viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="1.8"
+                                         stroke-linecap="round">
+                                        <circle cx="11" cy="11" r="7"/>
+                                        <path d="m16 16 4 4"/>
+                                    </svg>
+
+                                </span>
+
+                                <h3>
+                                    Категория табылмады
+                                </h3>
+
+                                <p>
+                                    Іздеу сұранысына сәйкес категория жоқ.
+                                    Басқа атау енгізіп көр.
+                                </p>
+
+                                <button
+                                        class="btn btn-outline"
+                                        type="button"
+                                        id="admin-categories-reset-search">
+                                    Барлық категориялар
+                                </button>
+
+                            </div>
+
+                            <div class="admin-categories-table-container hidden"
+                                 id="admin-categories-table-container">
+
+                                <div class="admin-table-container">
+
+                                    <table class="admin-table admin-categories-table">
+
+                                        <thead>
+
+                                        <tr>
+
+                                            <th scope="col">
+                                                CATEGORY
+                                            </th>
+
+                                            <th scope="col">
+                                                DESCRIPTION
+                                            </th>
+
+                                            <th scope="col">
+                                                PRODUCTS
+                                            </th>
+
+                                            <th scope="col">
+                                                CATEGORY ID
+                                            </th>
+
+                                            <th scope="col">
+                                                ACTIONS
+                                            </th>
+
+                                        </tr>
+
+                                        </thead>
+
+                                        <tbody id="admin-categories-table-body"></tbody>
+
+                                    </table>
+
+                                </div>
+
+                            </div>
+
+                            <div class="admin-categories-table-footer hidden"
+                                 id="admin-categories-table-footer">
+
+                                <span
+                                        id="admin-categories-pagination-info"
+                                        aria-live="polite">
+                                    —
+                                </span>
+
+                                <nav
+                                        class="pagination"
+                                        id="admin-categories-pagination"
+                                        aria-label="Категориялар беттері"></nav>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+                    <section class="admin-categories-guide-section"
+                             aria-labelledby="admin-categories-guide-title">
+
+                        <div class="admin-section-heading">
+
+                            <div>
+
+                                <span class="admin-eyebrow">
+                                    CATALOG WORKFLOW
+                                </span>
+
+                                <h2 id="admin-categories-guide-title">
+                                    Category Workflow
+                                </h2>
+
+                                <p>
+                                    Категорияларды басқарудың негізгі әрекеттері
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                        <div class="admin-quick-actions-grid">
+
+                            <button
+                                    class="admin-quick-action-card"
+                                    type="button"
+                                    id="admin-category-quick-add">
+
+                                <span class="admin-quick-action-icon admin-quick-action-purple">
+
+                                    <svg viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="1.8"
+                                         stroke-linecap="round">
+                                        <path d="M12 5v14M5 12h14"/>
+                                        <rect x="2" y="2" width="20" height="20" rx="5"/>
+                                    </svg>
+
+                                </span>
+
+                                <strong>
+                                    Add Category
+                                </strong>
+
+                                <p>
+                                    Жаңа категория жасау
+                                </p>
+
+                                <span class="admin-quick-action-arrow">
+
+                                    <svg viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="2"
+                                         stroke-linecap="round">
+                                        <path d="M5 12h14m-6-6 6 6-6 6"/>
+                                    </svg>
+
+                                </span>
+
+                            </button>
+
+                            <a href="/admin/products.html"
+                               class="admin-quick-action-card">
+
+                                <span class="admin-quick-action-icon admin-quick-action-blue">
+
+                                    <svg viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="1.8"
+                                         stroke-linecap="round">
+                                        <path d="m12 2 9 5v10l-9 5-9-5V7l9-5Z"/>
+                                        <path d="m3 7 9 5 9-5M12 12v10"/>
+                                    </svg>
+
+                                </span>
+
+                                <strong>
+                                    Manage Products
+                                </strong>
+
+                                <p>
+                                    Тауарлар каталогын басқару
+                                </p>
+
+                                <span class="admin-quick-action-arrow">
+
+                                    <svg viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="2"
+                                         stroke-linecap="round">
+                                        <path d="M5 12h14m-6-6 6 6-6 6"/>
+                                    </svg>
+
+                                </span>
+
+                            </a>
+
+                            <a href="/admin/product-form.html"
+                               class="admin-quick-action-card">
+
+                                <span class="admin-quick-action-icon admin-quick-action-orange">
+
+                                    <svg viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="1.8"
+                                         stroke-linecap="round">
+                                        <path d="m12 2 9 5v10l-9 5-9-5V7l9-5Z"/>
+                                        <path d="m3 7 9 5 9-5M12 12v10"/>
+                                        <path d="M17 3v8M13 7h8"/>
+                                    </svg>
+
+                                </span>
+
+                                <strong>
+                                    Create Product
+                                </strong>
+
+                                <p>
+                                    Категорияға жаңа тауар қосу
+                                </p>
+
+                                <span class="admin-quick-action-arrow">
+
+                                    <svg viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="2"
+                                         stroke-linecap="round">
+                                        <path d="M5 12h14m-6-6 6 6-6 6"/>
+                                    </svg>
+
+                                </span>
+
+                            </a>
+
+                            <a href="/pages/catalog.html"
+                               class="admin-quick-action-card">
+
+                                <span class="admin-quick-action-icon admin-quick-action-green">
+
+                                    <svg viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="1.8"
+                                         stroke-linecap="round">
+                                        <rect x="3" y="3" width="7" height="7" rx="1"/>
+                                        <rect x="14" y="3" width="7" height="7" rx="1"/>
+                                        <rect x="3" y="14" width="7" height="7" rx="1"/>
+                                        <rect x="14" y="14" width="7" height="7" rx="1"/>
+                                    </svg>
+
+                                </span>
+
+                                <strong>
+                                    View Catalog
+                                </strong>
+
+                                <p>
+                                    Каталогты сатып алушы ретінде қарау
+                                </p>
+
+                                <span class="admin-quick-action-arrow">
+
+                                    <svg viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="2"
+                                         stroke-linecap="round">
+                                        <path d="M5 12h14m-6-6 6 6-6 6"/>
+                                    </svg>
+
+                                </span>
+
+                            </a>
+
+                        </div>
+
+                    </section>
+
+                    <section class="admin-categories-info-section">
+
+                        <div class="admin-dashboard-panel admin-categories-info-panel">
+
+                            <span class="admin-categories-info-icon">
+
+                                <svg viewBox="0 0 24 24"
+                                     fill="none"
+                                     stroke="currentColor"
+                                     stroke-width="1.8"
+                                     stroke-linecap="round">
+                                    <circle cx="12" cy="12" r="9"/>
+                                    <path d="M12 11v5M12 8h.01"/>
+                                </svg>
+
+                            </span>
+
+                            <div>
+
+                                <h3>
+                                    Категорияларды жою туралы
+                                </h3>
+
+                                <p>
+                                    Егер категорияға тауарлар тіркелген болса,
+                                    оны жою деректер базасының байланыс
+                                    шектеулеріне әсер етуі мүмкін.
+                                    Сондықтан жою алдында сол категориядағы
+                                    тауарларды тексерген дұрыс. Соңғы шешімді
+                                    Backend қабылдайды.
+                                </p>
+
+                            </div>
+
+                            <a href="/admin/products.html"
+                               class="btn btn-outline">
+                                Check Products
+                            </a>
+
+                        </div>
+
+                    </section>
+
+                    <footer class="admin-footer">
+
+                        <span>
+                            © 2026 NEXORA. Admin Management System.
+                        </span>
+
+                        <span>
+                            Built with Java · Spring Boot · PostgreSQL
+                        </span>
+
+                    </footer>
+
+                </div>
+
+            </div>
+
+        </main>
+
+    </div>
+
+</div>
+
+<div class="modal-backdrop"
+     id="admin-category-form-modal"
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="admin-category-form-modal-title"
+     aria-describedby="admin-category-form-modal-description"
+     hidden>
+
+    <div class="modal-panel admin-category-modal-panel">
+
+        <div class="modal-header">
+
+            <div>
+
+                <span class="admin-eyebrow"
+                      id="admin-category-form-eyebrow">
+                    CATEGORY EDITOR
+                </span>
+
+                <h2 class="modal-title"
+                    id="admin-category-form-modal-title">
+                    Add Category
+                </h2>
+
+            </div>
+
+            <button
+                    class="icon-button"
+                    type="button"
+                    id="admin-category-form-modal-close"
+                    aria-label="Терезені жабу">
+
+                <svg viewBox="0 0 24 24"
+                     fill="none"
+                     stroke="currentColor"
+                     stroke-width="2"
+                     stroke-linecap="round">
+                    <path d="M5 5l14 14M19 5 5 19"/>
+                </svg>
+
+            </button>
+
+        </div>
+
+        <form id="admin-category-form"
+              class="admin-category-form">
+
+            <div class="modal-body">
+
+                <p class="admin-category-form-description"
+                   id="admin-category-form-modal-description">
+                    Категорияның атауы мен сипаттамасын енгіз.
+                    Бұл мәліметтер каталогты ұйымдастыруға қолданылады.
+                </p>
+
+                <input
+                        type="hidden"
+                        id="admin-category-id"
+                        name="id"
+                        value="">
+
+                <div class="alert alert-danger hidden"
+                     id="admin-category-form-error"
+                     role="alert"
+                     aria-live="assertive"></div>
+
+                <div class="form-group">
+
+                    <label
+                            class="form-label form-label-required"
+                            for="admin-category-name">
+                        Category Name
+                    </label>
+
+                    <div class="admin-category-input-wrapper">
+
+                        <span class="admin-category-field-icon">
+
+                            <svg viewBox="0 0 24 24"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="1.8"
+                                 stroke-linecap="round">
+                                <rect x="3" y="3" width="7" height="7" rx="1"/>
+                                <rect x="14" y="3" width="7" height="7" rx="1"/>
+                                <rect x="3" y="14" width="7" height="7" rx="1"/>
+                                <rect x="14" y="14" width="7" height="7" rx="1"/>
+                            </svg>
+
+                        </span>
+
+                        <input
+                                class="form-control"
+                                type="text"
+                                id="admin-category-name"
+                                name="name"
+                                placeholder="Мысалы: Electronics"
+                                minlength="2"
+                                maxlength="255"
+                                autocomplete="off"
+                                aria-describedby="admin-category-name-hint admin-category-name-error"
+                                required>
+
+                    </div>
+
+                    <p class="form-hint"
+                       id="admin-category-name-hint">
+                        Категория атауы қысқа әрі түсінікті болуы керек.
+                    </p>
+
+                    <span class="form-error hidden"
+                          id="admin-category-name-error"
+                          role="alert"></span>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label class="form-label"
+                           for="admin-category-description">
+                        Description
+                    </label>
+
+                    <textarea
+                            class="form-control"
+                            id="admin-category-description"
+                            name="description"
+                            placeholder="Категорияға қандай тауарлар жататынын сипатта..."
+                            rows="5"
+                            maxlength="1000"
+                            aria-describedby="admin-category-description-hint admin-category-description-error"></textarea>
+
+                    <div class="admin-editor-field-footer">
+
+                        <span class="form-hint"
+                              id="admin-category-description-hint">
+                            Категория туралы қысқаша ақпарат.
+                        </span>
+
+                        <span class="admin-character-count"
+                              id="admin-category-description-count">
+                            0 / 1000
+                        </span>
+
+                    </div>
+
+                    <span class="form-error hidden"
+                          id="admin-category-description-error"
+                          role="alert"></span>
+
+                </div>
+
+                <div class="admin-category-preview">
+
+                    <div class="admin-category-preview-heading">
+
+                        <span class="admin-eyebrow">
+                            LIVE PREVIEW
+                        </span>
+
+                        <strong>
+                            Category Preview
+                        </strong>
+
+                    </div>
+
+                    <div class="admin-category-preview-card">
+
+                        <span class="admin-category-preview-icon">
+
+                            <svg viewBox="0 0 24 24"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="1.8"
+                                 stroke-linecap="round">
+                                <rect x="3" y="3" width="7" height="7" rx="1"/>
+                                <rect x="14" y="3" width="7" height="7" rx="1"/>
+                                <rect x="3" y="14" width="7" height="7" rx="1"/>
+                                <rect x="14" y="14" width="7" height="7" rx="1"/>
+                            </svg>
+
+                        </span>
+
+                        <div class="admin-category-preview-content">
+
+                            <strong id="admin-category-preview-name">
+                                Your Category
+                            </strong>
+
+                            <p id="admin-category-preview-description">
+                                Категория сипаттамасы осы жерде көрсетіледі.
+                            </p>
+
+                        </div>
+
+                        <span class="admin-category-preview-arrow">
+
+                            <svg viewBox="0 0 24 24"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="2"
+                                 stroke-linecap="round">
+                                <path d="M5 12h14m-6-6 6 6-6 6"/>
+                            </svg>
+
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button
+                        class="btn btn-outline"
+                        type="button"
+                        id="admin-category-form-cancel">
+                    Cancel
+                </button>
+
+                <button
+                        class="btn btn-primary"
+                        type="submit"
+                        id="admin-category-save-button">
+
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="2"
+                         stroke-linecap="round">
+                        <path d="M5 4h12l3 3v13H4V4h1Z"/>
+                        <path d="M8 4v6h8V4M8 20v-7h8v7"/>
+                    </svg>
+
+                    <span id="admin-category-save-text">
+                        Save Category
+                    </span>
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<div class="modal-backdrop"
+     id="admin-category-delete-modal"
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="admin-category-delete-title"
+     aria-describedby="admin-category-delete-description"
+     hidden>
+
+    <div class="modal-panel admin-delete-modal-panel">
+
+        <div class="modal-header">
+
+            <h2 class="modal-title"
+                id="admin-category-delete-title">
+                Категорияны жою
+            </h2>
+
+            <button
+                    class="icon-button"
+                    type="button"
+                    id="admin-category-delete-close"
+                    aria-label="Терезені жабу">
+
+                <svg viewBox="0 0 24 24"
+                     fill="none"
+                     stroke="currentColor"
+                     stroke-width="2"
+                     stroke-linecap="round">
+                    <path d="M5 5l14 14M19 5 5 19"/>
+                </svg>
+
+            </button>
+
+        </div>
+
+        <div class="modal-body">
+
+            <div class="admin-delete-warning-icon">
+
+                <svg viewBox="0 0 24 24"
+                     fill="none"
+                     stroke="currentColor"
+                     stroke-width="1.8"
+                     stroke-linecap="round"
+                     stroke-linejoin="round">
+                    <path d="M3 6h18M8 6V4h8v2M5 6l1 15h12l1-15M10 10v7M14 10v7"/>
+                </svg>
+
+            </div>
+
+            <h3 class="admin-delete-confirmation-heading">
+                Категорияны жойғың келе ме?
+            </h3>
+
+            <p id="admin-category-delete-description">
+                Таңдалған категорияны жою әрекетін
+                растаудан бұрын мәліметтерді тексер.
+            </p>
+
+            <div class="admin-delete-product-preview">
+
+                <span class="admin-delete-product-icon">
+
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.8"
+                         stroke-linecap="round">
+                        <rect x="3" y="3" width="7" height="7" rx="1"/>
+                        <rect x="14" y="3" width="7" height="7" rx="1"/>
+                        <rect x="3" y="14" width="7" height="7" rx="1"/>
+                        <rect x="14" y="14" width="7" height="7" rx="1"/>
+                    </svg>
+
+                </span>
+
+                <div>
+
+                    <strong id="admin-category-delete-name">
+                        —
+                    </strong>
+
+                    <small id="admin-category-delete-id">
+                        Category ID: —
+                    </small>
+
+                </div>
+
+            </div>
+
+            <div class="admin-category-delete-products">
+
+                <span>
+                    Категориядағы тауарлар
+                </span>
+
+                <strong id="admin-category-delete-products-count">
+                    —
+                </strong>
+
+            </div>
+
+            <div class="alert alert-warning">
+
+                <svg viewBox="0 0 24 24"
+                     fill="none"
+                     stroke="currentColor"
+                     stroke-width="1.8"
+                     stroke-linecap="round">
+                    <circle cx="12" cy="12" r="9"/>
+                    <path d="M12 7v6M12 17h.01"/>
+                </svg>
+
+                <span>
+                    Егер категорияға тауарлар байланыстырылған болса,
+                    PostgreSQL байланыс шектеулеріне байланысты
+                    жою орындалмауы мүмкін. Сервер жауабын
+                    алғаннан кейін ғана нәтижені көрсетеміз.
+                </span>
+
+            </div>
+
+            <div class="alert alert-danger hidden"
+                 id="admin-category-delete-error"
+                 role="alert"></div>
+
+        </div>
+
+        <div class="modal-footer">
+
+            <button
+                    class="btn btn-outline"
+                    type="button"
+                    id="admin-category-delete-cancel">
+                Болдырмау
+            </button>
+
+            <button
+                    class="btn btn-danger"
+                    type="button"
+                    id="admin-category-delete-confirm">
+
+                <svg viewBox="0 0 24 24"
+                     fill="none"
+                     stroke="currentColor"
+                     stroke-width="1.8"
+                     stroke-linecap="round">
+                    <path d="M3 6h18M8 6V4h8v2M5 6l1 15h12l1-15"/>
+                </svg>
+
+                <span id="admin-category-delete-confirm-text">
+                    Иә, жою
+                </span>
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div class="modal-backdrop"
+     id="admin-logout-modal"
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="admin-logout-modal-title"
+     aria-describedby="admin-logout-modal-description"
+     hidden>
+
+    <div class="modal-panel">
+
+        <div class="modal-header">
+
+            <h2 class="modal-title"
+                id="admin-logout-modal-title">
+                Жүйеден шығу
+            </h2>
+
+            <button
+                    class="icon-button"
+                    type="button"
+                    id="admin-logout-modal-close"
+                    aria-label="Терезені жабу">
+
+                <svg viewBox="0 0 24 24"
+                     fill="none"
+                     stroke="currentColor"
+                     stroke-width="2"
+                     stroke-linecap="round">
+                    <path d="M5 5l14 14M19 5 5 19"/>
+                </svg>
+
+            </button>
+
+        </div>
+
+        <div class="modal-body">
+
+            <p id="admin-logout-modal-description">
+                Admin аккаунтыңнан шыққың келе ме?
+                Жүйеден шыққаннан кейін басқару панеліне
+                қайта кіру үшін авторизация қажет болады.
+            </p>
+
+            <div class="alert alert-danger hidden"
+                 id="admin-logout-error"
+                 role="alert"></div>
+
+        </div>
+
+        <div class="modal-footer">
+
+            <button
+                    class="btn btn-outline"
+                    type="button"
+                    id="admin-logout-cancel">
+                Болдырмау
+            </button>
+
+            <button
+                    class="btn btn-danger"
+                    type="button"
+                    id="admin-logout-confirm">
+                Иә, шығу
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div class="toast-container"
+     id="toast-container"
+     role="region"
+     aria-label="Жүйелік хабарламалар"
+     aria-live="polite"></div>
+
+<script type="module" src="/js/app.js"></script>
+
+</body>
+</html>
