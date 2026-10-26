@@ -1,242 +1,158 @@
 
-import api, {
-    getErrorMessage
-} from "../core/api.js";
+import api, { getErrorMessage } from "../core/api.js";
+import { showSuccess, showError } from "../components/toast.js";
 
-import {
-    formatInteger,
-    debounce,
-    showElement,
-    hideElement,
-    openModal,
-    closeModal,
-    setupModal,
-    setButtonLoading
-} from "../core/utils.js";
+const IDS = {
+    refresh: "admin-categories-refresh-button",
+    retry: "admin-categories-retry-button",
+    add: "admin-add-category-button",
+    bannerAdd: "admin-category-banner-add",
+    quickAdd: "admin-category-quick-add",
+    emptyAdd: "admin-categories-empty-add",
 
-import {
-    showSuccess,
-    showError,
-    showInfo
-} from "../components/toast.js";
+    total: "admin-categories-total",
+    products: "admin-categories-products-count",
+    used: "admin-categories-used-count",
+    unused: "admin-categories-empty-count",
 
-const SELECTORS = {
-    tableBody: [
-        "#admin-categories-table-body",
-        "#categories-table-body",
-        "#categories-tbody",
-        "[data-categories-table-body]"
-    ],
-    grid: [
-        "#admin-categories-grid",
-        "#categories-grid",
-        "[data-categories-grid]"
-    ],
-    search: [
-        "#admin-categories-search",
-        "#categories-search",
-        'input[name="categorySearch"]'
-    ],
-    sort: [
-        "#admin-categories-sort",
-        "#categories-sort",
-        'select[name="categorySort"]'
-    ],
-    totalCount: [
-        "#admin-total-categories",
-        "#categories-total-count",
-        "[data-total-categories]"
-    ],
-    resultsCount: [
-        "#admin-categories-count",
-        "#categories-count",
-        "[data-categories-count]"
-    ],
-    loading: [
-        "#admin-categories-loading",
-        "#categories-loading",
-        "[data-categories-loading]"
-    ],
-    empty: [
-        "#admin-categories-empty",
-        "#categories-empty",
-        "[data-categories-empty]"
-    ],
-    error: [
-        "#admin-categories-error",
-        "#categories-error",
-        "[data-categories-error]"
-    ],
-    refresh: [
-        "#admin-categories-refresh",
-        "#categories-refresh",
-        "[data-categories-refresh]"
-    ],
-    addButton: [
-        "#admin-add-category",
-        "#add-category-button",
-        "[data-add-category]"
-    ],
-    modal: [
-        "#category-modal",
-        "#admin-category-modal",
-        "[data-category-modal]"
-    ],
-    form: [
-        "#category-form",
-        "#admin-category-form",
-        "[data-category-form]"
-    ],
-    modalTitle: [
-        "#category-modal-title",
-        "#category-form-title",
-        "[data-category-modal-title]"
-    ],
-    name: [
-        "#category-name",
-        "#admin-category-name",
-        'input[name="name"]'
-    ],
-    description: [
-        "#category-description",
-        'textarea[name="description"]',
-        'input[name="description"]'
-    ],
-    submit: [
-        "#category-form-submit",
-        "#save-category-button",
-        "[data-category-save]"
-    ],
-    cancel: [
-        "#category-form-cancel",
-        "[data-category-cancel]"
-    ],
-    formError: [
-        "#category-form-error",
-        "[data-category-form-error]"
-    ]
+    searchForm: "admin-categories-search-form",
+    search: "admin-categories-search",
+    sort: "admin-categories-sort",
+    reset: "admin-categories-clear-filters",
+    resetSearch: "admin-categories-reset-search",
+
+    loading: "admin-categories-loading",
+    error: "admin-categories-error",
+    errorMessage: "admin-categories-error-message",
+    empty: "admin-categories-empty",
+    filterEmpty: "admin-categories-filter-empty",
+    resultsCount: "admin-categories-results-count",
+
+    tableContainer: "admin-categories-table-container",
+    tableBody: "admin-categories-table-body",
+    tableFooter: "admin-categories-table-footer",
+    paginationInfo: "admin-categories-pagination-info",
+    pagination: "admin-categories-pagination",
+
+    formModal: "admin-category-form-modal",
+    form: "admin-category-form",
+    formTitle: "admin-category-form-modal-title",
+    formEyebrow: "admin-category-form-eyebrow",
+    formClose: "admin-category-form-modal-close",
+    formCancel: "admin-category-form-cancel",
+    formError: "admin-category-form-error",
+    name: "admin-category-name",
+    nameError: "admin-category-name-error",
+    description: "admin-category-description",
+    descriptionHint: "admin-category-description-hint",
+    descriptionCount: "admin-category-description-count",
+    previewName: "admin-category-preview-name",
+    previewDescription: "admin-category-preview-description",
+    save: "admin-category-save-button",
+    saveText: "admin-category-save-text",
+
+    deleteModal: "admin-category-delete-modal",
+    deleteClose: "admin-category-delete-close",
+    deleteCancel: "admin-category-delete-cancel",
+    deleteConfirm: "admin-category-delete-confirm",
+    deleteConfirmText: "admin-category-delete-confirm-text",
+    deleteName: "admin-category-delete-name",
+    deleteId: "admin-category-delete-id",
+    deleteCount: "admin-category-delete-products-count",
+    deleteError: "admin-category-delete-error"
 };
+
+const CATEGORY_API = "/api/categories";
+const PRODUCT_API = "/api/products";
+const PAGE_SIZE = 10;
+const PRODUCT_PAGE_SIZE = 50;
+const MAX_PRODUCT_PAGES = 200;
+
+const SORT_OPTIONS = new Set([
+    "id-desc",
+    "id-asc",
+    "name-asc",
+    "name-desc",
+    "products-desc",
+    "products-asc"
+]);
+
+const $ = id => document.getElementById(id);
+
+const numberFormatter = new Intl.NumberFormat("kk-KZ");
 
 let initialized = false;
 let active = false;
 let loading = false;
-let submitting = false;
-let requestVersion = 0;
-
-let eventController = null;
-let modalCleanup = null;
-let searchDebounce = null;
+let saving = false;
+let deleting = false;
+let version = 0;
+let events = null;
+let searchTimer = null;
 
 let categories = [];
-let editingCategoryId = null;
+let productCounts = null;
+let totalProductCount = null;
+
+let editingId = null;
+let deletingId = null;
+let modalReturnFocus = null;
+let previousOverflow = "";
 
 let state = {
     keyword: "",
-    sort: "name-asc"
+    sort: "id-desc",
+    page: 0
 };
 
-function findElement(selectors, root = document) {
-    for (const selector of selectors) {
-        const element = root.querySelector(selector);
+function text(id, value) {
+    const element = $(id);
 
-        if (element) {
-            return element;
-        }
+    if (element) {
+        element.textContent = String(value ?? "—");
+    }
+}
+
+function visible(id, show) {
+    const element = $(id);
+
+    if (!element) {
+        return;
     }
 
-    return null;
+    element.hidden = !show;
+    element.classList.toggle("hidden", !show);
 }
 
-function getElements() {
-    const elements = {};
-
-    for (const [name, selectors] of Object.entries(SELECTORS)) {
-        elements[name] = findElement(selectors);
-    }
-
-    return elements;
-}
-
-function getFormElement(selectors) {
-    const form = getElements().form;
-
-    return (
-        form ? findElement(selectors, form) : null
-    ) ?? findElement(selectors);
-}
-
-function createElement(tag, className = "", text = null) {
+function node(tag, className = "", value = null) {
     const element = document.createElement(tag);
 
     if (className) {
         element.className = className;
     }
 
-    if (text !== null && text !== undefined) {
-        element.textContent = String(text);
+    if (value !== null && value !== undefined) {
+        element.textContent = String(value);
     }
 
     return element;
 }
 
-function setText(element, value) {
-    if (element) {
-        element.textContent = String(value ?? "—");
-    }
+function count(value) {
+    return value === null || value === undefined
+        ? "—"
+        : numberFormatter.format(value);
 }
 
-function parseId(value) {
-    if (
-        value === null ||
-        value === undefined ||
-        value === ""
-    ) {
-        return null;
-    }
+function idOf(value) {
+    const number = Number(value);
 
-    const id = Number(value);
-
-    return Number.isSafeInteger(id) && id > 0
-        ? id
+    return Number.isSafeInteger(number) && number > 0
+        ? number
         : null;
 }
 
-function normalizeCategory(category) {
-    if (
-        !category ||
-        typeof category !== "object"
-    ) {
-        return null;
-    }
-
-    const id = parseId(
-        category.id ?? category.categoryId
-    );
-
-    if (id === null) {
-        return null;
-    }
-
-    const count = Number(
-        category.productCount ??
-        category.productsCount
-    );
-
-    return {
-        id,
-        name: String(
-            category.name ?? "Unnamed Category"
-        ).trim(),
-        description: String(
-            category.description ?? ""
-        ).trim(),
-        productCount: Number.isFinite(count) && count >= 0
-            ? Math.trunc(count)
-            : null
-    };
-}
-
-function extractCategories(response) {
+function extractArray(response) {
     if (Array.isArray(response)) {
         return response;
     }
@@ -253,364 +169,381 @@ function extractCategories(response) {
         return response.data.content;
     }
 
-    if (Array.isArray(response?.categories)) {
-        return response.categories;
+    return null;
+}
+
+function normalizeCategory(raw) {
+    const id = idOf(raw?.id);
+
+    if (id === null) {
+        return null;
     }
 
-    return [];
+    const rawCount = raw.productCount ?? raw.productsCount;
+    const parsedCount = Number(rawCount);
+
+    return {
+        id,
+        name: String(raw.name ?? "").trim(),
+        description: String(raw.description ?? "").trim(),
+        reportedCount:
+            rawCount !== null &&
+            rawCount !== undefined &&
+            Number.isSafeInteger(parsedCount) &&
+            parsedCount >= 0
+                ? parsedCount
+                : null
+    };
 }
 
-function setLoading(value) {
-    loading = value;
-
-    const elements = getElements();
-
-    if (value) {
-        showElement(elements.loading);
-        hideElement(elements.error);
-    } else {
-        hideElement(elements.loading);
+function categoryProductCount(category) {
+    if (productCounts !== null) {
+        return productCounts.get(category.id) ?? 0;
     }
 
-    if (elements.refresh) {
-        elements.refresh.disabled = value;
-    }
-
-    const container =
-        elements.tableBody ?? elements.grid;
-
-    container?.setAttribute(
-        "aria-busy",
-        String(value)
-    );
+    return category.reportedCount;
 }
 
-function getFilteredCategories() {
-    const keyword = state.keyword.toLowerCase();
-
-    const filtered = categories.filter(category => {
-        if (!keyword) {
-            return true;
-        }
-
-        return [
-            category.name,
-            category.description,
-            String(category.id)
-        ]
-            .join(" ")
-            .toLowerCase()
-            .includes(keyword);
-    });
-
-    return filtered.sort((first, second) => {
-        switch (state.sort) {
-            case "name-desc":
-                return second.name.localeCompare(
-                    first.name
-                );
-
-            case "id-asc":
-                return first.id - second.id;
-
-            case "id-desc":
-                return second.id - first.id;
-
-            case "products-desc":
-                return (
-                    (second.productCount ?? -1) -
-                    (first.productCount ?? -1)
-                );
-
-            default:
-                return first.name.localeCompare(
-                    second.name
-                );
-        }
-    });
+function getCategory(categoryId) {
+    return categories.find(
+        category => category.id === categoryId
+    ) ?? null;
 }
 
-function createCategoryActions(category) {
-    const actions = createElement(
-        "div",
-        "admin-table-actions category-actions"
-    );
+function getFiltered() {
+    const keyword = state.keyword.toLocaleLowerCase();
 
-    const editButton = createElement(
-        "button",
-        "btn btn-outline btn-sm",
-        "Edit"
-    );
+    return categories
+        .filter(category =>
+            !keyword ||
+            category.name.toLocaleLowerCase().includes(keyword) ||
+            category.description.toLocaleLowerCase().includes(keyword) ||
+            String(category.id).includes(keyword)
+        )
+        .sort((a, b) => {
+            switch (state.sort) {
+                case "id-asc":
+                    return a.id - b.id;
 
-    editButton.type = "button";
-    editButton.dataset.editCategoryId =
-        String(category.id);
+                case "name-asc":
+                    return a.name.localeCompare(b.name);
 
-    const deleteButton = createElement(
-        "button",
-        "btn btn-danger-outline btn-sm",
-        "Delete"
-    );
+                case "name-desc":
+                    return b.name.localeCompare(a.name);
 
-    deleteButton.type = "button";
-    deleteButton.dataset.deleteCategoryId =
-        String(category.id);
+                case "products-desc":
+                    return (
+                        (categoryProductCount(b) ?? -1) -
+                        (categoryProductCount(a) ?? -1)
+                    ) || b.id - a.id;
 
-    actions.append(
-        editButton,
-        deleteButton
-    );
+                case "products-asc":
+                    return (
+                        (categoryProductCount(a) ?? Infinity) -
+                        (categoryProductCount(b) ?? Infinity)
+                    ) || a.id - b.id;
 
-    return actions;
+                default:
+                    return b.id - a.id;
+            }
+        });
 }
 
-function createCategoryTableRow(category) {
+function makeCategoryRow(category) {
     const row = document.createElement("tr");
 
     row.dataset.categoryId = String(category.id);
 
     const nameCell = document.createElement("td");
+    const info = node("div", "admin-category-info");
 
-    const information = createElement(
-        "div",
-        "admin-category-info"
-    );
-
-    const icon = createElement(
+    const icon = node(
         "span",
         "admin-category-icon",
         category.name.charAt(0).toUpperCase() || "C"
     );
 
-    const details = createElement(
-        "div",
-        "admin-category-details"
+    const details = node("div", "admin-category-details");
+
+    details.append(
+        node("strong", "admin-category-name", category.name)
     );
 
-    const name = createElement(
-        "strong",
-        "admin-category-name",
-        category.name
-    );
+    info.append(icon, details);
+    nameCell.appendChild(info);
 
-    const identifier = createElement(
-        "span",
-        "admin-category-id",
-        `#${category.id}`
-    );
-
-    details.append(name, identifier);
-    information.append(icon, details);
-    nameCell.appendChild(information);
-
-    const descriptionCell = createElement(
+    const descriptionCell = node(
         "td",
         "admin-category-description",
         category.description || "—"
     );
 
-    const countCell = document.createElement("td");
+    const productsCell = document.createElement("td");
+    const productCount = categoryProductCount(category);
 
-    if (category.productCount !== null) {
-        const link = createElement(
+    if (productCount !== null) {
+        const link = node(
             "a",
             "admin-category-products-link",
-            formatInteger(category.productCount)
+            count(productCount)
         );
 
         link.href =
             `/admin/products.html?categoryId=${encodeURIComponent(category.id)}`;
 
-        countCell.appendChild(link);
+        productsCell.appendChild(link);
     } else {
-        countCell.textContent = "—";
+        productsCell.textContent = "—";
     }
 
-    const actionsCell = document.createElement("td");
-
-    actionsCell.appendChild(
-        createCategoryActions(category)
+    const idCell = node(
+        "td",
+        "admin-category-id",
+        `#${category.id}`
     );
+
+    const actionsCell = document.createElement("td");
+    const actions = node("div", "admin-table-actions");
+
+    const edit = node(
+        "button",
+        "btn btn-outline btn-sm",
+        "Edit"
+    );
+
+    edit.type = "button";
+    edit.dataset.editCategoryId = String(category.id);
+
+    const remove = node(
+        "button",
+        "btn btn-danger-outline btn-sm",
+        "Delete"
+    );
+
+    remove.type = "button";
+    remove.dataset.deleteCategoryId = String(category.id);
+
+    actions.append(edit, remove);
+    actionsCell.appendChild(actions);
 
     row.append(
         nameCell,
         descriptionCell,
-        countCell,
+        productsCell,
+        idCell,
         actionsCell
     );
 
     return row;
 }
 
-function createCategoryCard(category) {
-    const card = createElement(
-        "article",
-        "admin-category-card"
+function paginationButton(label, page, disabled = false, current = false) {
+    const button = node(
+        "button",
+        "pagination-button",
+        label
     );
 
-    card.dataset.categoryId = String(category.id);
+    button.type = "button";
+    button.dataset.page = String(page);
+    button.disabled = disabled || current;
+    button.classList.toggle("is-active", current);
 
-    const header = createElement(
-        "div",
-        "admin-category-card-header"
-    );
+    if (current) {
+        button.setAttribute("aria-current", "page");
+    }
 
-    const icon = createElement(
-        "span",
-        "admin-category-icon",
-        category.name.charAt(0).toUpperCase() || "C"
-    );
-
-    const name = createElement(
-        "h3",
-        "admin-category-card-title",
-        category.name
-    );
-
-    header.append(icon, name);
-
-    const description = createElement(
-        "p",
-        "admin-category-card-description",
-        category.description ||
-        "No description available."
-    );
-
-    const footer = createElement(
-        "div",
-        "admin-category-card-footer"
-    );
-
-    const productCount = createElement(
-        "span",
-        "admin-category-products",
-        category.productCount !== null
-            ? `${formatInteger(category.productCount)} products`
-            : "Product count unavailable"
-    );
-
-    footer.appendChild(productCount);
-    footer.appendChild(
-        createCategoryActions(category)
-    );
-
-    card.append(
-        header,
-        description,
-        footer
-    );
-
-    return card;
+    return button;
 }
 
-function showEmptyState() {
-    const elements = getElements();
-
-    elements.tableBody?.replaceChildren();
-    elements.grid?.replaceChildren();
-
-    if (elements.empty) {
-        showElement(elements.empty);
-        return;
-    }
-
-    if (elements.tableBody) {
-        const row = document.createElement("tr");
-        const cell = document.createElement("td");
-
-        cell.colSpan = 4;
-        cell.className = "admin-table-empty";
-
-        cell.textContent = state.keyword
-            ? "Іздеу нәтижесінде категориялар табылмады."
-            : "Әзірге категориялар жоқ.";
-
-        row.appendChild(cell);
-        elements.tableBody.appendChild(row);
-
-        return;
-    }
-
-    if (elements.grid) {
-        const message = createElement(
-            "p",
-            "empty-state",
-            state.keyword
-                ? "Категориялар табылмады."
-                : "Әзірге категориялар жоқ."
-        );
-
-        elements.grid.appendChild(message);
-    }
-}
-
-function renderCategories() {
-    const elements = getElements();
-    const filtered = getFilteredCategories();
-
-    setText(
-        elements.totalCount,
-        formatInteger(categories.length)
-    );
-
-    setText(
-        elements.resultsCount,
-        `${formatInteger(filtered.length)} categories`
-    );
-
-    if (filtered.length === 0) {
-        showEmptyState();
-        return;
-    }
-
-    hideElement(elements.empty);
-
-    const container =
-        elements.tableBody ?? elements.grid;
+function renderPagination(totalPages) {
+    const container = $(IDS.pagination);
 
     if (!container) {
         return;
     }
 
-    const isTable =
-        container instanceof HTMLTableSectionElement;
-
     const fragment = document.createDocumentFragment();
 
-    for (const category of filtered) {
+    if (totalPages > 1) {
         fragment.appendChild(
-            isTable
-                ? createCategoryTableRow(category)
-                : createCategoryCard(category)
+            paginationButton("Previous", state.page - 1, state.page === 0)
+        );
+
+        for (let page = 0; page < totalPages; page++) {
+            fragment.appendChild(
+                paginationButton(
+                    String(page + 1),
+                    page,
+                    false,
+                    page === state.page
+                )
+            );
+        }
+
+        fragment.appendChild(
+            paginationButton(
+                "Next",
+                state.page + 1,
+                state.page === totalPages - 1
+            )
         );
     }
 
     container.replaceChildren(fragment);
 }
 
-function showCategoriesError(error) {
-    const elements = getElements();
-    const message = getErrorMessage(error);
+function renderStatistics() {
+    text(IDS.total, count(categories.length));
+    text(IDS.products, count(totalProductCount));
 
-    const container =
-        elements.tableBody ?? elements.grid;
+    const counts = categories.map(categoryProductCount);
 
-    container?.replaceChildren();
-
-    if (elements.error) {
-        const description = elements.error.querySelector(
-            "[data-error-message], .error-message, p"
-        );
-
-        setText(
-            description ?? elements.error,
-            message
-        );
-
-        showElement(elements.error);
+    if (counts.some(value => value === null)) {
+        text(IDS.used, "—");
+        text(IDS.unused, "—");
+        return;
     }
 
-    showError(message);
+    const used = counts.filter(value => value > 0).length;
+
+    text(IDS.used, count(used));
+    text(IDS.unused, count(categories.length - used));
+}
+
+function render() {
+    const filtered = getFiltered();
+    const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
+
+    state.page = Math.min(
+        state.page,
+        Math.max(0, totalPages - 1)
+    );
+
+    const start = state.page * PAGE_SIZE;
+    const displayed = filtered.slice(start, start + PAGE_SIZE);
+
+    renderStatistics();
+
+    text(
+        IDS.resultsCount,
+        `${count(filtered.length)} категория табылды`
+    );
+
+    visible(IDS.empty, categories.length === 0);
+    visible(
+        IDS.filterEmpty,
+        categories.length > 0 && filtered.length === 0
+    );
+
+    visible(IDS.tableContainer, displayed.length > 0);
+    visible(IDS.tableFooter, displayed.length > 0);
+    visible(IDS.error, false);
+
+    const fragment = document.createDocumentFragment();
+
+    for (const category of displayed) {
+        fragment.appendChild(makeCategoryRow(category));
+    }
+
+    $(IDS.tableBody)?.replaceChildren(fragment);
+
+    text(
+        IDS.paginationInfo,
+        displayed.length
+            ? `${start + 1}–${start + displayed.length} / ${filtered.length}`
+            : "0 / 0"
+    );
+
+    renderPagination(totalPages);
+}
+
+function setLoading(value) {
+    loading = value;
+    visible(IDS.loading, value);
+
+    for (const id of [IDS.refresh, IDS.retry]) {
+        const button = $(id);
+
+        if (button instanceof HTMLButtonElement) {
+            button.disabled = value;
+        }
+    }
+
+    if (value) {
+        visible(IDS.error, false);
+    }
+}
+
+async function fetchProducts(currentVersion) {
+    const products = [];
+    let finished = false;
+
+    for (let page = 0; page < MAX_PRODUCT_PAGES; page++) {
+        const query = new URLSearchParams({
+            page: String(page),
+            size: String(PRODUCT_PAGE_SIZE)
+        });
+
+        const response = await api.get(
+            `${PRODUCT_API}?${query.toString()}`
+        );
+
+        if (
+            !active ||
+            currentVersion !== version
+        ) {
+            return null;
+        }
+
+        const items = extractArray(response);
+
+        if (!items) {
+            throw new Error("Products API дұрыс тізім қайтармады.");
+        }
+
+        products.push(...items);
+
+        const source = response?.data?.content
+            ? response.data
+            : response;
+
+        if (Array.isArray(source)) {
+            finished = true;
+            break;
+        }
+
+        const pages = Number(source?.totalPages);
+
+        if (
+            Number.isSafeInteger(pages) &&
+            pages >= 0
+        ) {
+            if (page + 1 >= pages) {
+                finished = true;
+                break;
+            }
+        } else if (items.length < PRODUCT_PAGE_SIZE) {
+            finished = true;
+            break;
+        }
+    }
+
+    if (!finished) {
+        throw new Error("Тауарлар тізімін толық алу мүмкін болмады.");
+    }
+
+    const unique = new Map();
+
+    for (const product of products) {
+        const id = idOf(product.id);
+
+        if (id !== null) {
+            unique.set(id, product);
+        }
+    }
+
+    return [...unique.values()];
 }
 
 async function loadCategories() {
@@ -618,354 +551,422 @@ async function loadCategories() {
         return;
     }
 
-    const version = ++requestVersion;
+    const currentVersion = ++version;
 
     setLoading(true);
 
     try {
-        const response = await api.categories.list();
+        const response = await api.get(CATEGORY_API);
+        const items = extractArray(response);
+
+        if (!items) {
+            throw new Error("Categories API дұрыс тізім қайтармады.");
+        }
+
+        const productRequest = await Promise.allSettled([
+            fetchProducts(currentVersion)
+        ]);
 
         if (
             !active ||
-            version !== requestVersion
+            currentVersion !== version
         ) {
             return;
         }
 
-        categories = extractCategories(response)
+        categories = items
             .map(normalizeCategory)
             .filter(Boolean);
 
-        renderCategories();
+        productCounts = null;
+        totalProductCount = null;
+
+        const productResult = productRequest[0];
+
+        if (
+            productResult.status === "fulfilled" &&
+            productResult.value !== null
+        ) {
+            const products = productResult.value;
+            productCounts = new Map();
+            totalProductCount = 0;
+
+            for (const product of products) {
+                const categoryId = idOf(
+                    product.categoryId ?? product.category?.id
+                );
+
+                if (categoryId === null) {
+                    continue;
+                }
+
+                totalProductCount++;
+
+                productCounts.set(
+                    categoryId,
+                    (productCounts.get(categoryId) ?? 0) + 1
+                );
+            }
+        } else if (productResult.status === "rejected") {
+            console.error(
+                "Category product statistics failed:",
+                productResult.reason
+            );
+        }
+
+        setLoading(false);
+        render();
     } catch (error) {
         if (
             !active ||
-            version !== requestVersion
+            currentVersion !== version
         ) {
             return;
         }
 
-        showCategoriesError(error);
-    } finally {
-        if (
-            active &&
-            version === requestVersion
-        ) {
-            setLoading(false);
+        categories = [];
+        productCounts = null;
+        totalProductCount = null;
+
+        setLoading(false);
+
+        text(IDS.errorMessage, getErrorMessage(error));
+        text(IDS.resultsCount, "Категориялар жүктелмеді");
+
+        for (const id of [
+            IDS.total,
+            IDS.products,
+            IDS.used,
+            IDS.unused
+        ]) {
+            text(id, "—");
         }
+
+        $(IDS.tableBody)?.replaceChildren();
+
+        visible(IDS.tableContainer, false);
+        visible(IDS.tableFooter, false);
+        visible(IDS.empty, false);
+        visible(IDS.filterEmpty, false);
+        visible(IDS.error, true);
     }
 }
 
-function getCategoryById(id) {
-    return categories.find(
-        category => category.id === id
-    ) ?? null;
-}
+function setModalOpen(id, open) {
+    const modal = $(id);
 
-function clearFormErrors() {
-    const elements = getElements();
-
-    hideElement(elements.formError);
-
-    for (const field of [
-        getFormElement(SELECTORS.name),
-        getFormElement(SELECTORS.description)
-    ]) {
-        field?.removeAttribute("aria-invalid");
-        field?.classList.remove("is-invalid");
-    }
-}
-
-function showFormError(message, field = null) {
-    const element = getElements().formError;
-
-    if (field) {
-        field.setAttribute("aria-invalid", "true");
-        field.classList.add("is-invalid");
-        field.focus();
-    }
-
-    if (element) {
-        setText(element, message);
-        showElement(element);
-    } else {
-        showError(message);
-    }
-}
-
-function resetCategoryForm() {
-    const elements = getElements();
-
-    elements.form?.reset();
-
-    editingCategoryId = null;
-
-    clearFormErrors();
-}
-
-function openCategoryForm(category = null) {
-    const elements = getElements();
-
-    if (!elements.modal || !elements.form) {
-        showInfo(
-            "Категория формасы табылмады."
-        );
+    if (!modal) {
         return;
     }
 
-    resetCategoryForm();
+    modal.hidden = !open;
+    modal.classList.toggle("hidden", !open);
+    modal.classList.toggle("is-open", open);
 
-    if (category) {
-        editingCategoryId = category.id;
+    modal.setAttribute("aria-hidden", String(!open));
+
+    if (open) {
+        previousOverflow = document.body.style.overflow;
+        document.body.style.overflow = "hidden";
+    } else {
+        document.body.style.overflow = previousOverflow;
     }
+}
 
-    const nameInput = getFormElement(
-        SELECTORS.name
+function clearFormError() {
+    visible(IDS.formError, false);
+    visible(IDS.nameError, false);
+
+    const name = $(IDS.name);
+
+    name?.removeAttribute("aria-invalid");
+    name?.classList.remove("is-invalid");
+}
+
+function showFormError(message) {
+    text(IDS.formError, message);
+    visible(IDS.formError, true);
+}
+
+function updatePreview() {
+    const name = String($(IDS.name)?.value ?? "").trim();
+    const description = String(
+        $(IDS.description)?.value ?? ""
+    ).trim();
+
+    text(
+        IDS.previewName,
+        name || "Your Category"
     );
 
-    const descriptionInput = getFormElement(
-        SELECTORS.description
+    text(
+        IDS.previewDescription,
+        description || "Категория сипаттамасы осы жерде көрсетіледі."
     );
 
-    if (nameInput) {
-        nameInput.value = category?.name ?? "";
+    text(
+        IDS.descriptionCount,
+        `${$(IDS.description)?.value.length ?? 0} / 1000`
+    );
+}
+
+function openCategoryForm(category = null) {
+    if (saving || deleting) {
+        return;
     }
 
-    if (descriptionInput) {
-        descriptionInput.value =
-            category?.description ?? "";
+    const modal = $(IDS.formModal);
+
+    if (!modal) {
+        showError("Категория формасы табылмады.");
+        return;
     }
 
-    setText(
-        elements.modalTitle,
+    modalReturnFocus = document.activeElement;
+
+    editingId = category?.id ?? null;
+
+    $(IDS.form)?.reset();
+
+    if ($(IDS.name)) {
+        $(IDS.name).value = category?.name ?? "";
+    }
+
+    if ($(IDS.description)) {
+        $(IDS.description).value = category?.description ?? "";
+    }
+
+    text(
+        IDS.formTitle,
         category ? "Edit Category" : "Add Category"
     );
 
-    if (elements.submit) {
-        setText(
-            elements.submit,
-            category ? "Save Changes" : "Create Category"
-        );
-    }
+    text(
+        IDS.formEyebrow,
+        category ? "EDIT CATEGORY" : "NEW CATEGORY"
+    );
 
-    openModal(elements.modal);
+    text(
+        IDS.saveText,
+        category ? "Save Changes" : "Save Category"
+    );
 
-    nameInput?.focus();
+    text(
+        IDS.descriptionHint,
+        "Сипаттама қазіргі backend-пен расталмағандықтан сақталмайды."
+    );
+
+    clearFormError();
+    updatePreview();
+
+    setModalOpen(IDS.formModal, true);
+
+    $(IDS.name)?.focus();
 }
 
 function closeCategoryForm() {
-    const modal = getElements().modal;
-
-    if (modal) {
-        closeModal(modal);
+    if (saving) {
+        return;
     }
 
-    resetCategoryForm();
+    setModalOpen(IDS.formModal, false);
+
+    editingId = null;
+
+    if (modalReturnFocus?.isConnected) {
+        modalReturnFocus.focus();
+    }
 }
 
-function getFormData() {
-    const nameInput = getFormElement(
-        SELECTORS.name
-    );
+function validateCategoryName(name) {
+    clearFormError();
 
-    const descriptionInput = getFormElement(
-        SELECTORS.description
-    );
+    const input = $(IDS.name);
 
-    return {
-        name: String(
-            nameInput?.value ?? ""
-        ).trim(),
-        description: String(
-            descriptionInput?.value ?? ""
-        ).trim()
-    };
-}
-
-function validateCategory(data) {
-    clearFormErrors();
-
-    const nameInput = getFormElement(
-        SELECTORS.name
-    );
-
-    if (!data.name) {
+    if (name.length < 2 || name.length > 255) {
         showFormError(
-            "Категория атауын енгіз.",
-            nameInput
+            "Категория атауы 2–255 таңба аралығында болуы керек."
         );
+
+        input?.focus();
         return false;
     }
 
-    if (data.name.length > 255) {
-        showFormError(
-            "Категория атауы 255 таңбадан аспауы керек.",
-            nameInput
-        );
-        return false;
-    }
-
-    const duplicate = categories.some(category => {
-        return (
-            category.id !== editingCategoryId &&
-            category.name.toLowerCase() ===
-                data.name.toLowerCase()
-        );
-    });
+    const duplicate = categories.some(category =>
+        category.id !== editingId &&
+        category.name.toLocaleLowerCase() ===
+        name.toLocaleLowerCase()
+    );
 
     if (duplicate) {
-        showFormError(
-            "Мұндай категория бұрыннан бар.",
-            nameInput
-        );
+        showFormError("Мұндай категория бұрыннан бар.");
+        input?.focus();
         return false;
     }
 
     return true;
 }
 
-function resolveEndpoint(action, id = null) {
-    const elements = getElements();
-
-    const attributeName = {
-        create: "createEndpoint",
-        update: "updateEndpoint",
-        delete: "deleteEndpoint"
-    }[action];
-
-    if (!attributeName) {
-        return null;
-    }
-
-    const endpoint =
-        elements.form?.dataset[attributeName] ??
-        elements.modal?.dataset[attributeName] ??
-        document.body.dataset[attributeName];
-
-    if (!endpoint) {
-        return null;
-    }
-
-    const path = endpoint
-        .replaceAll("{id}", String(id ?? ""))
-        .replaceAll(":id", String(id ?? ""));
-
-    try {
-        const url = new URL(
-            path,
-            window.location.origin
-        );
-
-        if (
-            url.origin !== window.location.origin ||
-            !url.pathname.startsWith("/api/")
-        ) {
-            return null;
-        }
-
-        return `${url.pathname}${url.search}`;
-    } catch {
-        return null;
-    }
-}
-
-async function handleFormSubmit(event) {
+async function saveCategory(event) {
     event.preventDefault();
 
-    if (submitting) {
+    if (saving) {
         return;
     }
 
-    const data = getFormData();
+    const name = String($(IDS.name)?.value ?? "").trim();
 
-    if (!validateCategory(data)) {
+    if (!validateCategoryName(name)) {
         return;
     }
 
-    const editing = editingCategoryId !== null;
+    const editing = editingId !== null;
+    const id = editingId;
 
-    const endpoint = resolveEndpoint(
-        editing ? "update" : "create",
-        editingCategoryId
-    );
+    saving = true;
 
-    if (!endpoint) {
-        showInfo(
-            "Категорияны сақтау үшін Spring Boot-та нақты admin create/update endpoint қажет."
-        );
-        return;
+    const button = $(IDS.save);
+
+    if (button) {
+        button.disabled = true;
     }
 
-    submitting = true;
-
-    const button = getElements().submit;
-
-    if (button instanceof HTMLButtonElement) {
-        setButtonLoading(
-            button,
-            true,
-            "Saving..."
-        );
-    }
+    text(IDS.saveText, "Saving...");
 
     try {
         if (editing) {
-            await api.put(endpoint, data);
+            await api.put(
+                `${CATEGORY_API}/${id}`,
+                { name }
+            );
         } else {
-            await api.post(endpoint, data);
+            await api.post(
+                CATEGORY_API,
+                { name }
+            );
         }
 
+        saving = false;
         closeCategoryForm();
 
         showSuccess(
             editing
-                ? "Категория сәтті жаңартылды!"
-                : "Категория сәтті қосылды!"
+                ? "Категория сәтті өзгертілді."
+                : "Категория сәтті қосылды."
         );
 
         await loadCategories();
     } catch (error) {
-        showFormError(
-            getErrorMessage(error)
-        );
+        showFormError(getErrorMessage(error));
     } finally {
-        submitting = false;
+        saving = false;
 
-        if (button instanceof HTMLButtonElement) {
-            setButtonLoading(button, false);
+        if (button) {
+            button.disabled = false;
         }
+
+        text(
+            IDS.saveText,
+            editingId !== null
+                ? "Save Changes"
+                : "Save Category"
+        );
     }
 }
 
-async function deleteCategory(categoryId) {
-    const category = getCategoryById(categoryId);
+function openDeleteModal(categoryId) {
+    if (saving || deleting) {
+        return;
+    }
+
+    const category = getCategory(categoryId);
+
+    if (!category) {
+        showError("Категория табылмады.");
+        return;
+    }
+
+    deletingId = category.id;
+    modalReturnFocus = document.activeElement;
+
+    text(IDS.deleteName, category.name);
+    text(IDS.deleteId, `Category ID: #${category.id}`);
+    text(
+        IDS.deleteCount,
+        count(categoryProductCount(category))
+    );
+
+    visible(IDS.deleteError, false);
+
+    setModalOpen(IDS.deleteModal, true);
+
+    $(IDS.deleteCancel)?.focus();
+}
+
+function closeDeleteModal() {
+    if (deleting) {
+        return;
+    }
+
+    setModalOpen(IDS.deleteModal, false);
+
+    deletingId = null;
+
+    if (modalReturnFocus?.isConnected) {
+        modalReturnFocus.focus();
+    }
+}
+
+async function confirmDelete() {
+    if (deleting || deletingId === null) {
+        return;
+    }
+
+    const category = getCategory(deletingId);
 
     if (!category) {
         return;
     }
 
-    const endpoint = resolveEndpoint(
-        "delete",
-        category.id
-    );
+    const linkedProducts = categoryProductCount(category);
 
-    if (!endpoint) {
-        showInfo(
-            "Категорияны жою үшін Spring Boot-та admin DELETE endpoint қажет."
+    if (linkedProducts === null) {
+        text(
+            IDS.deleteError,
+            "Тауарлар саны анықталмаған. Алдымен Refresh басып қайта тексер."
         );
+
+        visible(IDS.deleteError, true);
         return;
     }
 
-    const confirmed = window.confirm(
-        `"${category.name}" категориясын жоюды растайсың ба?`
-    );
+    if (linkedProducts > 0) {
+        text(
+            IDS.deleteError,
+            "Бұл категорияға тауарлар тіркелген. Алдымен оларды басқа категорияға ауыстыр."
+        );
 
-    if (!confirmed) {
+        visible(IDS.deleteError, true);
         return;
     }
+
+    deleting = true;
+
+    const button = $(IDS.deleteConfirm);
+
+    if (button) {
+        button.disabled = true;
+    }
+
+    text(IDS.deleteConfirmText, "Жойылуда...");
 
     try {
-        await api.delete(endpoint);
+        await api.delete(
+            `${CATEGORY_API}/${category.id}`
+        );
+
+        deleting = false;
+        closeDeleteModal();
 
         showSuccess(
             `"${category.name}" категориясы жойылды.`
@@ -973,173 +974,209 @@ async function deleteCategory(categoryId) {
 
         await loadCategories();
     } catch (error) {
-        showError(
-            getErrorMessage(error)
-        );
-    }
-}
+        text(IDS.deleteError, getErrorMessage(error));
+        visible(IDS.deleteError, true);
+    } finally {
+        deleting = false;
 
-function setupCategoryModal() {
-    const elements = getElements();
-    const signal = eventController.signal;
-
-    if (!elements.modal || !elements.form) {
-        return;
-    }
-
-    modalCleanup = setupModal(
-        elements.modal,
-        {
-            closeButtons: [
-                "#category-modal-close",
-                "#admin-category-modal-close",
-                "#category-form-cancel",
-                "[data-category-modal-close]"
-            ]
+        if (button) {
+            button.disabled = false;
         }
+
+        text(IDS.deleteConfirmText, "Иә, жою");
+    }
+}
+
+function applyFilters() {
+    state.keyword = String(
+        $(IDS.search)?.value ?? ""
+    ).trim();
+
+    const sort = String(
+        $(IDS.sort)?.value ?? "id-desc"
     );
 
-    elements.form.addEventListener(
-        "submit",
-        handleFormSubmit,
-        { signal }
-    );
+    state.sort = SORT_OPTIONS.has(sort)
+        ? sort
+        : "id-desc";
 
-    if (
-        elements.submit &&
-        !elements.form.contains(elements.submit)
-    ) {
-        elements.submit.addEventListener(
-            "click",
-            event => {
-                event.preventDefault();
-                elements.form.requestSubmit();
-            },
-            { signal }
-        );
+    state.page = 0;
+    render();
+}
+
+function resetFilters() {
+    clearTimeout(searchTimer);
+    searchTimer = null;
+
+    state.keyword = "";
+    state.sort = "id-desc";
+    state.page = 0;
+
+    if ($(IDS.search)) {
+        $(IDS.search).value = "";
     }
 
-    elements.cancel?.addEventListener(
-        "click",
-        event => {
-            event.preventDefault();
-            closeCategoryForm();
-        },
-        { signal }
-    );
+    if ($(IDS.sort)) {
+        $(IDS.sort).value = "id-desc";
+    }
 
-    getFormElement(SELECTORS.name)?.addEventListener(
-        "input",
-        clearFormErrors,
-        { signal }
+    render();
+}
+
+function on(element, eventName, handler) {
+    element?.addEventListener(
+        eventName,
+        handler,
+        { signal: events.signal }
     );
 }
 
-function setupCategoryActions() {
-    const elements = getElements();
-    const signal = eventController.signal;
-
-    elements.addButton?.addEventListener(
-        "click",
-        event => {
+function setupEvents() {
+    for (const id of [
+        IDS.add,
+        IDS.bannerAdd,
+        IDS.quickAdd,
+        IDS.emptyAdd
+    ]) {
+        on($(id), "click", event => {
             event.preventDefault();
             openCategoryForm();
-        },
-        { signal }
-    );
+        });
+    }
 
-    const container =
-        elements.tableBody ?? elements.grid;
-
-    container?.addEventListener(
-        "click",
-        event => {
-            if (!(event.target instanceof Element)) {
-                return;
-            }
-
-            const editButton = event.target.closest(
-                "[data-edit-category-id]"
-            );
-
-            if (editButton) {
-                event.preventDefault();
-
-                const categoryId = parseId(
-                    editButton.dataset.editCategoryId
-                );
-
-                const category = getCategoryById(
-                    categoryId
-                );
-
-                if (category) {
-                    openCategoryForm(category);
-                }
-
-                return;
-            }
-
-            const deleteButton = event.target.closest(
-                "[data-delete-category-id]"
-            );
-
-            if (deleteButton) {
-                event.preventDefault();
-
-                const categoryId = parseId(
-                    deleteButton.dataset.deleteCategoryId
-                );
-
-                if (categoryId !== null) {
-                    deleteCategory(categoryId);
-                }
-            }
-        },
-        { signal }
-    );
-
-    elements.refresh?.addEventListener(
-        "click",
-        event => {
+    for (const id of [IDS.refresh, IDS.retry]) {
+        on($(id), "click", event => {
             event.preventDefault();
             loadCategories();
-        },
-        { signal }
-    );
-}
+        });
+    }
 
-function setupFilters() {
-    const elements = getElements();
-    const signal = eventController.signal;
+    on($(IDS.search), "input", () => {
+        clearTimeout(searchTimer);
 
-    searchDebounce = debounce(
-        () => {
-            state.keyword = String(
-                elements.search?.value ?? ""
-            ).trim();
+        searchTimer = setTimeout(() => {
+            if (active) {
+                applyFilters();
+            }
+        }, 300);
+    });
 
-            renderCategories();
-        },
-        300
-    );
+    on($(IDS.searchForm), "submit", event => {
+        event.preventDefault();
+        clearTimeout(searchTimer);
+        applyFilters();
+    });
 
-    elements.search?.addEventListener(
-        "input",
-        searchDebounce,
-        { signal }
-    );
+    on($(IDS.sort), "change", applyFilters);
 
-    elements.sort?.addEventListener(
-        "change",
-        () => {
-            state.sort =
-                elements.sort.value || "name-asc";
+    for (const id of [
+        IDS.reset,
+        IDS.resetSearch
+    ]) {
+        on($(id), "click", event => {
+            event.preventDefault();
+            resetFilters();
+        });
+    }
 
-            renderCategories();
-        },
-        { signal }
-    );
+    on($(IDS.pagination), "click", event => {
+        const button = event.target.closest("[data-page]");
+
+        if (!button || button.disabled) {
+            return;
+        }
+
+        const page = Number(button.dataset.page);
+
+        if (!Number.isSafeInteger(page) || page < 0) {
+            return;
+        }
+
+        state.page = page;
+        render();
+    });
+
+    on($(IDS.tableBody), "click", event => {
+        const edit = event.target.closest(
+            "[data-edit-category-id]"
+        );
+
+        if (edit) {
+            const category = getCategory(
+                idOf(edit.dataset.editCategoryId)
+            );
+
+            if (category) {
+                openCategoryForm(category);
+            }
+
+            return;
+        }
+
+        const remove = event.target.closest(
+            "[data-delete-category-id]"
+        );
+
+        if (remove) {
+            openDeleteModal(
+                idOf(remove.dataset.deleteCategoryId)
+            );
+        }
+    });
+
+    on($(IDS.name), "input", () => {
+        clearFormError();
+        updatePreview();
+    });
+
+    on($(IDS.description), "input", updatePreview);
+
+    on($(IDS.form), "submit", saveCategory);
+
+    for (const id of [
+        IDS.formClose,
+        IDS.formCancel
+    ]) {
+        on($(id), "click", closeCategoryForm);
+    }
+
+    for (const id of [
+        IDS.deleteClose,
+        IDS.deleteCancel
+    ]) {
+        on($(id), "click", closeDeleteModal);
+    }
+
+    on($(IDS.deleteConfirm), "click", confirmDelete);
+
+    for (const id of [
+        IDS.formModal,
+        IDS.deleteModal
+    ]) {
+        on($(id), "click", event => {
+            if (event.target !== event.currentTarget) {
+                return;
+            }
+
+            if (id === IDS.formModal) {
+                closeCategoryForm();
+            } else {
+                closeDeleteModal();
+            }
+        });
+    }
+
+    on(document, "keydown", event => {
+        if (event.key !== "Escape") {
+            return;
+        }
+
+        if (!$(IDS.deleteModal)?.hidden) {
+            closeDeleteModal();
+        } else if (!$(IDS.formModal)?.hidden) {
+            closeCategoryForm();
+        }
+    });
 }
 
 export async function initAdminCategories() {
@@ -1150,37 +1187,61 @@ export async function initAdminCategories() {
     initialized = true;
     active = true;
 
-    eventController = new AbortController();
+    events = new AbortController();
 
-    setupFilters();
-    setupCategoryModal();
-    setupCategoryActions();
+    const initialSort = $(IDS.sort)?.value;
+
+    state.sort = SORT_OPTIONS.has(initialSort)
+        ? initialSort
+        : "id-desc";
+
+    setupEvents();
 
     await loadCategories();
 }
 
 export function destroyAdminCategories() {
-    initialized = false;
     active = false;
+    initialized = false;
     loading = false;
-    submitting = false;
+    saving = false;
+    deleting = false;
 
-    requestVersion++;
+    version++;
 
-    searchDebounce?.cancel();
-    eventController?.abort();
-    modalCleanup?.();
+    clearTimeout(searchTimer);
+    searchTimer = null;
 
-    searchDebounce = null;
-    eventController = null;
-    modalCleanup = null;
+    events?.abort();
+    events = null;
+
+    for (const id of [
+        IDS.formModal,
+        IDS.deleteModal
+    ]) {
+        const modal = $(id);
+
+        if (modal) {
+            modal.hidden = true;
+            modal.classList.remove("is-open");
+            modal.classList.add("hidden");
+        }
+    }
+
+    document.body.style.overflow = previousOverflow;
 
     categories = [];
-    editingCategoryId = null;
+    productCounts = null;
+    totalProductCount = null;
+
+    editingId = null;
+    deletingId = null;
+    modalReturnFocus = null;
 
     state = {
         keyword: "",
-        sort: "name-asc"
+        sort: "id-desc",
+        page: 0
     };
 }
 
@@ -1189,9 +1250,12 @@ export const adminCategories = {
     destroy: destroyAdminCategories,
     reload: loadCategories,
     openForm: openCategoryForm,
-    closeForm: closeCategoryForm,
+
     getCategories() {
-        return [...categories];
+        return categories.map(category => ({
+            ...category,
+            productCount: categoryProductCount(category)
+        }));
     }
 };
 

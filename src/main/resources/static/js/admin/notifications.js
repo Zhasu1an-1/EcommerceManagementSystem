@@ -1,862 +1,644 @@
 
-import api, {
-    getErrorMessage
-} from "../core/api.js";
+import api, { getErrorMessage } from "../core/api.js";
+import { showSuccess, showError } from "../components/toast.js";
 
-import {
-    formatDateTime,
-    formatInteger,
-    debounce,
-    showElement,
-    hideElement,
-    openModal,
-    closeModal,
-    setupModal,
-    setButtonLoading
-} from "../core/utils.js";
-
-import {
-    showSuccess,
-    showError,
-    showInfo
-} from "../components/toast.js";
-
-const PAGE_SIZE = 10;
-
-const STATUSES = [
-    "PENDING",
-    "SENT",
-    "FAILED"
-];
-
-const STATUS_VARIANTS = {
-    SENT: "success",
-    PENDING: "warning",
-    FAILED: "danger"
+const API = {
+    list: "/api/notifications/admin",
+    send: "/api/notifications/sms"
 };
 
-const SELECTORS = {
-    loading: [
-        "#admin-notifications-loading",
-        "#notifications-loading",
-        "[data-admin-notifications-loading]"
-    ],
-    content: [
-        "#admin-notifications-content",
-        "#notifications-content",
-        "[data-admin-notifications-content]"
-    ],
-    tableBody: [
-        "#admin-notifications-table-body",
-        "#notifications-table-body",
-        "#notifications-tbody",
-        "[data-admin-notifications-table-body]"
-    ],
-    grid: [
-        "#admin-notifications-grid",
-        "[data-admin-notifications-grid]"
-    ],
-    search: [
-        "#admin-notifications-search",
-        "#notifications-search",
-        "[data-admin-notifications-search]"
-    ],
-    statusFilter: [
-        "#admin-notifications-status",
-        "#notifications-status-filter",
-        'select[name="status"]'
-    ],
-    channelFilter: [
-        "#admin-notifications-channel",
-        "#notifications-channel-filter",
-        'select[name="channel"]'
-    ],
-    totalCount: [
-        "#admin-total-notifications",
-        "#notifications-total-count",
-        "[data-total-notifications]"
-    ],
-    sentCount: [
-        "#admin-sent-notifications",
-        "#notifications-sent-count",
-        "[data-sent-notifications]"
-    ],
-    pendingCount: [
-        "#admin-pending-notifications",
-        "#notifications-pending-count",
-        "[data-pending-notifications]"
-    ],
-    failedCount: [
-        "#admin-failed-notifications",
-        "#notifications-failed-count",
-        "[data-failed-notifications]"
-    ],
-    resultsCount: [
-        "#admin-notifications-count",
-        "#notifications-results-count",
-        "[data-notifications-count]"
-    ],
-    pagination: [
-        "#admin-notifications-pagination",
-        "#notifications-pagination",
-        "[data-admin-notifications-pagination]"
-    ],
-    empty: [
-        "#admin-notifications-empty",
-        "#notifications-empty",
-        "[data-admin-notifications-empty]"
-    ],
-    error: [
-        "#admin-notifications-error",
-        "#notifications-error",
-        "[data-admin-notifications-error]"
-    ],
-    refresh: [
-        "#admin-notifications-refresh",
-        "#notifications-refresh",
-        "[data-admin-notifications-refresh]"
-    ],
-    sendButton: [
-        "#admin-send-notification",
-        "#send-notification-button",
-        "[data-send-notification]"
-    ],
-    sendModal: [
-        "#send-notification-modal",
-        "#notification-send-modal",
-        "[data-send-notification-modal]"
-    ],
-    sendForm: [
-        "#send-notification-form",
-        "#notification-send-form",
-        "[data-send-notification-form]"
-    ],
-    sendSubmit: [
-        "#send-notification-submit",
-        "#notification-send-submit",
-        "[data-notification-send-submit]"
-    ],
-    sendCancel: [
-        "#send-notification-cancel",
-        "[data-notification-send-cancel]"
-    ],
-    sendError: [
-        "#send-notification-error",
-        "[data-notification-send-error]"
-    ],
-    detailsModal: [
-        "#notification-details-modal",
-        "#admin-notification-modal",
-        "[data-notification-details-modal]"
-    ],
-    detailsContent: [
-        "#notification-details-content",
-        "#admin-notification-details",
-        "[data-notification-details-content]"
-    ]
+const ID = {
+    content: "admin-notifications-content",
+    refresh: "admin-notifications-refresh-button",
+    retry: "admin-notifications-retry-button",
+    compose: "admin-compose-notification-button",
+
+    total: "admin-notifications-total",
+    sent: "admin-notifications-sent",
+    pending: "admin-notifications-pending",
+    failed: "admin-notifications-failed",
+
+    searchForm: "admin-notifications-search-form",
+    search: "admin-notifications-search",
+    filterToggle: "admin-notifications-filter-toggle",
+    filters: "admin-notifications-filters",
+    filterForm: "admin-notifications-filter-form",
+    statusFilter: "admin-notifications-status-filter",
+    sort: "admin-notifications-sort",
+    pageSize: "admin-notifications-page-size",
+    tabs: "admin-notifications-status-tabs",
+    clearSearch: "admin-notifications-clear-search",
+
+    loading: "admin-notifications-loading",
+    error: "admin-notifications-error",
+    errorMessage: "admin-notifications-error-message",
+    empty: "admin-notifications-empty",
+    filterEmpty: "admin-notifications-filter-empty",
+    results: "admin-notifications-results-count",
+
+    table: "admin-notifications-table-container",
+    tableBody: "admin-notifications-table-body",
+    footer: "admin-notifications-table-footer",
+    paginationInfo: "admin-notifications-pagination-info",
+    pagination: "admin-notifications-pagination",
+
+    detailsModal: "admin-notification-details-modal",
+    detailsClose: "admin-notification-details-close",
+    detailsDone: "admin-notification-details-done",
+    detailsCopy: "admin-notification-details-copy",
+
+    composeModal: "admin-notification-compose-modal",
+    composeForm: "admin-notification-compose-form",
+    composeClose: "admin-notification-compose-close",
+    composeCancel: "admin-notification-compose-cancel",
+    composeError: "admin-notification-compose-error",
+    recipientId: "admin-notification-recipient-id",
+    recipientError: "admin-notification-recipient-error",
+    phone: "admin-notification-phone-number",
+    phoneError: "admin-notification-phone-error",
+    message: "admin-notification-message",
+    messageError: "admin-notification-message-error",
+    messageCount: "admin-notification-message-count",
+    messagePreview: "admin-notification-message-preview",
+    send: "admin-notification-send-button",
+    sendText: "admin-notification-send-text"
 };
+
+const STATUSES = ["SENT", "PENDING", "FAILED"];
+
+const PAGE_SIZES = new Set([10, 20, 50]);
+
+const PAGE_FETCH_SIZE = 50;
+const MAX_FETCH_PAGES = 200;
+
+const $ = id => document.getElementById(id);
+
+const integers = new Intl.NumberFormat("kk-KZ");
+
+const dates = new Intl.DateTimeFormat("kk-KZ", {
+    year: "numeric",
+    month: "short",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit"
+});
 
 let initialized = false;
 let active = false;
 let loading = false;
 let sending = false;
 let requestVersion = 0;
-
-let eventController = null;
-let sendModalCleanup = null;
-let detailsModalCleanup = null;
-let searchDebounce = null;
+let events = null;
+let searchTimer = null;
 
 let notifications = [];
-let totalElements = 0;
-let serverPagination = false;
+let selectedNotification = null;
+let focusBeforeModal = null;
+let originalOverflow = "";
 
-let state = {
-    keyword: "",
-    status: "ALL",
-    channel: "ALL",
-    page: 0
-};
+let state = defaultState();
 
-function findElement(selectors) {
-    for (const selector of selectors) {
-        const element = document.querySelector(selector);
-
-        if (element) {
-            return element;
-        }
-    }
-
-    return null;
+function defaultState() {
+    return {
+        keyword: "",
+        status: "ALL",
+        sort: "newest",
+        page: 0,
+        size: 10
+    };
 }
 
-function getElements() {
-    const elements = {};
+function setText(id, value) {
+    const target = $(id);
 
-    for (const [name, selectors] of Object.entries(SELECTORS)) {
-        elements[name] = findElement(selectors);
+    if (target) {
+        target.textContent = String(value ?? "—");
     }
-
-    return elements;
 }
 
-function createElement(tag, className = "", text = null) {
-    const element = document.createElement(tag);
+function visible(id, value) {
+    const target = $(id);
+
+    if (!target) {
+        return;
+    }
+
+    target.hidden = !value;
+    target.classList.toggle("hidden", !value);
+}
+
+function make(tag, className = "", value = null) {
+    const target = document.createElement(tag);
 
     if (className) {
-        element.className = className;
+        target.className = className;
     }
 
-    if (text !== null && text !== undefined) {
-        element.textContent = String(text);
+    if (value !== null && value !== undefined) {
+        target.textContent = String(value);
     }
 
-    return element;
+    return target;
 }
 
-function setText(element, value) {
-    if (element) {
-        element.textContent = String(value ?? "—");
-    }
+function parseId(value) {
+    const number = Number(value);
+
+    return Number.isSafeInteger(number) && number > 0
+        ? number
+        : null;
 }
 
-function normalizeStatus(value) {
-    return String(value ?? "")
+function statusOf(value) {
+    return String(value ?? "UNKNOWN")
         .trim()
-        .toUpperCase()
-        .replace(/[\s-]+/g, "_");
+        .toUpperCase();
+}
+
+function dateText(value) {
+    if (!value) {
+        return "—";
+    }
+
+    const date = new Date(value);
+
+    return Number.isNaN(date.getTime())
+        ? "—"
+        : dates.format(date);
+}
+
+function badge(status) {
+    const classes = {
+        SENT: "badge-success",
+        PENDING: "badge-warning",
+        FAILED: "badge-danger"
+    };
+
+    const name = statusOf(status);
+
+    return make(
+        "span",
+        `badge ${classes[name] ?? "badge-neutral"}`,
+        name
+    );
 }
 
 function normalizeNotification(raw) {
-    if (!raw || typeof raw !== "object") {
+    const id = parseId(raw?.id);
+
+    if (id === null) {
         return null;
     }
 
-    const id = Number(
-        raw.id ?? raw.notificationId
-    );
-
-    if (!Number.isSafeInteger(id) || id <= 0) {
-        return null;
-    }
+    const userId = parseId(raw.userId);
 
     return {
         id,
-        title: String(
-            raw.title ??
-            raw.subject ??
-            raw.type ??
-            "Notification"
-        ),
-        message: String(
-            raw.message ??
-            raw.content ??
-            raw.body ??
-            ""
-        ),
-        recipient: String(
-            raw.recipient ??
-            raw.recipientEmail ??
-            raw.phoneNumber ??
-            raw.user?.email ??
-            raw.userId ??
-            ""
-        ),
-        channel: normalizeStatus(
-            raw.channel ??
-            raw.notificationChannel ??
-            raw.type
-        ),
-        status: normalizeStatus(
-            raw.status ??
-            raw.notificationStatus
-        ),
-        createdAt:
-            raw.createdAt ??
-            raw.createdDate ??
-            null,
-        sentAt:
-            raw.sentAt ??
-            null,
-        errorMessage: String(
-            raw.errorMessage ??
-            raw.failureReason ??
-            ""
-        )
+        userId,
+        recipient: userId === null
+            ? "Unknown"
+            : `User #${userId}`,
+        message: String(raw.message ?? ""),
+        status: statusOf(raw.status),
+        channel: "SMS",
+        createdAt: raw.createdAt ?? null,
+        sentAt: raw.sentAt ?? null
     };
 }
 
-function extractNotifications(response) {
-    if (Array.isArray(response)) {
-        return response;
+function extractPage(response) {
+    const source = response?.data?.content !== undefined
+        ? response.data
+        : response;
+
+    if (Array.isArray(source)) {
+        return {
+            content: source,
+            totalPages: null
+        };
     }
 
-    for (const items of [
-        response?.content,
-        response?.notifications,
-        response?.data,
-        response?.data?.content,
-        response?.data?.notifications
-    ]) {
-        if (Array.isArray(items)) {
-            return items;
-        }
+    if (!Array.isArray(source?.content)) {
+        throw new Error(
+            "Notifications API дұрыс тізім қайтармады."
+        );
     }
 
-    return [];
+    const totalPages = Number(source.totalPages);
+
+    return {
+        content: source.content,
+        totalPages:
+            Number.isSafeInteger(totalPages) && totalPages >= 0
+                ? totalPages
+                : null
+    };
 }
 
-function resolveEndpoint(type) {
-    const elements = getElements();
+async function fetchAll(version) {
+    const all = [];
 
-    const attributes = {
-        list: "notificationsEndpoint",
-        send: "notificationSendEndpoint"
-    };
+    for (let page = 0; page < MAX_FETCH_PAGES; page++) {
+        const query = new URLSearchParams({
+            page: String(page),
+            size: String(PAGE_FETCH_SIZE),
+            sort: "createdAt,desc"
+        });
 
-    const attribute = attributes[type];
-
-    if (!attribute) {
-        return null;
-    }
-
-    const endpoint =
-        document.body.dataset[attribute] ??
-        elements.content?.dataset[attribute] ??
-        elements.sendForm?.dataset[attribute];
-
-    if (!endpoint) {
-        return null;
-    }
-
-    try {
-        const url = new URL(
-            endpoint,
-            window.location.origin
+        const response = await api.get(
+            `${API.list}?${query.toString()}`
         );
 
-        if (
-            url.origin !== window.location.origin ||
-            !url.pathname.startsWith("/api/")
-        ) {
+        if (!active || version !== requestVersion) {
             return null;
         }
 
-        return url;
-    } catch {
-        return null;
-    }
-}
+        const result = extractPage(response);
 
-function setLoading(value) {
-    loading = value;
+        all.push(...result.content);
 
-    const elements = getElements();
-
-    if (value) {
-        showElement(elements.loading);
-        hideElement(elements.error);
-    } else {
-        hideElement(elements.loading);
+        if (
+            result.totalPages === null ||
+            page + 1 >= result.totalPages
+        ) {
+            return all;
+        }
     }
 
-    if (elements.refresh) {
-        elements.refresh.disabled = value;
-    }
-
-    const container =
-        elements.tableBody ?? elements.grid;
-
-    container?.setAttribute(
-        "aria-busy",
-        String(value)
+    throw new Error(
+        "Хабарламалар саны жүктеу шегінен асып кетті."
     );
 }
 
-function createStatusBadge(status) {
-    const variant =
-        STATUS_VARIANTS[status] ?? "neutral";
+function getFiltered() {
+    const keyword = state.keyword.toLocaleLowerCase();
 
-    return createElement(
-        "span",
-        `badge badge-${variant}`,
-        status || "UNKNOWN"
-    );
+    return notifications
+        .filter(item => {
+            if (
+                state.status !== "ALL" &&
+                item.status !== state.status
+            ) {
+                return false;
+            }
+
+            if (!keyword) {
+                return true;
+            }
+
+            return [
+                item.id,
+                item.userId,
+                item.recipient,
+                item.message,
+                item.status
+            ]
+                .join(" ")
+                .toLocaleLowerCase()
+                .includes(keyword);
+        })
+        .sort((a, b) => {
+            switch (state.sort) {
+                case "oldest":
+                    return (
+                        (Date.parse(a.createdAt) || 0) -
+                        (Date.parse(b.createdAt) || 0)
+                    ) || a.id - b.id;
+
+                case "status-asc":
+                    return a.status.localeCompare(b.status) ||
+                        b.id - a.id;
+
+                case "status-desc":
+                    return b.status.localeCompare(a.status) ||
+                        b.id - a.id;
+
+                default:
+                    return (
+                        (Date.parse(b.createdAt) || 0) -
+                        (Date.parse(a.createdAt) || 0)
+                    ) || b.id - a.id;
+            }
+        });
 }
 
-function createNotificationRow(notification) {
+function renderStatistics() {
+    setText(
+        ID.total,
+        integers.format(notifications.length)
+    );
+
+    for (const [status, id] of [
+        ["SENT", ID.sent],
+        ["PENDING", ID.pending],
+        ["FAILED", ID.failed]
+    ]) {
+        setText(
+            id,
+            integers.format(
+                notifications.filter(
+                    item => item.status === status
+                ).length
+            )
+        );
+    }
+}
+
+function makeRow(item) {
     const row = document.createElement("tr");
 
-    row.dataset.notificationId =
-        String(notification.id);
+    row.dataset.notificationId = String(item.id);
 
-    const idCell = createElement(
-        "td",
-        "admin-notification-id",
-        `#${notification.id}`
-    );
+    const id = make("td", "", `#${item.id}`);
 
-    const recipientCell = createElement(
+    const recipient = make(
         "td",
         "admin-notification-recipient",
-        notification.recipient || "—"
+        item.recipient
     );
 
     const messageCell = document.createElement("td");
 
-    const messageWrapper = createElement(
+    const message = make(
         "div",
         "admin-notification-message"
     );
 
-    messageWrapper.appendChild(
-        createElement(
-            "strong",
-            "admin-notification-title",
-            notification.title
-        )
-    );
-
-    messageWrapper.appendChild(
-        createElement(
+    message.appendChild(
+        make(
             "p",
             "admin-notification-preview",
-            notification.message.length > 90
-                ? `${notification.message.slice(0, 90)}…`
-                : notification.message
+            item.message.length > 100
+                ? `${item.message.slice(0, 100)}…`
+                : item.message
         )
     );
 
-    messageCell.appendChild(messageWrapper);
+    messageCell.appendChild(message);
 
-    const channelCell = createElement(
+    const channel = make(
         "td",
         "admin-notification-channel",
-        notification.channel || "—"
+        item.channel
     );
 
     const statusCell = document.createElement("td");
+    statusCell.appendChild(badge(item.status));
 
-    statusCell.appendChild(
-        createStatusBadge(notification.status)
-    );
-
-    const dateCell = createElement(
+    const created = make(
         "td",
         "admin-notification-date",
-        notification.createdAt
-            ? formatDateTime(notification.createdAt)
-            : "—"
+        dateText(item.createdAt)
     );
 
     const actionsCell = document.createElement("td");
 
-    const button = createElement(
+    const details = make(
         "button",
         "btn btn-outline btn-sm",
         "Details"
     );
 
-    button.type = "button";
-    button.dataset.notificationDetailsId =
-        String(notification.id);
+    details.type = "button";
+    details.dataset.notificationId = String(item.id);
 
-    actionsCell.appendChild(button);
+    actionsCell.appendChild(details);
 
     row.append(
-        idCell,
-        recipientCell,
+        id,
+        recipient,
         messageCell,
-        channelCell,
+        channel,
         statusCell,
-        dateCell,
+        created,
         actionsCell
     );
 
     return row;
 }
 
-function createNotificationCard(notification) {
-    const card = createElement(
-        "article",
-        "admin-notification-card"
-    );
-
-    const header = createElement(
-        "div",
-        "admin-notification-card-header"
-    );
-
-    header.append(
-        createElement(
-            "strong",
-            "",
-            `#${notification.id}`
-        ),
-        createStatusBadge(notification.status)
-    );
-
-    const title = createElement(
-        "h3",
-        "admin-notification-card-title",
-        notification.title
-    );
-
-    const message = createElement(
-        "p",
-        "admin-notification-card-message",
-        notification.message
-    );
-
-    const metadata = createElement(
-        "div",
-        "admin-notification-card-meta"
-    );
-
-    metadata.append(
-        createElement(
-            "span",
-            "",
-            notification.recipient || "—"
-        ),
-        createElement(
-            "span",
-            "",
-            notification.channel || "—"
-        ),
-        createElement(
-            "span",
-            "",
-            notification.createdAt
-                ? formatDateTime(notification.createdAt)
-                : "—"
-        )
-    );
-
-    const button = createElement(
+function pageButton(label, page, disabled = false, selected = false) {
+    const button = make(
         "button",
-        "btn btn-outline btn-sm",
-        "Details"
+        "pagination-button",
+        label
     );
 
     button.type = "button";
-    button.dataset.notificationDetailsId =
-        String(notification.id);
+    button.dataset.page = String(page);
+    button.disabled = disabled || selected;
 
-    card.append(
-        header,
-        title,
-        message,
-        metadata,
-        button
-    );
+    button.classList.toggle("is-active", selected);
 
-    return card;
-}
-
-function getFilteredNotifications() {
-    const keyword = state.keyword.toLowerCase();
-
-    return notifications.filter(notification => {
-        if (
-            state.status !== "ALL" &&
-            notification.status !== state.status
-        ) {
-            return false;
-        }
-
-        if (
-            state.channel !== "ALL" &&
-            notification.channel !== state.channel
-        ) {
-            return false;
-        }
-
-        if (!keyword) {
-            return true;
-        }
-
-        return [
-            notification.id,
-            notification.title,
-            notification.message,
-            notification.recipient,
-            notification.channel
-        ]
-            .join(" ")
-            .toLowerCase()
-            .includes(keyword);
-    });
-}
-
-function updateStatistics(filteredCount) {
-    const elements = getElements();
-
-    setText(
-        elements.totalCount,
-        formatInteger(
-            serverPagination
-                ? totalElements
-                : notifications.length
-        )
-    );
-
-    setText(
-        elements.resultsCount,
-        `${formatInteger(filteredCount)} notifications`
-    );
-
-    for (const [status, element] of [
-        ["SENT", elements.sentCount],
-        ["PENDING", elements.pendingCount],
-        ["FAILED", elements.failedCount]
-    ]) {
-        setText(
-            element,
-            serverPagination
-                ? "—"
-                : formatInteger(
-                    notifications.filter(
-                        item => item.status === status
-                    ).length
-                )
-        );
-    }
-}
-
-function createEmptyState(message) {
-    const elements = getElements();
-
-    const container =
-        elements.tableBody ?? elements.grid;
-
-    if (!container) {
-        return;
+    if (selected) {
+        button.setAttribute("aria-current", "page");
     }
 
-    if (container instanceof HTMLTableSectionElement) {
-        const row = document.createElement("tr");
-        const cell = document.createElement("td");
-
-        cell.colSpan = 7;
-        cell.className = "admin-table-empty";
-        cell.textContent = message;
-
-        row.appendChild(cell);
-        container.replaceChildren(row);
-    } else {
-        container.replaceChildren(
-            createElement(
-                "p",
-                "empty-state",
-                message
-            )
-        );
-    }
+    return button;
 }
 
 function renderPagination(totalPages) {
-    const container = getElements().pagination;
+    const container = $(ID.pagination);
 
     if (!container) {
         return;
     }
-
-    container.replaceChildren();
-
-    if (totalPages <= 1) {
-        return;
-    }
-
-    const previous = createElement(
-        "button",
-        "btn btn-outline btn-sm",
-        "Previous"
-    );
-
-    previous.type = "button";
-    previous.disabled = state.page === 0;
-
-    const indicator = createElement(
-        "span",
-        "pagination-info",
-        `${state.page + 1} / ${totalPages}`
-    );
-
-    const next = createElement(
-        "button",
-        "btn btn-outline btn-sm",
-        "Next"
-    );
-
-    next.type = "button";
-    next.disabled = state.page >= totalPages - 1;
-
-    previous.addEventListener(
-        "click",
-        () => changePage(state.page - 1),
-        { signal: eventController.signal }
-    );
-
-    next.addEventListener(
-        "click",
-        () => changePage(state.page + 1),
-        { signal: eventController.signal }
-    );
-
-    container.append(
-        previous,
-        indicator,
-        next
-    );
-}
-
-function renderNotifications() {
-    const elements = getElements();
-    const filtered = getFilteredNotifications();
-
-    const total = serverPagination
-        ? totalElements
-        : filtered.length;
-
-    const totalPages = Math.ceil(
-        total / PAGE_SIZE
-    );
-
-    if (!serverPagination) {
-        state.page = Math.min(
-            state.page,
-            Math.max(0, totalPages - 1)
-        );
-    }
-
-    const visible = serverPagination
-        ? filtered
-        : filtered.slice(
-            state.page * PAGE_SIZE,
-            (state.page + 1) * PAGE_SIZE
-        );
-
-    updateStatistics(
-        serverPagination
-            ? total
-            : filtered.length
-    );
-
-    renderPagination(totalPages);
-
-    const container =
-        elements.tableBody ?? elements.grid;
-
-    if (!container) {
-        return;
-    }
-
-    if (visible.length === 0) {
-        showElement(elements.empty);
-
-        createEmptyState(
-            "Хабарламалар табылмады."
-        );
-
-        return;
-    }
-
-    hideElement(elements.empty);
-    hideElement(elements.error);
-
-    const isTable =
-        container instanceof HTMLTableSectionElement;
 
     const fragment = document.createDocumentFragment();
 
-    for (const notification of visible) {
+    if (totalPages > 1) {
         fragment.appendChild(
-            isTable
-                ? createNotificationRow(notification)
-                : createNotificationCard(notification)
+            pageButton("Previous", state.page - 1, state.page === 0)
+        );
+
+        const start = Math.max(0, state.page - 2);
+        const end = Math.min(totalPages - 1, state.page + 2);
+
+        if (start > 0) {
+            fragment.appendChild(pageButton("1", 0));
+        }
+
+        for (let page = start; page <= end; page++) {
+            fragment.appendChild(
+                pageButton(
+                    String(page + 1),
+                    page,
+                    false,
+                    page === state.page
+                )
+            );
+        }
+
+        if (end < totalPages - 1) {
+            fragment.appendChild(
+                pageButton(
+                    String(totalPages),
+                    totalPages - 1
+                )
+            );
+        }
+
+        fragment.appendChild(
+            pageButton(
+                "Next",
+                state.page + 1,
+                state.page === totalPages - 1
+            )
         );
     }
 
     container.replaceChildren(fragment);
-    showElement(elements.content);
 }
 
-function showListError(message) {
-    const elements = getElements();
+function syncControls() {
+    const values = {
+        [ID.search]: state.keyword,
+        [ID.statusFilter]: state.status,
+        [ID.sort]: state.sort,
+        [ID.pageSize]: String(state.size)
+    };
 
-    const target = elements.error?.querySelector(
-        "[data-error-message], .error-message, p"
-    ) ?? elements.error;
+    for (const [id, value] of Object.entries(values)) {
+        const target = $(id);
 
-    if (target) {
-        setText(target, message);
-        showElement(elements.error);
-    } else {
-        createEmptyState(message);
+        if (target) {
+            target.value = value;
+        }
     }
 
-    showError(message);
+    $(ID.tabs)?.querySelectorAll("[data-status]")
+        .forEach(button => {
+            const selected =
+                button.dataset.status === state.status;
+
+            button.classList.toggle(
+                "is-active",
+                selected
+            );
+
+            button.setAttribute(
+                "aria-pressed",
+                String(selected)
+            );
+        });
 }
 
-function buildListUrl(endpoint) {
-    const url = new URL(endpoint);
+function render() {
+    const filtered = getFiltered();
 
-    url.searchParams.set(
-        "page",
-        String(state.page)
+    const totalPages = Math.ceil(
+        filtered.length / state.size
     );
 
-    url.searchParams.set(
-        "size",
-        String(PAGE_SIZE)
+    state.page = Math.min(
+        state.page,
+        Math.max(0, totalPages - 1)
     );
 
-    if (state.keyword) {
-        url.searchParams.set(
-            "keyword",
-            state.keyword
-        );
-    } else {
-        url.searchParams.delete("keyword");
+    const start = state.page * state.size;
+
+    const displayed = filtered.slice(
+        start,
+        start + state.size
+    );
+
+    renderStatistics();
+
+    setText(
+        ID.results,
+        `${integers.format(filtered.length)} хабарлама табылды`
+    );
+
+    visible(ID.empty, notifications.length === 0);
+
+    visible(
+        ID.filterEmpty,
+        notifications.length > 0 && filtered.length === 0
+    );
+
+    visible(ID.table, displayed.length > 0);
+    visible(ID.footer, displayed.length > 0);
+    visible(ID.error, false);
+
+    const fragment = document.createDocumentFragment();
+
+    for (const item of displayed) {
+        fragment.appendChild(makeRow(item));
     }
 
-    if (state.status !== "ALL") {
-        url.searchParams.set(
-            "status",
-            state.status
-        );
-    } else {
-        url.searchParams.delete("status");
+    $(ID.tableBody)?.replaceChildren(fragment);
+
+    setText(
+        ID.paginationInfo,
+        displayed.length
+            ? `${start + 1}–${start + displayed.length} / ${filtered.length}`
+            : "0 / 0"
+    );
+
+    renderPagination(totalPages);
+    syncControls();
+}
+
+function setLoading(value) {
+    loading = value;
+
+    visible(ID.loading, value);
+
+    if (value) {
+        visible(ID.error, false);
+        visible(ID.empty, false);
+        visible(ID.filterEmpty, false);
+        visible(ID.table, false);
+        visible(ID.footer, false);
     }
 
-    if (state.channel !== "ALL") {
-        url.searchParams.set(
-            "channel",
-            state.channel
-        );
-    } else {
-        url.searchParams.delete("channel");
+    for (const id of [ID.refresh, ID.retry]) {
+        const button = $(id);
+
+        if (button instanceof HTMLButtonElement) {
+            button.disabled = value;
+        }
+    }
+}
+
+function renderLoadError(error) {
+    notifications = [];
+
+    for (const id of [
+        ID.total,
+        ID.sent,
+        ID.pending,
+        ID.failed
+    ]) {
+        setText(id, "—");
     }
 
-    return `${url.pathname}${url.search}`;
+    setText(
+        ID.results,
+        "Хабарламаларды жүктеу мүмкін болмады"
+    );
+
+    setText(
+        ID.errorMessage,
+        getErrorMessage(error)
+    );
+
+    visible(ID.error, true);
+    visible(ID.empty, false);
+    visible(ID.filterEmpty, false);
+    visible(ID.table, false);
+    visible(ID.footer, false);
+
+    $(ID.tableBody)?.replaceChildren();
+    $(ID.pagination)?.replaceChildren();
+
+    if (!$(ID.error)) {
+        showError(getErrorMessage(error));
+    }
 }
 
 async function loadNotifications() {
     if (!active) {
-        return;
-    }
-
-    const endpoint = resolveEndpoint("list");
-
-    if (!endpoint) {
-        notifications = [];
-        totalElements = 0;
-
-        showListError(
-            "Admin хабарламаларына арналған API әлі байланыстырылмаған."
-        );
-
         return;
     }
 
@@ -865,503 +647,631 @@ async function loadNotifications() {
     setLoading(true);
 
     try {
-        const response = await api.get(
-            buildListUrl(endpoint)
-        );
+        const raw = await fetchAll(version);
 
         if (
             !active ||
-            version !== requestVersion
+            version !== requestVersion ||
+            raw === null
         ) {
             return;
         }
 
-        notifications = extractNotifications(response)
-            .map(normalizeNotification)
-            .filter(Boolean)
-            .sort((a, b) => {
-                return (
-                    (Date.parse(b.createdAt) || 0) -
-                    (Date.parse(a.createdAt) || 0)
-                ) || b.id - a.id;
-            });
+        const unique = new Map();
 
-        const source = response?.data?.content
-            ? response.data
-            : response;
+        for (const entry of raw) {
+            const item = normalizeNotification(entry);
 
-        const reportedTotal = Number(
-            source?.totalElements
-        );
+            if (item) {
+                unique.set(item.id, item);
+            }
+        }
 
-        serverPagination =
-            !Array.isArray(response) &&
-            source?.totalElements != null &&
-            Number.isFinite(reportedTotal);
+        notifications = [...unique.values()];
 
-        totalElements = serverPagination
-            ? Math.max(0, reportedTotal)
-            : notifications.length;
-
-        renderNotifications();
+        setLoading(false);
+        render();
     } catch (error) {
-        if (
-            !active ||
-            version !== requestVersion
-        ) {
+        if (!active || version !== requestVersion) {
             return;
         }
 
-        notifications = [];
+        setLoading(false);
+        renderLoadError(error);
+    }
+}
 
-        showListError(
-            getErrorMessage(error)
+function openModal(id) {
+    const modal = $(id);
+
+    if (!modal) {
+        return false;
+    }
+
+    focusBeforeModal =
+        document.activeElement instanceof HTMLElement
+            ? document.activeElement
+            : null;
+
+    originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    modal.hidden = false;
+    modal.classList.remove("hidden");
+    modal.classList.add("is-open");
+    modal.setAttribute("aria-hidden", "false");
+
+    return true;
+}
+
+function closeModal(id) {
+    const modal = $(id);
+
+    if (!modal) {
+        return;
+    }
+
+    modal.hidden = true;
+    modal.classList.add("hidden");
+    modal.classList.remove("is-open");
+    modal.setAttribute("aria-hidden", "true");
+
+    document.body.style.overflow = originalOverflow;
+
+    if (
+        focusBeforeModal instanceof HTMLElement &&
+        focusBeforeModal.isConnected
+    ) {
+        focusBeforeModal.focus();
+    }
+
+    focusBeforeModal = null;
+}
+
+function fillDetails(item) {
+    const details = {
+        "admin-notification-detail-number": `#${item.id}`,
+        "admin-notification-detail-id": item.id,
+        "admin-notification-detail-recipient": item.recipient,
+        "admin-notification-detail-user-id": item.userId ?? "—",
+        "admin-notification-detail-channel": item.channel,
+        "admin-notification-detail-created-at": dateText(item.createdAt),
+        "admin-notification-detail-status-text": item.status,
+        "admin-notification-detail-message": item.message
+    };
+
+    for (const [id, value] of Object.entries(details)) {
+        setText(id, value);
+    }
+
+    const badgeTarget = $("admin-notification-detail-status");
+
+    if (badgeTarget) {
+        badgeTarget.replaceWith(
+            Object.assign(badge(item.status), {
+                id: "admin-notification-detail-status"
+            })
         );
-    } finally {
-        if (
-            active &&
-            version === requestVersion
-        ) {
-            setLoading(false);
+    }
+
+    visible(
+        "admin-notification-detail-failure",
+        item.status === "FAILED"
+    );
+
+    setText(
+        "admin-notification-detail-failure-message",
+        "Хабарлама жіберу операциясы сәтсіз аяқталды."
+    );
+}
+
+function viewNotificationDetails(notificationId) {
+    const item = notifications.find(
+        entry => entry.id === notificationId
+    );
+
+    if (!item) {
+        showError("Хабарлама табылмады.");
+        return;
+    }
+
+    selectedNotification = item;
+
+    fillDetails(item);
+
+    if (openModal(ID.detailsModal)) {
+        $(ID.detailsClose)?.focus();
+    }
+}
+
+async function copyMessage() {
+    if (!selectedNotification) {
+        return;
+    }
+
+    const message = selectedNotification.message;
+
+    try {
+        await navigator.clipboard.writeText(message);
+
+        showSuccess("Хабарлама мәтіні көшірілді.");
+    } catch {
+        const textarea = document.createElement("textarea");
+
+        textarea.value = message;
+        textarea.style.position = "fixed";
+        textarea.style.opacity = "0";
+
+        document.body.appendChild(textarea);
+        textarea.select();
+
+        const copied = document.execCommand("copy");
+
+        textarea.remove();
+
+        if (copied) {
+            showSuccess("Хабарлама мәтіні көшірілді.");
+        } else {
+            showError("Мәтінді көшіру мүмкін болмады.");
         }
     }
 }
 
-function changePage(page) {
-    if (
-        !Number.isSafeInteger(page) ||
-        page < 0 ||
-        page === state.page
-    ) {
-        return;
-    }
-
-    state.page = page;
-
-    if (serverPagination) {
-        loadNotifications();
-    } else {
-        renderNotifications();
-    }
+function closeDetails() {
+    closeModal(ID.detailsModal);
+    selectedNotification = null;
 }
 
-function getNotificationById(id) {
-    return notifications.find(
-        notification => notification.id === id
-    ) ?? null;
-}
-
-function createDetailRow(label, value) {
-    const row = createElement(
-        "div",
-        "admin-notification-detail-row"
+function updateMessagePreview() {
+    const message = String(
+        $(ID.message)?.value ?? ""
     );
 
-    row.append(
-        createElement(
-            "span",
-            "admin-notification-detail-label",
-            label
-        ),
-        createElement(
-            "strong",
-            "admin-notification-detail-value",
-            value || "—"
-        )
+    setText(
+        ID.messageCount,
+        `${message.length} / 1000`
     );
 
-    return row;
+    setText(
+        ID.messagePreview,
+        message.trim() ||
+        "Хабарлама мәтіні осы жерде көрсетіледі."
+    );
 }
 
-function viewNotificationDetails(id) {
-    const notification = getNotificationById(id);
-    const elements = getElements();
+function clearComposeErrors() {
+    for (const id of [
+        ID.composeError,
+        ID.recipientError,
+        ID.phoneError,
+        ID.messageError
+    ]) {
+        visible(id, false);
+    }
+}
 
-    if (!notification) {
+function showComposeError(id, message) {
+    setText(id, message);
+    visible(id, true);
+}
+
+function openComposeForm() {
+    if (sending) {
         return;
     }
 
-    if (
-        !elements.detailsModal ||
-        !elements.detailsContent
-    ) {
-        showInfo(
-            `Хабарлама #${notification.id}: ${notification.status}`
-        );
+    $(ID.composeForm)?.reset();
+
+    clearComposeErrors();
+    updateMessagePreview();
+
+    if (openModal(ID.composeModal)) {
+        $(ID.recipientId)?.focus();
+    }
+}
+
+function closeComposeForm() {
+    if (sending) {
         return;
     }
 
-    const details = [
-        ["ID", `#${notification.id}`],
-        ["Title", notification.title],
-        ["Recipient", notification.recipient],
-        ["Channel", notification.channel],
-        ["Status", notification.status],
-        [
-            "Created",
-            notification.createdAt
-                ? formatDateTime(notification.createdAt)
-                : "—"
-        ],
-        [
-            "Sent",
-            notification.sentAt
-                ? formatDateTime(notification.sentAt)
-                : "—"
-        ],
-        ["Message", notification.message]
-    ];
-
-    if (notification.errorMessage) {
-        details.push([
-            "Error",
-            notification.errorMessage
-        ]);
-    }
-
-    const fragment = document.createDocumentFragment();
-
-    for (const [label, value] of details) {
-        fragment.appendChild(
-            createDetailRow(label, value)
-        );
-    }
-
-    elements.detailsContent.replaceChildren(fragment);
-
-    openModal(elements.detailsModal);
-}
-
-function openSendForm() {
-    const elements = getElements();
-
-    if (!elements.sendModal || !elements.sendForm) {
-        showInfo(
-            "Хабарлама жіберу формасы табылмады."
-        );
-        return;
-    }
-
-    elements.sendForm.reset();
-    hideElement(elements.sendError);
-
-    openModal(elements.sendModal);
-}
-
-function closeSendForm() {
-    const elements = getElements();
-
-    if (elements.sendModal) {
-        closeModal(elements.sendModal);
-    }
+    closeModal(ID.composeModal);
 }
 
 function getSendPayload() {
-    const form = getElements().sendForm;
+    const userId = parseId(
+        $(ID.recipientId)?.value
+    );
 
-    if (!form) {
-        return {};
-    }
+    const phoneNumber = String(
+        $(ID.phone)?.value ?? ""
+    ).trim();
 
-    const formData = new FormData(form);
-    const payload = {};
+    const message = String(
+        $(ID.message)?.value ?? ""
+    ).trim();
 
-    for (const [key, value] of formData.entries()) {
-        if (typeof value === "string") {
-            payload[key] = value.trim();
-        }
-    }
+    return {
+        userId,
+        phoneNumber,
+        message
+    };
+}
 
-    if (payload.userId) {
-        const userId = Number(payload.userId);
+function validatePayload(payload) {
+    clearComposeErrors();
 
-        if (Number.isSafeInteger(userId) && userId > 0) {
-            payload.userId = userId;
-        }
-    }
-
-    if (payload.channel) {
-        payload.channel = normalizeStatus(
-            payload.channel
+    if (payload.userId === null) {
+        showComposeError(
+            ID.recipientError,
+            "Дұрыс User ID енгіз."
         );
-    }
 
-    return payload;
-}
-
-function validateSendPayload(payload) {
-    if (
-        !payload.message ||
-        !String(payload.message).trim()
-    ) {
-        return "Хабарлама мәтінін енгіз.";
+        $(ID.recipientId)?.focus();
+        return false;
     }
 
     if (
-        !payload.recipient &&
-        !payload.userId &&
-        !payload.phoneNumber &&
-        !payload.email
+        payload.phoneNumber.length < 7 ||
+        payload.phoneNumber.length > 30 ||
+        !/^\+?[0-9 ()-]+$/.test(payload.phoneNumber)
     ) {
-        return "Хабарлама алушысын көрсет.";
+        showComposeError(
+            ID.phoneError,
+            "Дұрыс телефон нөмірін енгіз."
+        );
+
+        $(ID.phone)?.focus();
+        return false;
     }
 
-    return null;
-}
+    if (
+        payload.message.length < 1 ||
+        payload.message.length > 1000
+    ) {
+        showComposeError(
+            ID.messageError,
+            "Хабарлама 1–1000 таңбадан тұруы керек."
+        );
 
-function showSendError(message) {
-    const element = getElements().sendError;
-
-    if (element) {
-        setText(element, message);
-        showElement(element);
-    } else {
-        showError(message);
+        $(ID.message)?.focus();
+        return false;
     }
+
+    return true;
 }
 
-async function handleSendNotification(event) {
+async function sendNotification(event) {
     event.preventDefault();
 
     if (sending) {
         return;
     }
 
-    const endpoint = resolveEndpoint("send");
-
-    if (!endpoint) {
-        showInfo(
-            "Хабарлама жіберу үшін Spring Boot admin API қосу қажет."
-        );
-        return;
-    }
-
     const payload = getSendPayload();
-    const validationError = validateSendPayload(payload);
 
-    if (validationError) {
-        showSendError(validationError);
+    if (!validatePayload(payload)) {
         return;
     }
 
-    const button = getElements().sendSubmit;
+    const confirmed = window.confirm(
+        `User #${payload.userId} үшін SMS жіберу сұранысын растайсың ба?`
+    );
+
+    if (!confirmed) {
+        return;
+    }
 
     sending = true;
 
-    if (button instanceof HTMLButtonElement) {
-        setButtonLoading(
-            button,
-            true,
-            "Sending..."
-        );
+    const button = $(ID.send);
+
+    if (button) {
+        button.disabled = true;
     }
 
-    try {
-        await api.post(
-            `${endpoint.pathname}${endpoint.search}`,
-            payload
-        );
+    setText(ID.sendText, "Жіберілуде...");
 
-        closeSendForm();
+    try {
+        await api.post(API.send, payload);
+
+        sending = false;
+
+        closeComposeForm();
 
         showSuccess(
-            "Хабарлама сұранысы серверге жіберілді. Жеткізу статусын тізімнен тексер."
+            "Хабарлама сұранысы өңделді. Жіберілу нәтижесін тізімнен тексер."
         );
 
         await loadNotifications();
     } catch (error) {
-        showSendError(
+        showComposeError(
+            ID.composeError,
             getErrorMessage(error)
         );
     } finally {
         sending = false;
 
-        if (button instanceof HTMLButtonElement) {
-            setButtonLoading(button, false);
+        if (button) {
+            button.disabled = false;
         }
+
+        setText(
+            ID.sendText,
+            "Send Notification"
+        );
     }
 }
 
-function setupFilters() {
-    const elements = getElements();
-    const signal = eventController.signal;
+function applyFilters() {
+    const keyword = String(
+        $(ID.search)?.value ?? ""
+    ).trim();
 
-    searchDebounce = debounce(() => {
-        state.keyword = String(
-            elements.search?.value ?? ""
-        ).trim();
+    const requestedStatus = statusOf(
+        $(ID.statusFilter)?.value ?? "ALL"
+    );
 
+    const requestedSort = String(
+        $(ID.sort)?.value ?? "newest"
+    );
+
+    const requestedSize = Number(
+        $(ID.pageSize)?.value ?? 10
+    );
+
+    state.keyword = keyword;
+
+    state.status =
+        requestedStatus === "ALL" ||
+        STATUSES.includes(requestedStatus)
+            ? requestedStatus
+            : "ALL";
+
+    state.sort = [
+        "newest",
+        "oldest",
+        "status-asc",
+        "status-desc"
+    ].includes(requestedSort)
+        ? requestedSort
+        : "newest";
+
+    state.size = PAGE_SIZES.has(requestedSize)
+        ? requestedSize
+        : 10;
+
+    state.page = 0;
+
+    render();
+}
+
+function resetFilters() {
+    clearTimeout(searchTimer);
+    searchTimer = null;
+
+    state = defaultState();
+
+    syncControls();
+    render();
+}
+
+function on(target, event, callback) {
+    target?.addEventListener(
+        event,
+        callback,
+        {
+            signal: events.signal
+        }
+    );
+}
+
+function setupEvents() {
+    for (const id of [
+        ID.refresh,
+        ID.retry
+    ]) {
+        on($(id), "click", event => {
+            event.preventDefault();
+            loadNotifications();
+        });
+    }
+
+    on($(ID.search), "input", () => {
+        clearTimeout(searchTimer);
+
+        searchTimer = setTimeout(() => {
+            if (!active) {
+                return;
+            }
+
+            state.keyword = String(
+                $(ID.search)?.value ?? ""
+            ).trim();
+
+            state.page = 0;
+            render();
+        }, 300);
+    });
+
+    on($(ID.searchForm), "submit", event => {
+        event.preventDefault();
+        clearTimeout(searchTimer);
+        applyFilters();
+    });
+
+    on($(ID.tabs), "click", event => {
+        if (!(event.target instanceof Element)) {
+            return;
+        }
+
+        const button = event.target.closest(
+            "[data-status]"
+        );
+
+        if (!button) {
+            return;
+        }
+
+        const requested = statusOf(
+            button.dataset.status
+        );
+
+        if (
+            requested !== "ALL" &&
+            !STATUSES.includes(requested)
+        ) {
+            return;
+        }
+
+        state.status = requested;
         state.page = 0;
 
-        if (serverPagination) {
-            loadNotifications();
-        } else {
-            renderNotifications();
+        render();
+    });
+
+    on($(ID.filterToggle), "click", event => {
+        event.preventDefault();
+
+        const panel = $(ID.filters);
+
+        if (!panel) {
+            return;
         }
-    }, 350);
 
-    elements.search?.addEventListener(
-        "input",
-        searchDebounce,
-        { signal }
-    );
+        const expanded =
+            panel.hidden ||
+            panel.classList.contains("hidden");
 
-    elements.statusFilter?.addEventListener(
-        "change",
-        event => {
-            const status = normalizeStatus(
-                event.target.value
-            );
+        visible(ID.filters, expanded);
 
-            state.status = STATUSES.includes(status)
-                ? status
-                : "ALL";
-
-            state.page = 0;
-
-            if (serverPagination) {
-                loadNotifications();
-            } else {
-                renderNotifications();
-            }
-        },
-        { signal }
-    );
-
-    elements.channelFilter?.addEventListener(
-        "change",
-        event => {
-            state.channel = normalizeStatus(
-                event.target.value
-            ) || "ALL";
-
-            state.page = 0;
-
-            if (serverPagination) {
-                loadNotifications();
-            } else {
-                renderNotifications();
-            }
-        },
-        { signal }
-    );
-
-    elements.refresh?.addEventListener(
-        "click",
-        event => {
-            event.preventDefault();
-            loadNotifications();
-        },
-        { signal }
-    );
-}
-
-function setupModals() {
-    const elements = getElements();
-    const signal = eventController.signal;
-
-    if (elements.sendModal) {
-        sendModalCleanup = setupModal(
-            elements.sendModal,
-            {
-                closeButtons: [
-                    "#send-notification-modal-close",
-                    "#send-notification-cancel",
-                    "[data-send-notification-close]"
-                ]
-            }
+        $(ID.filterToggle)?.setAttribute(
+            "aria-expanded",
+            String(expanded)
         );
+    });
+
+    on($(ID.filterForm), "submit", event => {
+        event.preventDefault();
+        applyFilters();
+    });
+
+    on($(ID.filterForm), "reset", event => {
+        event.preventDefault();
+        resetFilters();
+    });
+
+    on($(ID.clearSearch), "click", event => {
+        event.preventDefault();
+        resetFilters();
+    });
+
+    for (const id of [
+        ID.statusFilter,
+        ID.sort,
+        ID.pageSize
+    ]) {
+        on($(id), "change", applyFilters);
     }
 
-    if (elements.detailsModal) {
-        detailsModalCleanup = setupModal(
-            elements.detailsModal,
-            {
-                closeButtons: [
-                    "#notification-details-close",
-                    "[data-notification-details-close]"
-                ]
-            }
+    on($(ID.pagination), "click", event => {
+        if (!(event.target instanceof Element)) {
+            return;
+        }
+
+        const button = event.target.closest(
+            "[data-page]"
         );
-    }
 
-    elements.sendForm?.addEventListener(
-        "submit",
-        handleSendNotification,
-        { signal }
-    );
+        if (!button || button.disabled) {
+            return;
+        }
 
-    if (
-        elements.sendSubmit &&
-        elements.sendForm &&
-        !elements.sendForm.contains(elements.sendSubmit)
-    ) {
-        elements.sendSubmit.addEventListener(
-            "click",
-            event => {
-                event.preventDefault();
-                elements.sendForm.requestSubmit();
-            },
-            { signal }
+        const page = Number(
+            button.dataset.page
         );
-    }
 
-    elements.sendCancel?.addEventListener(
-        "click",
-        event => {
-            event.preventDefault();
-            closeSendForm();
-        },
-        { signal }
-    );
-}
+        const totalPages = Math.ceil(
+            getFiltered().length / state.size
+        );
 
-function setupActions() {
-    const elements = getElements();
-    const signal = eventController.signal;
+        if (
+            !Number.isSafeInteger(page) ||
+            page < 0 ||
+            page >= totalPages
+        ) {
+            return;
+        }
 
-    elements.sendButton?.addEventListener(
-        "click",
-        event => {
-            event.preventDefault();
-            openSendForm();
-        },
-        { signal }
-    );
+        state.page = page;
+        render();
+    });
 
-    const container =
-        elements.tableBody ?? elements.grid;
+    on($(ID.tableBody), "click", event => {
+        if (!(event.target instanceof Element)) {
+            return;
+        }
 
-    container?.addEventListener(
-        "click",
-        event => {
-            if (!(event.target instanceof Element)) {
+        const button = event.target.closest(
+            "[data-notification-id]"
+        );
+
+        if (!button) {
+            return;
+        }
+
+        const id = parseId(
+            button.dataset.notificationId
+        );
+
+        if (id !== null) {
+            viewNotificationDetails(id);
+        }
+    });
+
+    on($(ID.detailsClose), "click", closeDetails);
+    on($(ID.detailsDone), "click", closeDetails);
+    on($(ID.detailsCopy), "click", copyMessage);
+
+    on($(ID.compose), "click", event => {
+        event.preventDefault();
+        openComposeForm();
+    });
+
+    on($(ID.composeClose), "click", closeComposeForm);
+    on($(ID.composeCancel), "click", closeComposeForm);
+    on($(ID.composeForm), "submit", sendNotification);
+
+    on($(ID.message), "input", updateMessagePreview);
+
+    for (const id of [
+        ID.detailsModal,
+        ID.composeModal
+    ]) {
+        on($(id), "click", event => {
+            if (event.target !== event.currentTarget) {
                 return;
             }
 
-            const button = event.target.closest(
-                "[data-notification-details-id]"
-            );
-
-            if (!button) {
-                return;
+            if (id === ID.detailsModal) {
+                closeDetails();
+            } else {
+                closeComposeForm();
             }
+        });
+    }
 
-            event.preventDefault();
+    on(document, "keydown", event => {
+        if (event.key !== "Escape") {
+            return;
+        }
 
-            const id = Number(
-                button.dataset.notificationDetailsId
-            );
-
-            if (
-                Number.isSafeInteger(id) &&
-                id > 0
-            ) {
-                viewNotificationDetails(id);
-            }
-        },
-        { signal }
-    );
+        if (!$(ID.composeModal)?.hidden) {
+            closeComposeForm();
+        } else if (!$(ID.detailsModal)?.hidden) {
+            closeDetails();
+        }
+    });
 }
 
 export async function initAdminNotifications() {
@@ -1372,11 +1282,17 @@ export async function initAdminNotifications() {
     initialized = true;
     active = true;
 
-    eventController = new AbortController();
+    events = new AbortController();
 
-    setupFilters();
-    setupModals();
-    setupActions();
+    const compose = $(ID.compose);
+
+    if (compose) {
+        compose.hidden = false;
+        compose.classList.remove("hidden");
+    }
+
+    setupEvents();
+    syncControls();
 
     await loadNotifications();
 }
@@ -1389,41 +1305,52 @@ export function destroyAdminNotifications() {
 
     requestVersion++;
 
-    searchDebounce?.cancel();
-    eventController?.abort();
+    clearTimeout(searchTimer);
+    searchTimer = null;
 
-    sendModalCleanup?.();
-    detailsModalCleanup?.();
+    events?.abort();
+    events = null;
 
-    searchDebounce = null;
-    eventController = null;
-    sendModalCleanup = null;
-    detailsModalCleanup = null;
+    for (const id of [
+        ID.detailsModal,
+        ID.composeModal
+    ]) {
+        const modal = $(id);
+
+        if (modal) {
+            modal.hidden = true;
+            modal.classList.add("hidden");
+            modal.classList.remove("is-open");
+        }
+    }
+
+    document.body.style.overflow =
+        originalOverflow;
 
     notifications = [];
-    totalElements = 0;
-    serverPagination = false;
+    selectedNotification = null;
 
-    state = {
-        keyword: "",
-        status: "ALL",
-        channel: "ALL",
-        page: 0
-    };
+    state = defaultState();
 }
 
 export const adminNotifications = {
     init: initAdminNotifications,
     destroy: destroyAdminNotifications,
     reload: loadNotifications,
-    openSendForm,
-    closeSendForm,
+    openSendForm: openComposeForm,
+    closeSendForm: closeComposeForm,
     viewDetails: viewNotificationDetails,
+
     getNotifications() {
-        return [...notifications];
+        return notifications.map(item => ({
+            ...item
+        }));
     },
+
     getState() {
-        return { ...state };
+        return {
+            ...state
+        };
     }
 };
 

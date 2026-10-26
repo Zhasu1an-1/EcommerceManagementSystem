@@ -75,6 +75,7 @@ const SELECTORS = {
         "[data-cart-items-count]"
     ],
     summaryCount: [
+        "#cart-summary-items",
         "#cart-summary-count",
         "[data-cart-summary-count]"
     ],

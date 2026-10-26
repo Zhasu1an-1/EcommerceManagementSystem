@@ -77,10 +77,10 @@ public class OrderService {
                         "User not found"
                 ));
 
-        Cart cart = cartRepository.findByUserId(userId)
+        Cart cart = cartRepository.findWithItemsByUserId(userId)
                 .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Cart not found"
+                        HttpStatus.CONFLICT,
+                        "Your cart is unavailable. Please reopen your cart."
                 ));
 
         entityManager.lock(cart, LockModeType.PESSIMISTIC_WRITE);

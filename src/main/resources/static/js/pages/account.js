@@ -16,413 +16,320 @@ import {
 
 import {
     formatCurrency,
-    formatDateTime,
-    showElement,
-    hideElement
+    formatDateTime
 } from "../core/utils.js";
 
 import {
     showSuccess,
-    showError,
-    showInfo
+    showError
 } from "../components/toast.js";
 
-const RECENT_ORDERS_LIMIT = 5;
+const RECENT_LIMIT = 5;
+const ORDER_PAGE_SIZE = 50;
+const MAX_ORDER_PAGES = 100;
 
-const SELECTORS = {
-    loading: [
-        "#account-loading",
-        "#account-loading-state"
-    ],
-    content: [
-        "#account-content",
-        "#account-main-content"
-    ],
-    auth: [
-        "#account-auth-required",
-        "#account-login-required"
-    ],
-    error: [
-        "#account-error",
-        "#account-error-state"
-    ],
-    name: [
-        "#account-name",
-        "#profile-name",
-        "[data-account-name]"
-    ],
-    email: [
-        "#account-email",
-        "#profile-email",
-        "[data-account-email]"
-    ],
-    role: [
-        "#account-role",
-        "#profile-role",
-        "[data-account-role]"
-    ],
-    avatar: [
-        "#account-avatar",
-        "#profile-avatar",
-        "[data-account-avatar]"
-    ],
-    greeting: [
-        "#account-greeting-name",
-        "#account-welcome-name",
-        "[data-account-greeting]"
-    ],
-    userId: [
-        "#account-user-id",
-        "[data-account-user-id]"
-    ],
-    createdAt: [
-        "#account-created-at",
-        "#account-member-since",
-        "[data-account-created-at]"
-    ],
-    recentOrders: [
-        "#account-recent-orders",
-        "#recent-orders-list",
-        "[data-account-recent-orders]"
-    ],
-    ordersEmpty: [
-        "#account-orders-empty",
-        "#account-recent-orders-empty"
-    ],
-    ordersLoading: [
-        "#account-orders-loading",
-        "[data-account-orders-loading]"
-    ],
-    ordersCount: [
-        "#account-orders-count",
-        "#account-total-orders",
-        "[data-account-orders-count]"
-    ],
-    totalSpent: [
-        "#account-total-spent",
-        "[data-account-total-spent]"
-    ],
-    refreshButton: [
-        "#account-refresh",
-        "#account-refresh-button",
-        "[data-account-refresh]"
-    ],
-    logoutButton: [
-        "#account-logout",
-        "#account-logout-button",
-        "[data-account-logout]"
-    ],
-    adminLink: [
-        "#account-admin-link",
-        "[data-account-admin-link]"
-    ],
-    editForm: [
-        "#account-edit-form",
-        "#profile-edit-form",
-        "[data-account-edit-form]"
-    ]
-};
+const $ = id => document.getElementById(id);
 
 let initialized = false;
 let active = false;
-let requestVersion = 0;
-let eventController = null;
+let loading = false;
 let loggingOut = false;
+let updatingProfile = false;
+let requestVersion = 0;
+let events = null;
 
 let currentUser = null;
 let recentOrders = [];
 
-function findElement(selectors) {
-    for (const selector of selectors) {
-        const element = document.querySelector(selector);
+let returnFocus = null;
+let editProfileReturnFocus = null;
+let originalOverflow = "";
 
-        if (element) {
-            return element;
-        }
+function setText(id, value) {
+    const element = $(id);
+
+    if (element) {
+        element.textContent = String(value ?? "—");
     }
-
-    return null;
 }
 
-function getElements() {
-    const elements = {};
+function setVisible(id, visible) {
+    const element = $(id);
 
-    for (const [key, selectors] of Object.entries(SELECTORS)) {
-        elements[key] = findElement(selectors);
-    }
-
-    return elements;
-}
-
-function setText(element, value) {
     if (!element) {
         return;
     }
 
-    const text = String(value ?? "—");
-
-    if (
-        element instanceof HTMLInputElement ||
-        element instanceof HTMLTextAreaElement
-    ) {
-        element.value = text;
-    } else {
-        element.textContent = text;
-    }
+    element.hidden = !visible;
+    element.classList.toggle("hidden", !visible);
 }
 
-function createElement(tag, className = "", text = null) {
+function createElement(tag, className = "", value = null) {
     const element = document.createElement(tag);
 
     if (className) {
         element.className = className;
     }
 
-    if (text !== null && text !== undefined) {
-        element.textContent = String(text);
+    if (value !== null && value !== undefined) {
+        element.textContent = String(value);
     }
 
     return element;
 }
 
 function setPageState(state) {
-    const elements = getElements();
-
-    const sections = {
-        loading: elements.loading,
-        content: elements.content,
-        auth: elements.auth,
-        error: elements.error
+    const states = {
+        loading: "account-loading",
+        content: "account-content",
+        auth: "account-auth-required",
+        error: "account-error"
     };
 
-    for (const [name, element] of Object.entries(sections)) {
-        if (!element) {
-            continue;
-        }
-
-        if (name === state) {
-            showElement(element);
-        } else {
-            hideElement(element);
-        }
+    for (const [name, id] of Object.entries(states)) {
+        setVisible(id, name === state);
     }
 }
 
-function showFallbackState(
-    title,
-    description,
-    linkText,
-    linkUrl
-) {
-    let container = document.getElementById(
-        "account-dynamic-state"
-    );
-
-    if (!container) {
-        container = createElement(
-            "div",
-            "empty-state account-dynamic-state"
-        );
-
-        container.id = "account-dynamic-state";
-
-        document.querySelector("main")?.prepend(
-            container
-        );
-    }
-
-    const heading = createElement(
-        "h2",
-        "empty-state-title",
-        title
-    );
-
-    const paragraph = createElement(
-        "p",
-        "empty-state-description",
-        description
-    );
-
-    container.replaceChildren(heading, paragraph);
-
-    if (linkText && linkUrl) {
-        const link = createElement(
-            "a",
-            "btn btn-primary",
-            linkText
-        );
-
-        link.href = linkUrl;
-        container.appendChild(link);
-    }
-
-    showElement(container);
+function normalizeRole(user) {
+    return isAdmin(user) ? "ADMIN" : "CUSTOMER";
 }
 
-function hideFallbackState() {
-    const container = document.getElementById(
-        "account-dynamic-state"
+function getDisplayName(user) {
+    const name = getUserDisplayName(user);
+
+    if (
+        !name ||
+        name === "Пайдаланушы" ||
+        name === "anonymousUser"
+    ) {
+        return user.email ?? "Пайдаланушы";
+    }
+
+    return name;
+}
+
+function getGreetingName(user) {
+    const displayName = getDisplayName(user);
+
+    if (displayName.includes("@")) {
+        return displayName.split("@")[0];
+    }
+
+    return displayName.split(/\s+/)[0] || "досым";
+}
+
+function formatUserId(user) {
+    const id = user.id ?? user.userId;
+
+    if (
+        id === null ||
+        id === undefined ||
+        id === ""
+    ) {
+        return "—";
+    }
+
+    return String(id);
+}
+
+function renderProfile(user) {
+    const displayName = getDisplayName(user);
+    const role = normalizeRole(user);
+
+    setText("account-name", displayName);
+    setText("account-email", user.email ?? "—");
+    setText("account-id", formatUserId(user));
+    setText("account-role", role);
+
+    setText("account-summary-name", displayName);
+    setText("account-summary-email", user.email ?? "—");
+    setText("account-summary-role", role);
+
+    setText(
+        "account-avatar-initials",
+        getUserInitials({
+            ...user,
+            name: displayName
+        })
     );
 
-    if (container) {
-        hideElement(container);
+    setText(
+        "account-hero-name",
+        getGreetingName(user)
+    );
+
+    const roleBadge = $("account-summary-role");
+
+    if (roleBadge) {
+        roleBadge.classList.toggle(
+            "badge-primary",
+            role === "CUSTOMER"
+        );
+
+        roleBadge.classList.toggle(
+            "badge-success",
+            role === "ADMIN"
+        );
     }
+
+    setVisible(
+        "account-admin-sidebar-link",
+        role === "ADMIN"
+    );
+
+    setVisible(
+        "account-admin-card",
+        role === "ADMIN"
+    );
+
+    document.title = `${displayName} | NEXORA`;
 }
 
 function showAuthRequired() {
     currentUser = null;
     recentOrders = [];
 
-    setPageState("auth");
-
-    const loginUrl = getLoginUrl(
-        "/pages/account.html"
+    const login = $("account-auth-required")?.querySelector(
+        'a[href*="/pages/login.html"]'
     );
 
-    const authElement = getElements().auth;
-
-    if (authElement) {
-        const loginLink = authElement.querySelector(
-            "a[href]"
-        );
-
-        if (loginLink) {
-            loginLink.href = loginUrl;
-        }
-    } else {
-        showFallbackState(
-            "Sign in to your account",
-            "Жеке кабинетіңді көру үшін аккаунтыңа кір.",
-            "Sign In",
-            loginUrl
+    if (login) {
+        login.href = getLoginUrl(
+            "/pages/account.html"
         );
     }
+
+    setPageState("auth");
 }
 
 function showAccountError(error) {
-    const message = getErrorMessage(error);
-    const errorElement = getElements().error;
+    setText(
+        "account-error-message",
+        getErrorMessage(error)
+    );
 
     setPageState("error");
-
-    if (errorElement) {
-        const description = errorElement.querySelector(
-            "[data-error-message], .error-message, p"
-        );
-
-        setText(description, message);
-    } else {
-        showFallbackState(
-            "Account unavailable",
-            message,
-            "Back to Home",
-            "/"
-        );
-    }
 }
 
-function renderProfile(user) {
-    const elements = getElements();
-
-    const name = getUserDisplayName(user);
-    const initials = getUserInitials(user);
-    const admin = isAdmin(user);
-
-    setText(elements.name, name);
-    setText(elements.email, user.email ?? "—");
-    setText(elements.role, admin ? "ADMIN" : "CUSTOMER");
-    setText(elements.avatar, initials);
-    setText(elements.greeting, name);
-    setText(elements.userId, user.id ?? "—");
-
-    if (user.createdAt) {
-        setText(
-            elements.createdAt,
-            formatDateTime(user.createdAt)
-        );
-    } else if (elements.createdAt) {
-        setText(elements.createdAt, "—");
-    }
-
-    if (elements.adminLink) {
-        if (admin) {
-            if (
-                elements.adminLink instanceof HTMLAnchorElement
-            ) {
-                elements.adminLink.href =
-                    "/admin/dashboard.html";
-            }
-
-            showElement(elements.adminLink);
-        } else {
-            hideElement(elements.adminLink);
-        }
-    }
-
-    document.title = "My Account | NEXORA";
-
-    hideFallbackState();
-    setPageState("content");
-}
-
-function extractOrders(response) {
-    if (Array.isArray(response)) {
-        return response;
-    }
-
-    if (Array.isArray(response?.content)) {
-        return response.content;
-    }
-
-    if (Array.isArray(response?.orders)) {
-        return response.orders;
-    }
-
-    if (Array.isArray(response?.data)) {
-        return response.data;
-    }
-
-    if (Array.isArray(response?.data?.content)) {
-        return response.data.content;
-    }
-
-    return [];
-}
-
-function normalizeOrder(order) {
-    if (!order || typeof order !== "object") {
-        return null;
-    }
-
+function parseOrder(raw) {
     const id = Number(
-        order.id ?? order.orderId
+        raw?.id ?? raw?.orderId
     );
 
-    if (!Number.isSafeInteger(id) || id <= 0) {
+    if (
+        !Number.isSafeInteger(id) ||
+        id <= 0
+    ) {
         return null;
     }
 
-    const amount = Number(
-        order.totalAmount ??
-        order.totalPrice ??
-        order.total ??
-        0
-    );
+    const amount =
+        raw.totalAmount ??
+        raw.totalPrice ??
+        raw.finalAmount ??
+        raw.total;
+
+    const parsedAmount = Number(amount);
 
     return {
         id,
         status: String(
-            order.status ?? order.orderStatus ?? "PENDING"
+            raw.status ??
+            raw.orderStatus ??
+            "UNKNOWN"
         ).toUpperCase(),
-        totalAmount: Number.isFinite(amount)
-            ? Math.max(0, amount)
-            : 0,
+        totalAmount:
+            amount !== null &&
+            amount !== undefined &&
+            Number.isFinite(parsedAmount)
+                ? parsedAmount
+                : null,
         createdAt:
-            order.createdAt ??
-            order.orderDate ??
-            order.createdDate ??
+            raw.createdAt ??
+            raw.orderDate ??
+            raw.createdDate ??
             null
     };
+}
+
+function extractPage(response) {
+    const source = response?.data?.content
+        ? response.data
+        : response;
+
+    if (Array.isArray(source)) {
+        return {
+            orders: source,
+            totalPages: 1
+        };
+    }
+
+    if (!Array.isArray(source?.content)) {
+        throw new Error(
+            "Тапсырыстар API-і дұрыс жауап қайтармады."
+        );
+    }
+
+    const pages = Number(source.totalPages);
+
+    return {
+        orders: source.content,
+        totalPages:
+            Number.isSafeInteger(pages) &&
+            pages >= 0
+                ? pages
+                : null
+    };
+}
+
+async function fetchAllMyOrders(version) {
+    const all = [];
+
+    for (
+        let page = 0;
+        page < MAX_ORDER_PAGES;
+        page++
+    ) {
+        const params = new URLSearchParams({
+            page: String(page),
+            size: String(ORDER_PAGE_SIZE),
+            sort: "createdAt,desc"
+        });
+
+        const response = await api.get(
+            `/api/orders/my?${params.toString()}`
+        );
+
+        if (
+            !active ||
+            version !== requestVersion
+        ) {
+            return null;
+        }
+
+        const result = extractPage(response);
+
+        all.push(...result.orders);
+
+        if (
+            result.totalPages !== null &&
+            page + 1 >= result.totalPages
+        ) {
+            return all;
+        }
+
+        if (
+            result.totalPages === null &&
+            result.orders.length < ORDER_PAGE_SIZE
+        ) {
+            return all;
+        }
+    }
+
+    throw new Error(
+        "Тапсырыстар тізімін толық жүктеу мүмкін болмады."
+    );
 }
 
 function getStatusVariant(status) {
@@ -456,13 +363,13 @@ function createOrderCard(order) {
         "account-order-info"
     );
 
-    const title = createElement(
+    const name = createElement(
         "a",
         "account-order-title",
         `Order #${order.id}`
     );
 
-    title.href =
+    name.href =
         `/pages/order-details.html?id=${encodeURIComponent(order.id)}`;
 
     const date = createElement(
@@ -473,14 +380,14 @@ function createOrderCard(order) {
             : "—"
     );
 
-    information.append(title, date);
+    information.append(name, date);
 
     const details = createElement(
         "div",
         "account-order-details"
     );
 
-    const status = createElement(
+    const badge = createElement(
         "span",
         `badge badge-${getStatusVariant(order.status)}`,
         order.status
@@ -489,10 +396,12 @@ function createOrderCard(order) {
     const total = createElement(
         "strong",
         "account-order-total",
-        formatCurrency(order.totalAmount)
+        order.totalAmount === null
+            ? "—"
+            : formatCurrency(order.totalAmount)
     );
 
-    details.append(status, total);
+    details.append(badge, total);
 
     const link = createElement(
         "a",
@@ -512,142 +421,109 @@ function createOrderCard(order) {
     return article;
 }
 
-function renderRecentOrders(orders, response) {
-    const elements = getElements();
+function renderOrders(orders) {
+    const unique = new Map();
 
-    const sortedOrders = [...orders].sort(
-        (a, b) => {
-            const first = Date.parse(a.createdAt) || 0;
-            const second = Date.parse(b.createdAt) || 0;
+    for (const raw of orders) {
+        const order = parseOrder(raw);
 
-            return second - first || b.id - a.id;
+        if (order) {
+            unique.set(order.id, order);
         }
+    }
+
+    const normalized = [...unique.values()].sort(
+        (a, b) =>
+            (Date.parse(b.createdAt) || 0) -
+            (Date.parse(a.createdAt) || 0) ||
+            b.id - a.id
     );
 
-    recentOrders = sortedOrders.slice(
-        0,
-        RECENT_ORDERS_LIMIT
-    );
+    const activeCount = normalized.filter(
+        order => [
+            "PENDING",
+            "CONFIRMED",
+            "SHIPPED"
+        ].includes(order.status)
+    ).length;
 
-    const pageData = response?.data?.content
-        ? response.data
-        : response;
-
-    const reportedTotal = Number(
-        pageData?.totalElements
-    );
-
-    const isPaged = Number.isFinite(reportedTotal);
+    const completedCount = normalized.filter(
+        order => order.status === "DELIVERED"
+    ).length;
 
     setText(
-        elements.ordersCount,
-        isPaged
-            ? Math.max(0, reportedTotal)
-            : orders.length
+        "account-orders-count",
+        normalized.length
     );
 
-    if (!isPaged) {
-        const totalSpent = orders.reduce(
-            (sum, order) => sum + order.totalAmount,
-            0
-        );
+    setText(
+        "account-active-orders-count",
+        activeCount
+    );
 
-        setText(
-            elements.totalSpent,
-            formatCurrency(totalSpent)
-        );
-    } else if (elements.totalSpent) {
-        setText(elements.totalSpent, "—");
-    }
+    setText(
+        "account-completed-orders-count",
+        completedCount
+    );
 
-    if (!elements.recentOrders) {
-        return;
-    }
+    recentOrders = normalized.slice(
+        0,
+        RECENT_LIMIT
+    );
 
-    if (recentOrders.length === 0) {
-        elements.recentOrders.replaceChildren();
+    const container = $("account-recent-orders");
 
-        if (elements.ordersEmpty) {
-            showElement(elements.ordersEmpty);
-        } else {
-            const message = createElement(
-                "div",
-                "empty-state account-orders-empty"
+    if (container) {
+        const fragment = document.createDocumentFragment();
+
+        for (const order of recentOrders) {
+            fragment.appendChild(
+                createOrderCard(order)
             );
-
-            const heading = createElement(
-                "h3",
-                "empty-state-title",
-                "No orders yet"
-            );
-
-            const paragraph = createElement(
-                "p",
-                "empty-state-description",
-                "Сен әлі тапсырыс жасамағансың."
-            );
-
-            const link = createElement(
-                "a",
-                "btn btn-primary",
-                "Explore Products"
-            );
-
-            link.href = "/pages/catalog.html";
-
-            message.append(
-                heading,
-                paragraph,
-                link
-            );
-
-            elements.recentOrders.appendChild(message);
         }
 
-        return;
+        container.replaceChildren(fragment);
     }
 
-    hideElement(elements.ordersEmpty);
+    setVisible(
+        "account-recent-empty",
+        normalized.length === 0
+    );
 
-    const fragment = document.createDocumentFragment();
-
-    for (const order of recentOrders) {
-        fragment.appendChild(
-            createOrderCard(order)
-        );
-    }
-
-    elements.recentOrders.replaceChildren(fragment);
+    setVisible(
+        "account-recent-error",
+        false
+    );
 }
 
-async function loadRecentOrders(version) {
-    const elements = getElements();
-
-    if (
-        !elements.recentOrders &&
-        !elements.ordersCount &&
-        !elements.totalSpent
-    ) {
-        return;
+function renderOrdersError() {
+    for (const id of [
+        "account-orders-count",
+        "account-active-orders-count",
+        "account-completed-orders-count"
+    ]) {
+        setText(id, "—");
     }
 
-    showElement(elements.ordersLoading);
+    $("account-recent-orders")?.replaceChildren();
 
+    setVisible("account-recent-empty", false);
+    setVisible("account-recent-error", true);
+}
+
+async function loadMyOrders(version) {
     try {
-        const response = await api.orders.mine();
+        const orders = await fetchAllMyOrders(version);
 
         if (
             !active ||
-            version !== requestVersion
+            version !== requestVersion ||
+            orders === null
         ) {
             return;
         }
 
-        const orders = extractOrders(response)
-            .map(normalizeOrder)
-            .filter(Boolean);
-
-        renderRecentOrders(orders, response);
+        renderOrders(orders);
     } catch (error) {
         if (
             !active ||
@@ -667,35 +543,25 @@ async function loadRecentOrders(version) {
             error
         );
 
-        if (elements.recentOrders) {
-            elements.recentOrders.replaceChildren(
-                createElement(
-                    "p",
-                    "account-orders-error",
-                    "Соңғы тапсырыстарды жүктеу мүмкін болмады."
-                )
-            );
-        }
-
-        setText(elements.ordersCount, "—");
-        setText(elements.totalSpent, "—");
-    } finally {
-        if (
-            active &&
-            version === requestVersion
-        ) {
-            hideElement(elements.ordersLoading);
-        }
+        renderOrdersError();
     }
 }
 
 async function loadAccount(forceRefresh = false) {
+    if (!active || loading) {
+        return;
+    }
+
+    loading = true;
+
     const version = ++requestVersion;
 
     setPageState("loading");
 
     try {
-        const user = await getCurrentUser(forceRefresh);
+        const user = await getCurrentUser(
+            forceRefresh
+        );
 
         if (
             !active ||
@@ -713,7 +579,9 @@ async function loadAccount(forceRefresh = false) {
 
         renderProfile(user);
 
-        await loadRecentOrders(version);
+        setPageState("content");
+
+        await loadMyOrders(version);
     } catch (error) {
         if (
             !active ||
@@ -725,27 +593,84 @@ async function loadAccount(forceRefresh = false) {
         if (isAuthenticationError(error)) {
             clearAuthState();
             showAuthRequired();
-            return;
+        } else {
+            showAccountError(error);
         }
-
-        showAccountError(error);
+    } finally {
+        if (version === requestVersion) {
+            loading = false;
+        }
     }
 }
 
-async function handleLogout(event) {
-    event?.preventDefault();
+function openLogoutModal() {
+    if (
+        loggingOut ||
+        updatingProfile
+    ) {
+        return;
+    }
 
+    const modal = $("account-logout-modal");
+
+    if (!modal) {
+        return;
+    }
+
+    returnFocus =
+        document.activeElement instanceof HTMLElement
+            ? document.activeElement
+            : null;
+
+    originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    setVisible("account-logout-error", false);
+
+    modal.hidden = false;
+    modal.classList.add("is-open");
+    modal.classList.remove("hidden");
+
+    $("account-logout-cancel")?.focus();
+}
+
+function closeLogoutModal() {
+    if (loggingOut) {
+        return;
+    }
+
+    const modal = $("account-logout-modal");
+
+    if (modal) {
+        modal.hidden = true;
+        modal.classList.remove("is-open");
+        modal.classList.add("hidden");
+    }
+
+    document.body.style.overflow = originalOverflow;
+
+    if (returnFocus?.isConnected) {
+        returnFocus.focus();
+    }
+
+    returnFocus = null;
+}
+
+async function confirmLogout() {
     if (loggingOut) {
         return;
     }
 
     loggingOut = true;
 
-    const button = getElements().logoutButton;
+    const button = $("account-logout-confirm");
 
-    if (button && "disabled" in button) {
+    if (button) {
         button.disabled = true;
+        button.textContent = "Шығуда...";
     }
+
+    setVisible("account-logout-error", false);
 
     try {
         await logout({
@@ -760,46 +685,350 @@ async function handleLogout(event) {
             "/pages/login.html?logout=true"
         );
     } catch (error) {
+        setText(
+            "account-logout-error",
+            getErrorMessage(error)
+        );
+
+        setVisible(
+            "account-logout-error",
+            true
+        );
+
         showError(getErrorMessage(error));
     } finally {
         loggingOut = false;
 
-        if (button && "disabled" in button) {
+        if (button) {
             button.disabled = false;
+            button.textContent = "Иә, шығу";
         }
     }
 }
 
-function setupAccountActions() {
-    const elements = getElements();
-    const signal = eventController.signal;
+function openEditProfile() {
+    if (
+        !currentUser ||
+        updatingProfile ||
+        loggingOut
+    ) {
+        return;
+    }
 
-    elements.refreshButton?.addEventListener(
+    const modal = $("account-edit-profile-modal");
+    const input = $("account-edit-name");
+
+    if (!modal || !input) {
+        showError(
+            "Edit Profile терезесі табылмады."
+        );
+        return;
+    }
+
+    editProfileReturnFocus =
+        document.activeElement instanceof HTMLElement
+            ? document.activeElement
+            : null;
+
+    input.value = String(
+        currentUser.name ?? ""
+    );
+
+    setText(
+        "account-edit-profile-error",
+        ""
+    );
+
+    setVisible(
+        "account-edit-profile-error",
+        false
+    );
+
+    originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    modal.hidden = false;
+    modal.classList.remove("hidden");
+    modal.classList.add("is-open");
+    modal.setAttribute(
+        "aria-hidden",
+        "false"
+    );
+
+    input.focus();
+    input.select();
+}
+
+function closeEditProfile() {
+    if (updatingProfile) {
+        return;
+    }
+
+    const modal = $("account-edit-profile-modal");
+
+    if (modal) {
+        modal.hidden = true;
+        modal.classList.remove("is-open");
+        modal.classList.add("hidden");
+        modal.setAttribute(
+            "aria-hidden",
+            "true"
+        );
+    }
+
+    document.body.style.overflow = originalOverflow;
+
+    if (editProfileReturnFocus?.isConnected) {
+        editProfileReturnFocus.focus();
+    }
+
+    editProfileReturnFocus = null;
+}
+
+function showEditProfileError(message) {
+    setText(
+        "account-edit-profile-error",
+        message
+    );
+
+    setVisible(
+        "account-edit-profile-error",
+        true
+    );
+}
+
+async function saveEditProfile(event) {
+    event.preventDefault();
+
+    if (
+        !currentUser ||
+        updatingProfile ||
+        loggingOut
+    ) {
+        return;
+    }
+
+    const input = $("account-edit-name");
+
+    const name = String(
+        input?.value ?? ""
+    ).trim();
+
+    setVisible(
+        "account-edit-profile-error",
+        false
+    );
+
+    if (
+        name.length < 2 ||
+        name.length > 100
+    ) {
+        showEditProfileError(
+            "Атың 2–100 таңба аралығында болуы керек."
+        );
+
+        input?.focus();
+        return;
+    }
+
+    if (name === currentUser.name) {
+        closeEditProfile();
+        return;
+    }
+
+    updatingProfile = true;
+
+    const button = $("account-edit-profile-save");
+
+    if (button) {
+        button.disabled = true;
+        button.textContent = "Сақталуда...";
+    }
+
+    try {
+        await api.patch(
+            "/api/auth/me/name",
+            { name }
+        );
+
+        const updatedUser = await getCurrentUser(true);
+
+        if (!updatedUser) {
+            throw new Error(
+                "Жаңартылған аккаунт мәліметтерін алу мүмкін болмады."
+            );
+        }
+
+        if (!active) {
+            return;
+        }
+
+        currentUser = updatedUser;
+
+        renderProfile(updatedUser);
+
+        updatingProfile = false;
+        closeEditProfile();
+
+        showSuccess(
+            "Профиль аты сәтті өзгертілді."
+        );
+    } catch (error) {
+        const message = getErrorMessage(error);
+
+        showEditProfileError(message);
+    } finally {
+        updatingProfile = false;
+
+        if (button) {
+            button.disabled = false;
+            button.textContent = "Save Changes";
+        }
+    }
+}
+
+function on(target, type, callback) {
+    target?.addEventListener(
+        type,
+        callback,
+        { signal: events.signal }
+    );
+}
+
+function setupEvents() {
+    on(
+        $("account-retry-button"),
         "click",
         event => {
             event.preventDefault();
             loadAccount(true);
-        },
-        { signal }
+        }
     );
 
-    elements.logoutButton?.addEventListener(
+    on(
+        $("account-logout-button"),
         "click",
-        handleLogout,
-        { signal }
-    );
-
-    elements.editForm?.addEventListener(
-        "submit",
         event => {
             event.preventDefault();
-
-            showInfo(
-                "Профиль мәліметтерін өзгерту функциясы серверде әлі іске асырылмаған."
-            );
-        },
-        { signal }
+            openLogoutModal();
+        }
     );
+
+    for (const id of [
+        "account-logout-modal-close",
+        "account-logout-cancel"
+    ]) {
+        on(
+            $(id),
+            "click",
+            event => {
+                event.preventDefault();
+                closeLogoutModal();
+            }
+        );
+    }
+
+    on(
+        $("account-logout-confirm"),
+        "click",
+        event => {
+            event.preventDefault();
+            confirmLogout();
+        }
+    );
+
+    on(
+        $("account-logout-modal"),
+        "click",
+        event => {
+            if (
+                event.target === event.currentTarget
+            ) {
+                closeLogoutModal();
+            }
+        }
+    );
+
+    on(
+        $("account-edit-profile-button"),
+        "click",
+        event => {
+            event.preventDefault();
+            openEditProfile();
+        }
+    );
+
+    for (const id of [
+        "account-edit-profile-close",
+        "account-edit-profile-cancel"
+    ]) {
+        on(
+            $(id),
+            "click",
+            event => {
+                event.preventDefault();
+                closeEditProfile();
+            }
+        );
+    }
+
+    on(
+        $("account-edit-profile-form"),
+        "submit",
+        saveEditProfile
+    );
+
+    on(
+        $("account-edit-profile-modal"),
+        "click",
+        event => {
+            if (
+                event.target === event.currentTarget
+            ) {
+                closeEditProfile();
+            }
+        }
+    );
+
+    on(
+        $("account-edit-name"),
+        "input",
+        () => {
+            setVisible(
+                "account-edit-profile-error",
+                false
+            );
+        }
+    );
+
+    on(document, "keydown", event => {
+        if (event.key !== "Escape") {
+            return;
+        }
+
+        const editModal = $(
+            "account-edit-profile-modal"
+        );
+
+        const logoutModal = $(
+            "account-logout-modal"
+        );
+
+        if (
+            editModal &&
+            !editModal.hidden
+        ) {
+            closeEditProfile();
+            return;
+        }
+
+        if (
+            logoutModal &&
+            !logoutModal.hidden
+        ) {
+            closeLogoutModal();
+        }
+    });
 }
 
 export async function initAccount() {
@@ -810,9 +1039,9 @@ export async function initAccount() {
     initialized = true;
     active = true;
 
-    eventController = new AbortController();
+    events = new AbortController();
 
-    setupAccountActions();
+    setupEvents();
 
     await loadAccount();
 }
@@ -820,12 +1049,36 @@ export async function initAccount() {
 export function destroyAccount() {
     active = false;
     initialized = false;
+    loading = false;
     loggingOut = false;
+    updatingProfile = false;
 
-    requestVersion += 1;
+    requestVersion++;
 
-    eventController?.abort();
-    eventController = null;
+    events?.abort();
+    events = null;
+
+    for (const id of [
+        "account-logout-modal",
+        "account-edit-profile-modal"
+    ]) {
+        const modal = $(id);
+
+        if (modal) {
+            modal.hidden = true;
+            modal.classList.add("hidden");
+            modal.classList.remove("is-open");
+            modal.setAttribute(
+                "aria-hidden",
+                "true"
+            );
+        }
+    }
+
+    document.body.style.overflow = originalOverflow;
+
+    returnFocus = null;
+    editProfileReturnFocus = null;
 
     currentUser = null;
     recentOrders = [];
@@ -835,10 +1088,13 @@ export const account = {
     init: initAccount,
     destroy: destroyAccount,
     reload: loadAccount,
-    logout: handleLogout,
+    logout: confirmLogout,
+    openEditProfile,
+
     getCurrentUser() {
         return currentUser;
     },
+
     getRecentOrders() {
         return [...recentOrders];
     }

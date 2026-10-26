@@ -1,24 +1,57 @@
 
-import api, {
-    getErrorMessage,
-    isAuthenticationError
-} from "../core/api.js";
+import api, { getErrorMessage } from "../core/api.js";
+import { showSuccess, showError } from "../components/toast.js";
 
-import {
-    formatCurrency,
-    formatDateTime,
-    formatInteger,
-    showElement,
-    hideElement
-} from "../core/utils.js";
+const API = {
+    orders: "/api/orders",
+    dashboard: "/api/admin/dashboard"
+};
 
-import {
-    showSuccess,
-    showError,
-    showInfo
-} from "../components/toast.js";
-
-const PAGE_SIZE = 10;
+const ID = {
+    refresh: "admin-orders-refresh-button",
+    retry: "admin-orders-retry-button",
+    total: "admin-orders-total",
+    pending: "admin-orders-pending",
+    shipped: "admin-orders-shipped",
+    delivered: "admin-orders-delivered",
+    searchForm: "admin-orders-search-form",
+    search: "admin-orders-search",
+    filterToggle: "admin-orders-filter-toggle",
+    filters: "admin-orders-filters",
+    filterForm: "admin-orders-filter-form",
+    statusFilter: "admin-orders-status-filter",
+    paymentFilter: "admin-orders-payment-filter",
+    sort: "admin-orders-sort",
+    pageSize: "admin-orders-page-size",
+    tabs: "admin-orders-status-tabs",
+    clearSearch: "admin-orders-clear-search",
+    loading: "admin-orders-loading",
+    error: "admin-orders-error",
+    errorMessage: "admin-orders-error-message",
+    empty: "admin-orders-empty",
+    filterEmpty: "admin-orders-filter-empty",
+    resultsCount: "admin-orders-results-count",
+    tableContainer: "admin-orders-table-container",
+    tableBody: "admin-orders-table-body",
+    tableFooter: "admin-orders-table-footer",
+    paginationInfo: "admin-orders-pagination-info",
+    pagination: "admin-orders-pagination",
+    detailsModal: "admin-order-details-modal",
+    detailsClose: "admin-order-details-close",
+    detailsDone: "admin-order-details-done",
+    detailsLoading: "admin-order-details-loading",
+    detailsError: "admin-order-details-error",
+    detailsContent: "admin-order-details-modal-content",
+    detailsEdit: "admin-order-details-edit-status",
+    statusModal: "admin-order-status-modal",
+    statusClose: "admin-order-status-close",
+    statusCancel: "admin-order-status-cancel",
+    statusForm: "admin-order-status-form",
+    statusSelect: "admin-order-new-status",
+    statusSave: "admin-order-status-save",
+    statusSaveText: "admin-order-status-save-text",
+    statusError: "admin-order-status-error"
+};
 
 const ORDER_STATUSES = [
     "PENDING",
@@ -28,170 +61,88 @@ const ORDER_STATUSES = [
     "CANCELLED"
 ];
 
-const STATUS_LABELS = {
-    PENDING: "Pending",
-    CONFIRMED: "Confirmed",
-    SHIPPED: "Shipped",
-    DELIVERED: "Delivered",
-    CANCELLED: "Cancelled"
-};
-
-const STATUS_VARIANTS = {
+const STATUS_COLORS = {
     PENDING: "warning",
     CONFIRMED: "primary",
     SHIPPED: "primary",
     DELIVERED: "success",
     CANCELLED: "danger",
-    PAID: "success",
     SUCCESS: "success",
-    COMPLETED: "success",
+    PAID: "success",
     FAILED: "danger",
-    PROCESSING: "warning"
+    UNKNOWN: "neutral"
 };
 
-const SELECTORS = {
-    loading: [
-        "#admin-orders-loading",
-        "#orders-loading",
-        "[data-admin-orders-loading]"
-    ],
-    content: [
-        "#admin-orders-content",
-        "[data-admin-orders-content]"
-    ],
-    tableBody: [
-        "#admin-orders-table-body",
-        "#orders-table-body",
-        "#orders-tbody",
-        "[data-admin-orders-table-body]"
-    ],
-    grid: [
-        "#admin-orders-grid",
-        "[data-admin-orders-grid]"
-    ],
-    search: [
-        "#admin-orders-search",
-        "#orders-search",
-        "[data-admin-orders-search]"
-    ],
-    status: [
-        "#admin-orders-status",
-        "#orders-status-filter",
-        'select[name="status"]'
-    ],
-    sort: [
-        "#admin-orders-sort",
-        "#orders-sort",
-        'select[name="sort"]'
-    ],
-    count: [
-        "#admin-orders-count",
-        "#orders-results-count",
-        "[data-admin-orders-count]"
-    ],
-    totalOrders: [
-        "#admin-total-orders",
-        "#orders-total-count",
-        "[data-admin-total-orders]"
-    ],
-    pendingOrders: [
-        "#admin-pending-orders",
-        "[data-admin-pending-orders]"
-    ],
-    deliveredOrders: [
-        "#admin-delivered-orders",
-        "[data-admin-delivered-orders]"
-    ],
-    cancelledOrders: [
-        "#admin-cancelled-orders",
-        "[data-admin-cancelled-orders]"
-    ],
-    revenue: [
-        "#admin-orders-revenue",
-        "#orders-revenue",
-        "[data-admin-orders-revenue]"
-    ],
-    pagination: [
-        "#admin-orders-pagination",
-        "#orders-pagination",
-        "[data-admin-orders-pagination]"
-    ],
-    empty: [
-        "#admin-orders-empty",
-        "#orders-empty",
-        "[data-admin-orders-empty]"
-    ],
-    error: [
-        "#admin-orders-error",
-        "#orders-error",
-        "[data-admin-orders-error]"
-    ],
-    refresh: [
-        "#admin-orders-refresh",
-        "#orders-refresh",
-        "[data-admin-orders-refresh]"
-    ],
-    modal: [
-        "#admin-order-modal",
-        "#order-details-modal",
-        "[data-admin-order-modal]"
-    ],
-    modalContent: [
-        "#admin-order-modal-content",
-        "#order-modal-details",
-        "[data-admin-order-details]"
-    ],
-    modalClose: [
-        "#admin-order-modal-close",
-        "#order-details-close",
-        "[data-admin-order-close]"
-    ]
-};
+const PAGE_SIZES = new Set([10, 20, 50]);
+const FETCH_SIZE = 50;
+const MAX_FETCH_PAGES = 200;
+
+const $ = id => document.getElementById(id);
+
+const integers = new Intl.NumberFormat("kk-KZ");
+
+const currency = new Intl.NumberFormat("kk-KZ", {
+    style: "currency",
+    currency: "KZT",
+    maximumFractionDigits: 2
+});
+
+const dates = new Intl.DateTimeFormat("kk-KZ", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit"
+});
 
 let initialized = false;
 let active = false;
 let loading = false;
 let updating = false;
 let requestVersion = 0;
-
-let eventController = null;
+let controller = null;
 let searchTimer = null;
 
 let orders = [];
+let dashboardStats = null;
 let selectedOrder = null;
-let totalElements = 0;
-let serverPagination = false;
+let statusOrder = null;
+let returnFocus = null;
+let oldOverflow = "";
 
-let state = {
-    keyword: "",
-    status: "ALL",
-    sort: "newest",
-    page: 0
-};
+let state = initialState();
 
-function findElement(selectors) {
-    for (const selector of selectors) {
-        const element = document.querySelector(selector);
-
-        if (element) {
-            return element;
-        }
-    }
-
-    return null;
+function initialState() {
+    return {
+        keyword: "",
+        status: "ALL",
+        paymentStatus: "ALL",
+        sort: "newest",
+        page: 0,
+        size: 10
+    };
 }
 
-function getElements() {
-    const elements = {};
+function setText(id, value) {
+    const element = $(id);
 
-    for (const [name, selectors] of Object.entries(SELECTORS)) {
-        elements[name] = findElement(selectors);
+    if (element) {
+        element.textContent = String(value ?? "—");
     }
-
-    return elements;
 }
 
-function createElement(tag, className = "", text = null) {
+function show(id, visible) {
+    const element = $(id);
+
+    if (!element) {
+        return;
+    }
+
+    element.hidden = !visible;
+    element.classList.toggle("hidden", !visible);
+}
+
+function el(tag, className = "", text = null) {
     const element = document.createElement(tag);
 
     if (className) {
@@ -205,13 +156,15 @@ function createElement(tag, className = "", text = null) {
     return element;
 }
 
-function setText(element, value) {
-    if (element) {
-        element.textContent = String(value ?? "—");
-    }
+function parseId(value) {
+    const number = Number(value);
+
+    return Number.isSafeInteger(number) && number > 0
+        ? number
+        : null;
 }
 
-function parseId(value) {
+function numberValue(value) {
     if (
         value === null ||
         value === undefined ||
@@ -220,449 +173,216 @@ function parseId(value) {
         return null;
     }
 
-    const id = Number(value);
+    const number = Number(value);
 
-    return Number.isSafeInteger(id) && id > 0
-        ? id
-        : null;
+    return Number.isFinite(number) ? number : null;
 }
 
-function normalizeStatus(value) {
-    return String(value ?? "")
-        .trim()
-        .toUpperCase()
-        .replace(/[\s-]+/g, "_");
+function money(value) {
+    const number = numberValue(value);
+
+    return number === null ? "—" : currency.format(number);
 }
 
-function normalizeOrder(order) {
-    if (!order || typeof order !== "object") {
-        return null;
+function dateText(value) {
+    if (!value) {
+        return "—";
     }
 
-    const id = parseId(order.id ?? order.orderId);
+    const date = new Date(value);
+
+    return Number.isNaN(date.getTime())
+        ? "—"
+        : dates.format(date);
+}
+
+function statusOf(value) {
+    return String(value ?? "UNKNOWN").trim().toUpperCase();
+}
+
+function badge(value) {
+    const status = statusOf(value);
+
+    return el(
+        "span",
+        `badge badge-${STATUS_COLORS[status] ?? "neutral"}`,
+        status
+    );
+}
+
+function setBadge(id, value) {
+    const target = $(id);
+
+    if (!target) {
+        return;
+    }
+
+    const status = statusOf(value);
+
+    target.className =
+        `badge badge-${STATUS_COLORS[status] ?? "neutral"}`;
+
+    target.textContent = status;
+}
+
+function normalizeOrder(raw) {
+    const id = parseId(raw?.id ?? raw?.orderId);
 
     if (id === null) {
         return null;
     }
 
-    const amount = Number(
-        order.totalAmount ??
-        order.totalPrice ??
-        order.finalAmount ??
-        order.total
-    );
-
     return {
-        ...order,
+        ...raw,
         id,
-        status: normalizeStatus(
-            order.status ?? order.orderStatus
+        status: statusOf(raw.status ?? raw.orderStatus),
+        paymentStatus: statusOf(
+            raw.paymentStatus ?? raw.payment?.status
         ),
-        paymentStatus: normalizeStatus(
-            order.paymentStatus ??
-            order.payment?.status
+        paymentMethod: String(
+            raw.paymentMethod ?? raw.payment?.method ?? ""
         ),
         customerName: String(
-            order.customerName ??
-            order.userName ??
-            order.customer?.name ??
-            order.user?.name ??
+            raw.customerName ??
+            raw.userName ??
+            raw.customer?.name ??
+            raw.user?.name ??
             ""
         ),
         customerEmail: String(
-            order.customerEmail ??
-            order.userEmail ??
-            order.customer?.email ??
-            order.user?.email ??
+            raw.customerEmail ??
+            raw.userEmail ??
+            raw.customer?.email ??
+            raw.user?.email ??
             ""
         ),
-        shippingAddress: String(
-            order.shippingAddress ?? ""
-        ),
-        totalAmount: Number.isFinite(amount)
-            ? amount
-            : null,
         createdAt:
-            order.createdAt ??
-            order.orderDate ??
-            order.createdDate ??
+            raw.createdAt ??
+            raw.orderDate ??
+            raw.createdDate ??
             null,
-        items: Array.isArray(order.items)
-            ? order.items
-            : Array.isArray(order.orderItems)
-                ? order.orderItems
+        totalAmount: numberValue(
+            raw.totalAmount ??
+            raw.totalPrice ??
+            raw.finalAmount ??
+            raw.total
+        ),
+        shippingAddress:
+            raw.shippingAddress ??
+            raw.deliveryAddress ??
+            "",
+        promotionCode:
+            raw.promotionCode ??
+            raw.promotion?.code ??
+            "",
+        items: Array.isArray(raw.items)
+            ? raw.items
+            : Array.isArray(raw.orderItems)
+                ? raw.orderItems
                 : []
     };
 }
 
-function extractOrders(response) {
-    if (Array.isArray(response)) {
-        return response;
+function extractPage(response) {
+    const source =
+        response?.data?.content !== undefined
+            ? response.data
+            : response;
+
+    if (Array.isArray(source)) {
+        return {
+            content: source,
+            totalPages: null
+        };
     }
 
-    if (Array.isArray(response?.content)) {
-        return response.content;
+    if (!Array.isArray(source?.content)) {
+        throw new Error(
+            "Orders API күтілген тізімді қайтармады."
+        );
     }
 
-    if (Array.isArray(response?.orders)) {
-        return response.orders;
-    }
+    const pages =
+        source.totalPages === undefined
+            ? null
+            : Number(source.totalPages);
 
-    if (Array.isArray(response?.data)) {
-        return response.data;
-    }
-
-    if (Array.isArray(response?.data?.content)) {
-        return response.data.content;
-    }
-
-    return [];
+    return {
+        content: source.content,
+        totalPages:
+            Number.isSafeInteger(pages) && pages >= 0
+                ? pages
+                : null
+    };
 }
 
-function resolveEndpoint(template, id = null) {
-    if (!template) {
-        return null;
-    }
+async function fetchAllOrders(version) {
+    const result = [];
 
-    const path = String(template)
-        .replaceAll("{id}", String(id ?? ""))
-        .replaceAll(":id", String(id ?? ""));
+    for (let page = 0; page < MAX_FETCH_PAGES; page++) {
+        const query = new URLSearchParams({
+            page: String(page),
+            size: String(FETCH_SIZE),
+            sort: "createdAt,desc"
+        });
 
-    try {
-        const url = new URL(
-            path,
-            window.location.origin
+        const response = await api.get(
+            `${API.orders}?${query.toString()}`
         );
 
-        if (
-            url.origin !== window.location.origin ||
-            !url.pathname.startsWith("/api/")
-        ) {
+        if (!active || version !== requestVersion) {
             return null;
         }
 
-        return url;
-    } catch {
-        return null;
-    }
-}
+        const data = extractPage(response);
 
-function getEndpoint(kind, id = null) {
-    const elements = getElements();
+        result.push(...data.content);
 
-    const attributes = {
-        list: "ordersEndpoint",
-        details: "orderDetailsEndpoint",
-        update: "orderUpdateEndpoint"
-    };
-
-    const key = attributes[kind];
-
-    const template =
-        document.body.dataset[key] ??
-        elements.content?.dataset[key] ??
-        elements.tableBody?.dataset[key];
-
-    return resolveEndpoint(template, id);
-}
-
-function setLoading(value) {
-    loading = value;
-
-    const elements = getElements();
-
-    if (value) {
-        showElement(elements.loading);
-        hideElement(elements.error);
-    } else {
-        hideElement(elements.loading);
-    }
-
-    if (elements.refresh) {
-        elements.refresh.disabled = value;
-    }
-
-    const container =
-        elements.tableBody ?? elements.grid;
-
-    container?.setAttribute(
-        "aria-busy",
-        String(value)
-    );
-}
-
-function createBadge(status) {
-    const value = normalizeStatus(status);
-
-    const variant =
-        STATUS_VARIANTS[value] ?? "neutral";
-
-    return createElement(
-        "span",
-        `badge badge-${variant}`,
-        STATUS_LABELS[value] ?? value ?? "Unknown"
-    );
-}
-
-function createActionButton(label, action, id) {
-    const button = createElement(
-        "button",
-        "btn btn-outline btn-sm",
-        label
-    );
-
-    button.type = "button";
-    button.dataset.orderAction = action;
-    button.dataset.orderId = String(id);
-
-    return button;
-}
-
-function createStatusSelect(order) {
-    const select = createElement(
-        "select",
-        "form-select admin-order-status-select"
-    );
-
-    select.dataset.orderAction = "status";
-    select.dataset.orderId = String(order.id);
-
-    const editable = getEndpoint(
-        "update",
-        order.id
-    ) !== null;
-
-    select.disabled =
-        !editable ||
-        order.status === "CANCELLED" ||
-        order.status === "DELIVERED";
-
-    for (const status of ORDER_STATUSES) {
-        const option = document.createElement("option");
-
-        option.value = status;
-        option.textContent = STATUS_LABELS[status];
-
-        if (status === order.status) {
-            option.selected = true;
+        if (
+            data.totalPages === null ||
+            page + 1 >= data.totalPages
+        ) {
+            return result;
         }
-
-        select.appendChild(option);
     }
 
-    if (
-        order.status &&
-        !ORDER_STATUSES.includes(order.status)
-    ) {
-        const option = document.createElement("option");
-
-        option.value = order.status;
-        option.textContent = order.status;
-        option.selected = true;
-
-        select.appendChild(option);
-    }
-
-    if (!editable) {
-        select.title =
-            "Тапсырыс статусын өзгерту API қосылмаған.";
-    }
-
-    select.setAttribute(
-        "aria-label",
-        `Order #${order.id} статусын өзгерту`
+    throw new Error(
+        "Тапсырыстар тізімі жүктеу шегінен асып кетті."
     );
-
-    return select;
 }
 
-function createOrderRow(order) {
-    const row = document.createElement("tr");
+async function fetchStats() {
+    const response = await api.get(API.dashboard);
 
-    row.dataset.orderId = String(order.id);
+    const source = response?.data ?? response;
 
-    const numberCell = document.createElement("td");
-
-    const number = createElement(
-        "strong",
-        "admin-order-number",
-        `#${order.id}`
-    );
-
-    numberCell.appendChild(number);
-
-    const customerCell = document.createElement("td");
-
-    const customer = createElement(
-        "div",
-        "admin-order-customer"
-    );
-
-    customer.appendChild(
-        createElement(
-            "strong",
-            "admin-order-customer-name",
-            order.customerName || "—"
-        )
-    );
-
-    if (order.customerEmail) {
-        customer.appendChild(
-            createElement(
-                "span",
-                "admin-order-customer-email",
-                order.customerEmail
-            )
+    if (!source || typeof source !== "object") {
+        throw new Error(
+            "Dashboard статистикасын алу мүмкін болмады."
         );
     }
 
-    customerCell.appendChild(customer);
-
-    const dateCell = createElement(
-        "td",
-        "admin-order-date",
-        order.createdAt
-            ? formatDateTime(order.createdAt)
-            : "—"
-    );
-
-    const totalCell = createElement(
-        "td",
-        "admin-order-total",
-        order.totalAmount !== null
-            ? formatCurrency(order.totalAmount)
-            : "—"
-    );
-
-    const statusCell = document.createElement("td");
-
-    statusCell.appendChild(
-        createBadge(order.status)
-    );
-
-    const paymentCell = document.createElement("td");
-
-    paymentCell.appendChild(
-        createBadge(
-            order.paymentStatus || "UNKNOWN"
-        )
-    );
-
-    const actionsCell = document.createElement("td");
-
-    const actions = createElement(
-        "div",
-        "admin-table-actions"
-    );
-
-    actions.appendChild(
-        createActionButton(
-            "Details",
-            "details",
-            order.id
-        )
-    );
-
-    actions.appendChild(
-        createStatusSelect(order)
-    );
-
-    actionsCell.appendChild(actions);
-
-    row.append(
-        numberCell,
-        customerCell,
-        dateCell,
-        totalCell,
-        statusCell,
-        paymentCell,
-        actionsCell
-    );
-
-    return row;
+    return source;
 }
 
-function createOrderCard(order) {
-    const card = createElement(
-        "article",
-        "admin-order-card"
-    );
-
-    const header = createElement(
-        "div",
-        "admin-order-card-header"
-    );
-
-    header.append(
-        createElement(
-            "strong",
-            "admin-order-number",
-            `Order #${order.id}`
-        ),
-        createBadge(order.status)
-    );
-
-    const body = createElement(
-        "div",
-        "admin-order-card-body"
-    );
-
-    const details = [
-        ["Customer", order.customerName || "—"],
-        [
-            "Date",
-            order.createdAt
-                ? formatDateTime(order.createdAt)
-                : "—"
-        ],
-        [
-            "Total",
-            order.totalAmount !== null
-                ? formatCurrency(order.totalAmount)
-                : "—"
-        ]
-    ];
-
-    for (const [label, value] of details) {
-        const row = createElement(
-            "div",
-            "admin-order-card-detail"
-        );
-
-        row.append(
-            createElement("span", "", label),
-            createElement("strong", "", value)
-        );
-
-        body.appendChild(row);
-    }
-
-    const actions = createElement(
-        "div",
-        "admin-order-card-actions"
-    );
-
-    actions.append(
-        createActionButton(
-            "View Details",
-            "details",
-            order.id
-        ),
-        createStatusSelect(order)
-    );
-
-    card.append(header, body, actions);
-
-    return card;
-}
-
-function getFilteredOrders() {
-    const keyword = state.keyword.toLowerCase();
+function getFiltered() {
+    const keyword = state.keyword.toLocaleLowerCase();
 
     const filtered = orders.filter(order => {
         if (
             state.status !== "ALL" &&
             order.status !== state.status
+        ) {
+            return false;
+        }
+
+        if (
+            state.paymentStatus !== "ALL" &&
+            order.paymentStatus !== state.paymentStatus &&
+            !(
+                state.paymentStatus === "PAID" &&
+                order.paymentStatus === "SUCCESS"
+            )
         ) {
             return false;
         }
@@ -676,32 +396,28 @@ function getFilteredOrders() {
             order.customerName,
             order.customerEmail,
             order.status,
-            order.shippingAddress
+            order.paymentStatus
         ]
             .join(" ")
-            .toLowerCase()
+            .toLocaleLowerCase()
             .includes(keyword);
     });
 
-    return filtered.sort((a, b) => {
+    filtered.sort((a, b) => {
         switch (state.sort) {
             case "oldest":
                 return (
                     (Date.parse(a.createdAt) || 0) -
                     (Date.parse(b.createdAt) || 0)
-                );
+                ) || a.id - b.id;
 
-            case "total-desc":
-                return (
-                    (b.totalAmount ?? 0) -
-                    (a.totalAmount ?? 0)
-                );
+            case "amount-desc":
+                return (b.totalAmount ?? 0) -
+                    (a.totalAmount ?? 0) || b.id - a.id;
 
-            case "total-asc":
-                return (
-                    (a.totalAmount ?? 0) -
-                    (b.totalAmount ?? 0)
-                );
+            case "amount-asc":
+                return (a.totalAmount ?? 0) -
+                    (b.totalAmount ?? 0) || a.id - b.id;
 
             default:
                 return (
@@ -710,176 +426,148 @@ function getFilteredOrders() {
                 ) || b.id - a.id;
         }
     });
+
+    return filtered;
 }
 
-function createEmptyRow(message) {
-    const elements = getElements();
+function renderStatistics() {
+    const total = dashboardStats?.totalOrders ?? orders.length;
 
-    if (elements.tableBody) {
-        const row = document.createElement("tr");
-        const cell = document.createElement("td");
+    const pending = dashboardStats?.pendingOrders ??
+        orders.filter(o => o.status === "PENDING").length;
 
-        cell.colSpan = 7;
-        cell.className = "admin-table-empty";
-        cell.textContent = message;
+    const shipped = dashboardStats?.shippedOrders ??
+        orders.filter(o => o.status === "SHIPPED").length;
 
-        row.appendChild(cell);
+    const delivered = dashboardStats?.deliveredOrders ??
+        orders.filter(o => o.status === "DELIVERED").length;
 
-        elements.tableBody.replaceChildren(row);
-    }
-
-    if (elements.grid) {
-        elements.grid.replaceChildren(
-            createElement(
-                "p",
-                "empty-state",
-                message
-            )
-        );
-    }
+    setText(ID.total, integers.format(total));
+    setText(ID.pending, integers.format(pending));
+    setText(ID.shipped, integers.format(shipped));
+    setText(ID.delivered, integers.format(delivered));
 }
 
-function updateStatistics() {
-    const elements = getElements();
-
-    if (serverPagination) {
-        setText(
-            elements.totalOrders,
-            formatInteger(totalElements)
-        );
-
-        setText(elements.pendingOrders, "—");
-        setText(elements.deliveredOrders, "—");
-        setText(elements.cancelledOrders, "—");
-        setText(elements.revenue, "—");
-
-        return;
-    }
-
-    setText(
-        elements.totalOrders,
-        formatInteger(orders.length)
+function actionButton(label, action, orderId) {
+    const button = el(
+        "button",
+        "btn btn-outline btn-sm",
+        label
     );
 
-    for (const [status, element] of [
-        ["PENDING", elements.pendingOrders],
-        ["DELIVERED", elements.deliveredOrders],
-        ["CANCELLED", elements.cancelledOrders]
-    ]) {
-        setText(
-            element,
-            formatInteger(
-                orders.filter(
-                    order => order.status === status
-                ).length
+    button.type = "button";
+    button.dataset.orderAction = action;
+    button.dataset.orderId = String(orderId);
+
+    return button;
+}
+
+function makeRow(order) {
+    const row = document.createElement("tr");
+
+    row.dataset.orderId = String(order.id);
+
+    const idCell = el("td", "", `#${order.id}`);
+
+    const customerCell = document.createElement("td");
+    const customer = el(
+        "div",
+        "admin-order-customer"
+    );
+
+    customer.appendChild(
+        el(
+            "strong",
+            "admin-order-customer-name",
+            order.customerName || "Customer"
+        )
+    );
+
+    if (order.customerEmail) {
+        customer.appendChild(
+            el(
+                "span",
+                "admin-order-customer-email",
+                order.customerEmail
             )
         );
     }
 
-    setText(elements.revenue, "—");
+    customerCell.appendChild(customer);
+
+    const dateCell = el(
+        "td",
+        "admin-order-date",
+        dateText(order.createdAt)
+    );
+
+    const amountCell = el(
+        "td",
+        "admin-order-total",
+        money(order.totalAmount)
+    );
+
+    const paymentCell = document.createElement("td");
+    paymentCell.appendChild(badge(order.paymentStatus));
+
+    const statusCell = document.createElement("td");
+    statusCell.appendChild(badge(order.status));
+
+    const actionsCell = document.createElement("td");
+    const actions = el("div", "admin-table-actions");
+
+    actions.appendChild(
+        actionButton("Details", "details", order.id)
+    );
+
+    const update = actionButton(
+        "Update Status",
+        "status",
+        order.id
+    );
+
+    update.disabled = [
+        "CANCELLED",
+        "DELIVERED"
+    ].includes(order.status);
+
+    actions.appendChild(update);
+    actionsCell.appendChild(actions);
+
+    row.append(
+        idCell,
+        customerCell,
+        dateCell,
+        amountCell,
+        paymentCell,
+        statusCell,
+        actionsCell
+    );
+
+    return row;
+}
+
+function pageButton(label, page, disabled = false, current = false) {
+    const button = el(
+        "button",
+        "pagination-button",
+        label
+    );
+
+    button.type = "button";
+    button.dataset.page = String(page);
+    button.disabled = disabled || current;
+    button.classList.toggle("is-active", current);
+
+    if (current) {
+        button.setAttribute("aria-current", "page");
+    }
+
+    return button;
 }
 
 function renderPagination(totalPages) {
-    const container = getElements().pagination;
-
-    if (!container) {
-        return;
-    }
-
-    container.replaceChildren();
-
-    if (totalPages <= 1) {
-        return;
-    }
-
-    const previous = createElement(
-        "button",
-        "btn btn-outline btn-sm",
-        "Previous"
-    );
-
-    previous.type = "button";
-    previous.disabled = state.page === 0;
-
-    previous.addEventListener("click", () => {
-        changePage(state.page - 1);
-    });
-
-    const indicator = createElement(
-        "span",
-        "pagination-info",
-        `${state.page + 1} / ${totalPages}`
-    );
-
-    const next = createElement(
-        "button",
-        "btn btn-outline btn-sm",
-        "Next"
-    );
-
-    next.type = "button";
-    next.disabled = state.page >= totalPages - 1;
-
-    next.addEventListener("click", () => {
-        changePage(state.page + 1);
-    });
-
-    container.append(
-        previous,
-        indicator,
-        next
-    );
-}
-
-function renderOrders() {
-    const elements = getElements();
-    const filtered = getFilteredOrders();
-
-    const total = serverPagination
-        ? totalElements
-        : filtered.length;
-
-    const totalPages = Math.ceil(total / PAGE_SIZE);
-
-    state.page = totalPages === 0
-        ? 0
-        : Math.min(
-            state.page,
-            totalPages - 1
-        );
-
-    const visible = serverPagination
-        ? filtered
-        : filtered.slice(
-            state.page * PAGE_SIZE,
-            (state.page + 1) * PAGE_SIZE
-        );
-
-    setText(
-        elements.count,
-        `${formatInteger(total)} orders`
-    );
-
-    updateStatistics();
-    renderPagination(totalPages);
-
-    if (visible.length === 0) {
-        if (elements.empty) {
-            showElement(elements.empty);
-        }
-
-        createEmptyRow(
-            "Тапсырыстар табылмады."
-        );
-
-        return;
-    }
-
-    hideElement(elements.empty);
-    hideElement(elements.error);
-
-    const container =
-        elements.tableBody ?? elements.grid;
+    const container = $(ID.pagination);
 
     if (!container) {
         return;
@@ -887,64 +575,139 @@ function renderOrders() {
 
     const fragment = document.createDocumentFragment();
 
-    for (const order of visible) {
+    if (totalPages > 1) {
         fragment.appendChild(
-            container instanceof HTMLTableSectionElement
-                ? createOrderRow(order)
-                : createOrderCard(order)
+            pageButton("Previous", state.page - 1, state.page === 0)
+        );
+
+        const start = Math.max(0, state.page - 2);
+        const end = Math.min(totalPages - 1, state.page + 2);
+
+        if (start > 0) {
+            fragment.appendChild(pageButton("1", 0));
+        }
+
+        for (let page = start; page <= end; page++) {
+            fragment.appendChild(
+                pageButton(
+                    String(page + 1),
+                    page,
+                    false,
+                    page === state.page
+                )
+            );
+        }
+
+        if (end < totalPages - 1) {
+            fragment.appendChild(
+                pageButton(
+                    String(totalPages),
+                    totalPages - 1
+                )
+            );
+        }
+
+        fragment.appendChild(
+            pageButton(
+                "Next",
+                state.page + 1,
+                state.page === totalPages - 1
+            )
         );
     }
 
     container.replaceChildren(fragment);
-
-    showElement(elements.content);
 }
 
-function showOrdersError(message) {
-    const elements = getElements();
+function syncControls() {
+    const values = {
+        [ID.search]: state.keyword,
+        [ID.statusFilter]: state.status,
+        [ID.paymentFilter]: state.paymentStatus,
+        [ID.sort]: state.sort,
+        [ID.pageSize]: String(state.size)
+    };
 
-    const target = elements.error?.querySelector(
-        "[data-error-message], .error-message, p"
-    ) ?? elements.error;
+    for (const [id, value] of Object.entries(values)) {
+        const element = $(id);
 
-    if (target) {
-        setText(target, message);
-        showElement(elements.error);
-    } else {
-        createEmptyRow(message);
+        if (element) {
+            element.value = value;
+        }
     }
+
+    $(ID.tabs)?.querySelectorAll("[data-status]")
+        .forEach(button => {
+            const current = button.dataset.status === state.status;
+
+            button.classList.toggle("is-active", current);
+            button.setAttribute("aria-pressed", String(current));
+        });
 }
 
-function readEndpointParameters(endpoint) {
-    if (!endpoint) {
-        return null;
-    }
+function render() {
+    const filtered = getFiltered();
+    const totalPages = Math.ceil(filtered.length / state.size);
 
-    endpoint.searchParams.set(
-        "page",
-        String(state.page)
+    state.page = Math.min(
+        state.page,
+        Math.max(0, totalPages - 1)
     );
 
-    endpoint.searchParams.set(
-        "size",
-        String(PAGE_SIZE)
+    const start = state.page * state.size;
+    const displayed = filtered.slice(start, start + state.size);
+
+    renderStatistics();
+
+    setText(
+        ID.resultsCount,
+        `${integers.format(filtered.length)} тапсырыс табылды`
     );
 
-    if (state.keyword) {
-        endpoint.searchParams.set(
-            "keyword",
-            state.keyword
-        );
+    show(ID.empty, orders.length === 0);
+    show(
+        ID.filterEmpty,
+        orders.length > 0 && filtered.length === 0
+    );
+    show(ID.tableContainer, displayed.length > 0);
+    show(ID.tableFooter, displayed.length > 0);
+    show(ID.error, false);
+
+    const fragment = document.createDocumentFragment();
+
+    for (const order of displayed) {
+        fragment.appendChild(makeRow(order));
     }
 
-    if (state.status !== "ALL") {
-        endpoint.searchParams.set(
-            "status",
-            state.status
-        );
+    $(ID.tableBody)?.replaceChildren(fragment);
+
+    setText(
+        ID.paginationInfo,
+        displayed.length
+            ? `${start + 1}–${start + displayed.length} / ${filtered.length}`
+            : "0 / 0"
+    );
+
+    renderPagination(totalPages);
+    syncControls();
+}
+
+function setLoading(value) {
+    loading = value;
+
+    show(ID.loading, value);
+
+    for (const id of [ID.refresh, ID.retry]) {
+        const button = $(id);
+
+        if (button instanceof HTMLButtonElement) {
+            button.disabled = value;
+        }
     }
 
-    return `${endpoint.pathname}${endpoint.search}`;
+    if (value) {
+        show(ID.error, false);
+    }
 }
 
 async function loadOrders() {
@@ -952,515 +715,664 @@ async function loadOrders() {
         return;
     }
 
-    const endpoint = getEndpoint("list");
-
-    if (!endpoint) {
-        const message =
-            "Admin тапсырыстарын көру үшін Spring Boot-та admin orders API қосып, data-orders-endpoint атрибутын көрсету қажет.";
-
-        showOrdersError(message);
-        createEmptyRow(message);
-
-        setText(getElements().totalOrders, "—");
-        setText(getElements().revenue, "—");
-
-        return;
-    }
-
-    const version = ++requestVersion;
+    const currentVersion = ++requestVersion;
 
     setLoading(true);
 
     try {
-        const response = await api.get(
-            readEndpointParameters(endpoint)
-        );
+        const [ordersResult, statsResult] = await Promise.allSettled([
+            fetchAllOrders(currentVersion),
+            fetchStats()
+        ]);
 
-        if (
-            !active ||
-            version !== requestVersion
-        ) {
+        if (!active || currentVersion !== requestVersion) {
             return;
         }
 
-        orders = extractOrders(response)
-            .map(normalizeOrder)
-            .filter(Boolean);
+        if (ordersResult.status === "rejected") {
+            throw ordersResult.reason;
+        }
 
-        const source = response?.data?.content
-            ? response.data
-            : response;
+        if (ordersResult.value === null) {
+            return;
+        }
 
-        const reportedTotal = Number(
-            source?.totalElements
-        );
+        const unique = new Map();
 
-        serverPagination =
-            !Array.isArray(response) &&
-            Number.isFinite(reportedTotal) &&
-            reportedTotal >= 0;
+        for (const raw of ordersResult.value) {
+            const order = normalizeOrder(raw);
 
-        totalElements = serverPagination
-            ? reportedTotal
-            : orders.length;
+            if (order) {
+                unique.set(order.id, order);
+            }
+        }
 
-        renderOrders();
+        orders = [...unique.values()];
+
+        dashboardStats =
+            statsResult.status === "fulfilled"
+                ? statsResult.value
+                : null;
+
+        if (statsResult.status === "rejected") {
+            console.warn(
+                "Admin order statistics unavailable:",
+                statsResult.reason
+            );
+        }
+
+        setLoading(false);
+        render();
     } catch (error) {
-        if (
-            !active ||
-            version !== requestVersion
-        ) {
+        if (!active || currentVersion !== requestVersion) {
             return;
         }
 
-        if (isAuthenticationError(error)) {
-            showOrdersError(
-                "Сессия аяқталды. Аккаунтыңа қайта кір."
-            );
-        } else {
-            showOrdersError(
-                getErrorMessage(error)
-            );
+        orders = [];
+        dashboardStats = null;
+
+        setLoading(false);
+
+        setText(ID.errorMessage, getErrorMessage(error));
+        setText(ID.resultsCount, "Тапсырыстар жүктелмеді");
+
+        for (const id of [
+            ID.total,
+            ID.pending,
+            ID.shipped,
+            ID.delivered
+        ]) {
+            setText(id, "—");
         }
 
-        createEmptyRow(
-            "Тапсырыстарды жүктеу мүмкін болмады."
-        );
-    } finally {
-        if (
-            active &&
-            version === requestVersion
-        ) {
-            setLoading(false);
-        }
+        $(ID.tableBody)?.replaceChildren();
+        $(ID.pagination)?.replaceChildren();
+
+        show(ID.tableContainer, false);
+        show(ID.tableFooter, false);
+        show(ID.empty, false);
+        show(ID.filterEmpty, false);
+        show(ID.error, true);
     }
 }
 
-function changePage(page) {
-    if (
-        !Number.isSafeInteger(page) ||
-        page < 0 ||
-        page === state.page
-    ) {
+function setModal(id, open) {
+    const modal = $(id);
+
+    if (!modal) {
         return;
     }
 
-    state.page = page;
+    modal.hidden = !open;
+    modal.classList.toggle("hidden", !open);
+    modal.classList.toggle("is-open", open);
+    modal.setAttribute("aria-hidden", String(!open));
 
-    if (serverPagination) {
-        loadOrders();
+    if (open) {
+        oldOverflow = document.body.style.overflow;
+        document.body.style.overflow = "hidden";
     } else {
-        renderOrders();
+        document.body.style.overflow = oldOverflow;
     }
 }
 
-function renderOrderDetails(order) {
-    const container = getElements().modalContent;
+function closeDetails() {
+    setModal(ID.detailsModal, false);
+    selectedOrder = null;
 
-    if (!container) {
-        return;
+    if (returnFocus?.isConnected) {
+        returnFocus.focus();
     }
+}
 
+function detailText(id, value) {
+    setText(
+        id,
+        value === null ||
+        value === undefined ||
+        value === ""
+            ? "—"
+            : value
+    );
+}
+
+function renderDetails(order) {
+    detailText("admin-order-detail-number", `#${order.id}`);
+    detailText("admin-order-detail-customer", order.customerName);
+    detailText("admin-order-detail-email", order.customerEmail);
+    detailText("admin-order-detail-date", dateText(order.createdAt));
+    detailText("admin-order-detail-status-text", order.status);
+    detailText("admin-order-detail-address", order.shippingAddress);
+    detailText("admin-order-detail-payment-method", order.paymentMethod);
+    detailText("admin-order-detail-promotion", order.promotionCode);
+    detailText("admin-order-detail-total", money(order.totalAmount));
+
+    setBadge("admin-order-detail-status", order.status);
+    setBadge(
+        "admin-order-detail-payment-status",
+        order.paymentStatus
+    );
+
+    const itemsContainer = $("admin-order-detail-items");
     const fragment = document.createDocumentFragment();
 
-    const fields = [
-        ["Order ID", `#${order.id}`],
-        ["Customer", order.customerName || "—"],
-        ["Email", order.customerEmail || "—"],
-        ["Status", order.status || "—"],
-        [
-            "Payment",
-            order.paymentStatus || "—"
-        ],
-        [
-            "Date",
-            order.createdAt
-                ? formatDateTime(order.createdAt)
-                : "—"
-        ],
-        [
-            "Total",
-            order.totalAmount !== null
-                ? formatCurrency(order.totalAmount)
-                : "—"
-        ],
-        [
-            "Shipping Address",
-            order.shippingAddress || "—"
-        ]
-    ];
+    for (const item of order.items) {
+        const quantity = Number(item.quantity ?? 1);
 
-    for (const [label, value] of fields) {
-        const row = createElement(
-            "div",
-            "admin-order-detail-row"
-        );
-
-        row.append(
-            createElement(
-                "span",
-                "admin-order-detail-label",
-                label
-            ),
-            createElement(
-                "strong",
-                "admin-order-detail-value",
-                value
+        const total = numberValue(
+            item.subtotal ??
+            item.totalPrice ??
+            (
+                Number(item.unitPrice ?? item.price ?? 0) *
+                quantity
             )
         );
 
-        fragment.appendChild(row);
-    }
-
-    if (order.items.length > 0) {
-        const section = createElement(
-            "div",
-            "admin-order-detail-items"
-        );
-
-        section.appendChild(
-            createElement(
-                "h3",
-                "",
-                "Order Items"
+        fragment.appendChild(
+            el(
+                "div",
+                "admin-order-detail-item",
+                `${item.productName ?? item.name ?? "Product"} × ${quantity} — ${money(total)}`
             )
         );
-
-        for (const item of order.items) {
-            const quantity = Number(item.quantity) || 1;
-
-            const price = Number(
-                item.subtotal ??
-                item.totalPrice ??
-                (
-                    Number(item.unitPrice ?? item.price) *
-                    quantity
-                )
-            );
-
-            section.appendChild(
-                createElement(
-                    "div",
-                    "admin-order-detail-item",
-                    `${item.productName ?? item.name ?? "Product"} × ${quantity} — ${
-                        Number.isFinite(price)
-                            ? formatCurrency(price)
-                            : "—"
-                    }`
-                )
-            );
-        }
-
-        fragment.appendChild(section);
     }
 
-    container.replaceChildren(fragment);
-}
-
-function openOrderModal() {
-    const modal = getElements().modal;
-
-    if (!modal) {
-        return;
+    if (order.items.length === 0) {
+        fragment.appendChild(
+            el(
+                "p",
+                "text-muted",
+                "Тауарлар туралы мәлімет API жауабында жоқ."
+            )
+        );
     }
 
-    showElement(modal);
-    modal.classList.add("is-open");
+    itemsContainer?.replaceChildren(fragment);
 
-    modal.setAttribute(
-        "aria-hidden",
-        "false"
+    const extras = $("admin-order-detail-extras");
+
+    extras?.replaceChildren(
+        el(
+            "p",
+            "text-muted",
+            "Қосымша қызметтер көрсетілмеген."
+        )
     );
-}
 
-function closeOrderModal() {
-    const modal = getElements().modal;
+    detailText(
+        "admin-order-detail-subtotal",
+        money(order.subtotal ?? order.itemsSubtotal)
+    );
 
-    if (!modal) {
-        return;
+    const discount = numberValue(order.discountAmount);
+    const extraCost = numberValue(
+        order.extraCost ?? order.additionalServicesCost
+    );
+
+    show(
+        "admin-order-detail-discount-row",
+        discount !== null && discount > 0
+    );
+
+    show(
+        "admin-order-detail-extra-cost-row",
+        extraCost !== null && extraCost > 0
+    );
+
+    detailText(
+        "admin-order-detail-discount",
+        discount === null ? "—" : `−${money(discount)}`
+    );
+
+    detailText(
+        "admin-order-detail-extra-cost",
+        money(extraCost)
+    );
+
+    show(ID.detailsLoading, false);
+    show(ID.detailsError, false);
+    show(ID.detailsContent, true);
+
+    const editButton = $(ID.detailsEdit);
+
+    show(
+        ID.detailsEdit,
+        !["DELIVERED", "CANCELLED"].includes(order.status)
+    );
+
+    if (editButton) {
+        editButton.disabled = false;
     }
-
-    modal.classList.remove("is-open");
-
-    modal.setAttribute(
-        "aria-hidden",
-        "true"
-    );
-
-    hideElement(modal);
-    selectedOrder = null;
 }
 
-async function viewOrderDetails(orderId) {
-    const order = orders.find(
-        item => item.id === orderId
-    );
+function viewOrderDetails(orderId) {
+    const order = orders.find(item => item.id === orderId);
 
     if (!order) {
+        showError("Тапсырыс табылмады.");
         return;
     }
 
     selectedOrder = order;
+    returnFocus = document.activeElement;
 
-    const endpoint = getEndpoint(
-        "details",
-        orderId
-    );
-
-    if (endpoint) {
-        try {
-            const response = await api.get(
-                `${endpoint.pathname}${endpoint.search}`
-            );
-
-            const normalized = normalizeOrder(
-                response?.data?.order ??
-                response?.data ??
-                response
-            );
-
-            if (normalized) {
-                selectedOrder = normalized;
-            }
-        } catch (error) {
-            showError(
-                getErrorMessage(error)
-            );
-        }
-    }
-
-    if (!getElements().modal) {
-        showInfo(
-            "Тапсырыс мәліметтерін көрсету үшін admin order details modal қажет."
-        );
-        return;
-    }
-
-    renderOrderDetails(selectedOrder);
-    openOrderModal();
+    renderDetails(order);
+    setModal(ID.detailsModal, true);
 }
 
-async function updateOrderStatus(orderId, newStatus) {
+function closeStatusModal() {
     if (updating) {
         return;
     }
 
-    const order = orders.find(
-        item => item.id === orderId
+    setModal(ID.statusModal, false);
+    statusOrder = null;
+
+    if (returnFocus?.isConnected) {
+        returnFocus.focus();
+    }
+}
+
+function openStatusModal(orderId) {
+    const order = orders.find(item => item.id === orderId);
+
+    if (!order || updating) {
+        return;
+    }
+
+    if (["DELIVERED", "CANCELLED"].includes(order.status)) {
+        showError(
+            "Бұл тапсырыстың статусы аяқталған. Оны өзгертуге болмайды."
+        );
+        return;
+    }
+
+    statusOrder = order;
+    returnFocus = document.activeElement;
+
+    setText("admin-order-status-id", order.id);
+    setText(
+        "admin-order-status-order-number",
+        `Order #${order.id}`
     );
+
+    setText("admin-order-status-current", order.status);
+    setBadge("admin-order-status-current-badge", order.status);
+    setText("admin-order-status-new-preview", "Not Selected");
+
+    show(ID.statusError, false);
+
+    const select = $(ID.statusSelect);
+
+    if (select) {
+        select.replaceChildren();
+
+        const placeholder = el(
+            "option",
+            "",
+            "Жаңа статус таңда"
+        );
+
+        placeholder.value = "";
+        select.appendChild(placeholder);
+
+        for (const status of ORDER_STATUSES) {
+            if (status === order.status) {
+                continue;
+            }
+
+            const option = el("option", "", status);
+            option.value = status;
+            select.appendChild(option);
+        }
+
+        select.value = "";
+        select.disabled = false;
+    }
+
+    const save = $(ID.statusSave);
+
+    if (save) {
+        save.disabled = true;
+    }
+
+    setText(
+        "admin-order-status-help",
+        "Мүмкін ауысуларды сервер тексереді. Сақтаудан бұрын жаңа статусты раста."
+    );
+
+    setModal(ID.statusModal, true);
+    select?.focus();
+}
+
+async function saveStatus(event) {
+    event.preventDefault();
+
+    if (!statusOrder || updating) {
+        return;
+    }
+
+    const newStatus = statusOf($(ID.statusSelect)?.value);
 
     if (
-        !order ||
-        !ORDER_STATUSES.includes(newStatus)
+        !ORDER_STATUSES.includes(newStatus) ||
+        newStatus === statusOrder.status
     ) {
-        return;
-    }
-
-    if (order.status === newStatus) {
-        return;
-    }
-
-    const endpoint = getEndpoint(
-        "update",
-        orderId
-    );
-
-    if (!endpoint) {
-        showInfo(
-            "Тапсырыс статусын өзгерту үшін admin update API қажет."
+        show(ID.statusError, true);
+        setText(
+            ID.statusError,
+            "Басқа дұрыс статус таңда."
         );
-        renderOrders();
         return;
     }
 
-    const confirmed = window.confirm(
-        `Order #${orderId}: ${order.status} → ${newStatus}. Өзгертуді растайсың ба?`
+    const approved = window.confirm(
+        `Order #${statusOrder.id}: ${statusOrder.status} → ${newStatus}. Растайсың ба?`
     );
 
-    if (!confirmed) {
-        renderOrders();
+    if (!approved) {
         return;
     }
 
     updating = true;
 
+    const button = $(ID.statusSave);
+
+    if (button) {
+        button.disabled = true;
+    }
+
+    setText(ID.statusSaveText, "Сақталуда...");
+    show(ID.statusError, false);
+
     try {
         await api.put(
-            `${endpoint.pathname}${endpoint.search}`,
-            {
-                status: newStatus
-            }
+            `${API.orders}/${statusOrder.id}/status`,
+            { status: newStatus }
         );
 
+        updating = false;
+
+        closeStatusModal();
+
         showSuccess(
-            `Order #${orderId} статусы жаңартылды.`
+            "Тапсырыс статусы сәтті жаңартылды."
         );
 
         await loadOrders();
     } catch (error) {
-        showError(
-            getErrorMessage(error)
-        );
-
-        renderOrders();
+        setText(ID.statusError, getErrorMessage(error));
+        show(ID.statusError, true);
     } finally {
         updating = false;
+
+        if (button) {
+            button.disabled = false;
+        }
+
+        setText(ID.statusSaveText, "Save Changes");
     }
 }
 
-function setupOrderActions() {
-    const signal = eventController.signal;
+function applyFilters() {
+    state.keyword = String($(ID.search)?.value ?? "").trim();
 
-    document.addEventListener(
-        "click",
-        event => {
-            if (!(event.target instanceof Element)) {
-                return;
-            }
+    const status = statusOf($(ID.statusFilter)?.value ?? "ALL");
+    const payment = statusOf($(ID.paymentFilter)?.value ?? "ALL");
+    const size = Number($(ID.pageSize)?.value ?? 10);
+    const sort = String($(ID.sort)?.value ?? "newest");
 
-            const button = event.target.closest(
-                '[data-order-action="details"]'
-            );
+    state.status = [
+        ...ORDER_STATUSES,
+        "ALL"
+    ].includes(status) ? status : "ALL";
 
-            if (!button) {
-                return;
-            }
+    state.paymentStatus = [
+        "ALL",
+        "PAID",
+        "PENDING",
+        "FAILED"
+    ].includes(payment) ? payment : "ALL";
 
-            event.preventDefault();
+    state.sort = [
+        "newest",
+        "oldest",
+        "amount-asc",
+        "amount-desc"
+    ].includes(sort) ? sort : "newest";
 
-            const id = parseId(
-                button.dataset.orderId
-            );
+    state.size = PAGE_SIZES.has(size) ? size : 10;
+    state.page = 0;
 
-            if (id !== null) {
-                viewOrderDetails(id);
-            }
-        },
-        { signal }
-    );
+    render();
+}
 
-    document.addEventListener(
-        "change",
-        event => {
-            if (!(event.target instanceof Element)) {
-                return;
-            }
+function resetFilters() {
+    clearTimeout(searchTimer);
 
-            const select = event.target.closest(
-                '[data-order-action="status"]'
-            );
+    state = initialState();
 
-            if (!select) {
-                return;
-            }
+    syncControls();
+    render();
+}
 
-            const id = parseId(
-                select.dataset.orderId
-            );
-
-            if (id !== null) {
-                updateOrderStatus(
-                    id,
-                    normalizeStatus(select.value)
-                );
-            }
-        },
-        { signal }
-    );
-
-    getElements().modalClose?.addEventListener(
-        "click",
-        closeOrderModal,
-        { signal }
-    );
-
-    getElements().modal?.addEventListener(
-        "click",
-        event => {
-            if (event.target === event.currentTarget) {
-                closeOrderModal();
-            }
-        },
-        { signal }
-    );
-
-    document.addEventListener(
-        "keydown",
-        event => {
-            if (event.key === "Escape") {
-                closeOrderModal();
-            }
-        },
-        { signal }
+function on(target, type, callback) {
+    target?.addEventListener(
+        type,
+        callback,
+        { signal: controller.signal }
     );
 }
 
-function setupFilters() {
-    const elements = getElements();
-    const signal = eventController.signal;
-
-    searchTimer = null;
-
-    elements.search?.addEventListener(
-        "input",
-        event => {
-            window.clearTimeout(searchTimer);
-
-            searchTimer = window.setTimeout(() => {
-                state.keyword = event.target.value.trim();
-                state.page = 0;
-
-                if (serverPagination) {
-                    loadOrders();
-                } else {
-                    renderOrders();
-                }
-            }, 350);
-        },
-        { signal }
-    );
-
-    elements.status?.addEventListener(
-        "change",
-        event => {
-            const status = normalizeStatus(
-                event.target.value
-            );
-
-            state.status = ORDER_STATUSES.includes(status)
-                ? status
-                : "ALL";
-
-            state.page = 0;
-
-            if (serverPagination) {
-                loadOrders();
-            } else {
-                renderOrders();
-            }
-        },
-        { signal }
-    );
-
-    elements.sort?.addEventListener(
-        "change",
-        event => {
-            state.sort = event.target.value;
-            state.page = 0;
-
-            renderOrders();
-        },
-        { signal }
-    );
-
-    elements.refresh?.addEventListener(
-        "click",
-        event => {
+function setupEvents() {
+    for (const id of [ID.refresh, ID.retry]) {
+        on($(id), "click", event => {
             event.preventDefault();
             loadOrders();
-        },
-        { signal }
-    );
+        });
+    }
+
+    on($(ID.searchForm), "submit", event => {
+        event.preventDefault();
+        clearTimeout(searchTimer);
+        applyFilters();
+    });
+
+    on($(ID.search), "input", () => {
+        clearTimeout(searchTimer);
+
+        searchTimer = setTimeout(() => {
+            if (!active) {
+                return;
+            }
+
+            state.keyword = String(
+                $(ID.search)?.value ?? ""
+            ).trim();
+
+            state.page = 0;
+            render();
+        }, 350);
+    });
+
+    on($(ID.filterToggle), "click", event => {
+        event.preventDefault();
+
+        const panel = $(ID.filters);
+
+        if (!panel) {
+            return;
+        }
+
+        const expanded = panel.hidden ||
+            panel.classList.contains("hidden");
+
+        show(ID.filters, expanded);
+
+        $(ID.filterToggle)?.setAttribute(
+            "aria-expanded",
+            String(expanded)
+        );
+    });
+
+    on($(ID.filterForm), "submit", event => {
+        event.preventDefault();
+        applyFilters();
+    });
+
+    on($(ID.filterForm), "reset", event => {
+        event.preventDefault();
+        resetFilters();
+    });
+
+    on($(ID.clearSearch), "click", event => {
+        event.preventDefault();
+        resetFilters();
+    });
+
+    on($(ID.tabs), "click", event => {
+        if (!(event.target instanceof Element)) {
+            return;
+        }
+
+        const button = event.target.closest("[data-status]");
+
+        if (!button) {
+            return;
+        }
+
+        state.status = statusOf(button.dataset.status);
+        state.page = 0;
+
+        render();
+    });
+
+    on($(ID.pagination), "click", event => {
+        if (!(event.target instanceof Element)) {
+            return;
+        }
+
+        const button = event.target.closest("[data-page]");
+
+        if (!button || button.disabled) {
+            return;
+        }
+
+        const page = Number(button.dataset.page);
+
+        const totalPages = Math.ceil(
+            getFiltered().length / state.size
+        );
+
+        if (
+            !Number.isSafeInteger(page) ||
+            page < 0 ||
+            page >= totalPages
+        ) {
+            return;
+        }
+
+        state.page = page;
+        render();
+    });
+
+    on($(ID.tableBody), "click", event => {
+        if (!(event.target instanceof Element)) {
+            return;
+        }
+
+        const button = event.target.closest("[data-order-action]");
+
+        if (!button || button.disabled) {
+            return;
+        }
+
+        const id = parseId(button.dataset.orderId);
+
+        if (id === null) {
+            return;
+        }
+
+        if (button.dataset.orderAction === "details") {
+            viewOrderDetails(id);
+        } else if (button.dataset.orderAction === "status") {
+            openStatusModal(id);
+        }
+    });
+
+    for (const id of [
+        ID.detailsClose,
+        ID.detailsDone
+    ]) {
+        on($(id), "click", closeDetails);
+    }
+
+    on($(ID.detailsEdit), "click", () => {
+        const id = selectedOrder?.id;
+
+        closeDetails();
+
+        if (id !== undefined) {
+            openStatusModal(id);
+        }
+    });
+
+    for (const id of [
+        ID.statusClose,
+        ID.statusCancel
+    ]) {
+        on($(id), "click", closeStatusModal);
+    }
+
+    on($(ID.statusSelect), "change", () => {
+        const value = String(
+            $(ID.statusSelect)?.value ?? ""
+        );
+
+        setText(
+            "admin-order-status-new-preview",
+            value || "Not Selected"
+        );
+
+        const button = $(ID.statusSave);
+
+        if (button) {
+            button.disabled = !value || updating;
+        }
+
+        show(ID.statusError, false);
+    });
+
+    on($(ID.statusForm), "submit", saveStatus);
+
+    for (const id of [
+        ID.detailsModal,
+        ID.statusModal
+    ]) {
+        on($(id), "click", event => {
+            if (event.target !== event.currentTarget) {
+                return;
+            }
+
+            if (id === ID.detailsModal) {
+                closeDetails();
+            } else {
+                closeStatusModal();
+            }
+        });
+    }
+
+    on(document, "keydown", event => {
+        if (event.key !== "Escape") {
+            return;
+        }
+
+        if (!$(ID.statusModal)?.hidden) {
+            closeStatusModal();
+        } else if (!$(ID.detailsModal)?.hidden) {
+            closeDetails();
+        }
+    });
 }
 
 export async function initAdminOrders() {
@@ -1471,10 +1383,10 @@ export async function initAdminOrders() {
     initialized = true;
     active = true;
 
-    eventController = new AbortController();
+    controller = new AbortController();
 
-    setupFilters();
-    setupOrderActions();
+    setupEvents();
+    syncControls();
 
     await loadOrders();
 }
@@ -1485,24 +1397,35 @@ export function destroyAdminOrders() {
     loading = false;
     updating = false;
 
-    requestVersion += 1;
+    requestVersion++;
 
-    window.clearTimeout(searchTimer);
+    clearTimeout(searchTimer);
+    searchTimer = null;
 
-    eventController?.abort();
-    eventController = null;
+    controller?.abort();
+    controller = null;
+
+    for (const id of [
+        ID.detailsModal,
+        ID.statusModal
+    ]) {
+        const modal = $(id);
+
+        if (modal) {
+            modal.hidden = true;
+            modal.classList.add("hidden");
+            modal.classList.remove("is-open");
+        }
+    }
+
+    document.body.style.overflow = oldOverflow;
 
     orders = [];
+    dashboardStats = null;
     selectedOrder = null;
-    totalElements = 0;
-    serverPagination = false;
+    statusOrder = null;
 
-    state = {
-        keyword: "",
-        status: "ALL",
-        sort: "newest",
-        page: 0
-    };
+    state = initialState();
 }
 
 export const adminOrders = {
@@ -1510,13 +1433,12 @@ export const adminOrders = {
     destroy: destroyAdminOrders,
     reload: loadOrders,
     viewDetails: viewOrderDetails,
-    updateStatus: updateOrderStatus,
+    updateStatus: openStatusModal,
+
     getOrders() {
-        return [...orders];
+        return orders.map(order => ({ ...order }));
     },
-    getSelectedOrder() {
-        return selectedOrder;
-    },
+
     getState() {
         return { ...state };
     }

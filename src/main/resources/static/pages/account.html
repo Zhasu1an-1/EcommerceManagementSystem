@@ -543,7 +543,7 @@
 
                                 <span class="badge badge-primary"
                                       id="account-summary-role">
-                                    CUSTOMER
+                                        —
                                 </span>
 
                             </div>
@@ -735,6 +735,15 @@
                                                 —
                                             </strong>
 
+                                        </div>
+
+                                        <div class="account-security-actions" style="margin-top: 20px;">
+                                            <button
+                                                    type="button"
+                                                    class="btn btn-primary"
+                                                    id="account-edit-profile-button">
+                                                Edit Profile
+                                            </button>
                                         </div>
 
                                     </div>
@@ -1672,6 +1681,86 @@
 
     </div>
 
+</div>
+
+<div
+        class="modal-backdrop"
+        id="account-edit-profile-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="account-edit-profile-title"
+        hidden>
+
+    <div class="modal-panel">
+
+        <div class="modal-header">
+            <h2 class="modal-title" id="account-edit-profile-title">
+                Edit Profile
+            </h2>
+
+            <button
+                    type="button"
+                    class="icon-button"
+                    id="account-edit-profile-close"
+                    aria-label="Жабу">
+                ×
+            </button>
+        </div>
+
+        <form id="account-edit-profile-form" novalidate>
+
+            <div class="modal-body">
+
+                <div class="form-group">
+                    <label
+                            class="form-label"
+                            for="account-edit-name">
+                        Аты-жөні
+                    </label>
+
+                    <input
+                            type="text"
+                            class="form-control"
+                            id="account-edit-name"
+                            name="name"
+                            minlength="2"
+                            maxlength="100"
+                            autocomplete="name"
+                            required>
+                </div>
+
+                <p class="form-hint">
+                    Тек атың өзгереді. Email, User ID және аккаунт рөлі өзгермейді.
+                </p>
+
+                <div
+                        class="alert alert-danger hidden"
+                        id="account-edit-profile-error"
+                        role="alert"></div>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button
+                        type="button"
+                        class="btn btn-outline"
+                        id="account-edit-profile-cancel">
+                    Cancel
+                </button>
+
+                <button
+                        type="submit"
+                        class="btn btn-primary"
+                        id="account-edit-profile-save">
+                    Save Changes
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
 </div>
 
 <div class="toast-container"

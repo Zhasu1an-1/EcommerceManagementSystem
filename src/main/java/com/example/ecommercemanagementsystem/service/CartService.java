@@ -33,15 +33,14 @@ public class CartService {
         this.userRepository = userRepository;
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public CartResponse getCart(Long userId) {
-        Cart cart = findCartByUserId(userId);
-        return CartResponse.fromEntity(cart);
+        return CartResponse.fromEntity(findOrCreateCart(userId));
     }
 
     @Transactional
     public CartResponse addItem(Long userId, AddCartItemRequest request) {
-        Cart cart = findCartByUserId(userId);
+        Cart cart = findOrCreateCart(userId);
 
         Product product = productRepository.findById(request.productId())
                 .orElseThrow(() -> new ResponseStatusException(
@@ -136,7 +135,11 @@ public class CartService {
 
     @Transactional
     public CartResponse createCartIfNotExists(Long userId) {
-        Cart cart = cartRepository.findByUserId(userId)
+        return CartResponse.fromEntity(findOrCreateCart(userId));
+    }
+
+    private Cart findOrCreateCart(Long userId) {
+        return cartRepository.findWithItemsByUserId(userId)
                 .orElseGet(() -> {
                     User user = userRepository.findById(userId)
                             .orElseThrow(() -> new ResponseStatusException(
@@ -144,13 +147,11 @@ public class CartService {
                                     "User not found"
                             ));
 
-                    Cart newCart = new Cart();
-                    newCart.setUser(user);
+                    Cart cart = new Cart();
+                    cart.setUser(user);
 
-                    return cartRepository.save(newCart);
+                    return cartRepository.saveAndFlush(cart);
                 });
-
-        return CartResponse.fromEntity(cart);
     }
 
     private Cart findCartByUserId(Long userId) {

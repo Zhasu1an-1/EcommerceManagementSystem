@@ -14,10 +14,7 @@ import {
     formatCurrency,
     formatInteger,
     getSafeImageUrl,
-    parsePositiveId,
-    setButtonLoading,
-    showElement,
-    hideElement
+    parsePositiveId
 } from "../core/utils.js";
 
 import {
@@ -26,143 +23,107 @@ import {
 } from "../components/toast.js";
 
 const SELECTORS = {
-    form: [
-        "#checkout-form",
-        "[data-checkout-form]"
-    ],
-    loading: [
-        "#checkout-loading",
-        "#checkout-loading-state"
-    ],
-    content: [
-        "#checkout-content",
-        "#checkout-main-content"
-    ],
-    error: [
-        "#checkout-error",
-        "#checkout-error-state"
-    ],
-    empty: [
-        "#checkout-empty",
-        "#checkout-empty-state"
-    ],
-    auth: [
-        "#checkout-auth-required",
-        "#checkout-login-required"
-    ],
-    shippingAddress: [
-        "#shipping-address",
-        "#checkout-shipping-address",
-        '[name="shippingAddress"]'
-    ],
-    promotionCode: [
-        "#promotion-code",
-        "#checkout-promotion-code",
-        '[name="promotionCode"]'
-    ],
-    giftWrapping: [
-        "#gift-wrapping",
-        "#checkout-gift-wrapping",
-        '[name="giftWrapping"]'
-    ],
-    expressDelivery: [
-        "#express-delivery",
-        "#checkout-express-delivery",
-        '[name="expressDelivery"]'
-    ],
-    extendedWarranty: [
-        "#extended-warranty",
-        "#checkout-extended-warranty",
-        '[name="extendedWarranty"]'
-    ],
-    items: [
-        "#checkout-items",
-        "#checkout-items-list",
-        "#checkout-order-items",
-        "[data-checkout-items]"
-    ],
-    itemCount: [
-        "#checkout-items-count",
-        "#checkout-item-count",
-        "[data-checkout-item-count]"
-    ],
-    subtotal: [
-        "#checkout-subtotal",
-        "[data-checkout-subtotal]"
-    ],
-    total: [
-        "#checkout-total",
-        "#checkout-total-amount",
-        "[data-checkout-total]"
-    ],
-    submitButton: [
-        "#checkout-submit",
-        "#checkout-submit-button",
-        "#place-order-button",
-        '[data-checkout-submit]'
-    ],
-    promotionApply: [
-        "#checkout-apply-promotion",
-        "#apply-promotion-button",
-        "[data-apply-promotion]"
-    ],
-    promotionMessage: [
-        "#checkout-promotion-message",
-        "[data-promotion-message]"
-    ],
-    formError: [
-        "#checkout-form-error",
-        "[data-checkout-form-error]"
-    ]
+    loading: "#checkout-loading",
+    content: "#checkout-content",
+    empty: "#checkout-empty-cart",
+    auth: "#checkout-auth-required",
+    error: "#checkout-error",
+    errorMessage: "#checkout-error-message",
+    retry: "#checkout-retry-button",
+    form: "#checkout-form",
+    address: "#checkout-shipping-address",
+    addressError: "#checkout-address-error",
+    promotion: "#checkout-promo-code",
+    promotionApply: "#checkout-apply-promo",
+    promotionFeedback: "#checkout-promo-feedback",
+    promotionPreview: "#checkout-promo-preview",
+    giftWrapping: "#checkout-gift-wrapping",
+    expressDelivery: "#checkout-express-delivery",
+    extendedWarranty: "#checkout-extended-warranty",
+    extrasNote: "#checkout-extras-note",
+    items: "#checkout-summary-items",
+    itemCount: "#checkout-items-count",
+    subtotal: "#checkout-subtotal",
+    discountRow: "#checkout-discount-row",
+    discountAmount: "#checkout-discount-amount",
+    extrasRow: "#checkout-extras-row",
+    extrasTotal: "#checkout-extras-total",
+    total: "#checkout-total",
+    totalNote: "#checkout-total-note",
+    submitButton: "#checkout-submit-button",
+    submitText: "#checkout-submit-text",
+    submitError: "#checkout-submit-error"
 };
 
 let initialized = false;
 let active = false;
 let submitting = false;
-let requestVersion = 0;
-let eventController = null;
+let checkingPromotion = false;
+
 let currentCart = null;
+let promotionPreview = null;
 
-function findElement(selectors, root = document) {
-    for (const selector of selectors) {
-        const element = root.querySelector(selector);
+let requestVersion = 0;
+let promotionVersion = 0;
+let eventController = null;
 
-        if (element) {
-            return element;
-        }
-    }
-
-    return null;
+function $(selector) {
+    return document.querySelector(selector);
 }
 
-function getElements() {
-    const result = {};
-
-    for (const [key, selectors] of Object.entries(SELECTORS)) {
-        result[key] = findElement(selectors);
-    }
-
-    return result;
+function element(name) {
+    return $(SELECTORS[name]);
 }
 
-function setText(element, value) {
-    if (element) {
-        element.textContent = String(value ?? "");
+function setText(target, value) {
+    if (target) {
+        target.textContent = String(value ?? "");
+    }
+}
+
+function setVisible(target, visible) {
+    if (!target) {
+        return;
+    }
+
+    target.hidden = !visible;
+    target.classList.toggle("hidden", !visible);
+}
+
+function showPageState(state) {
+    const sections = {
+        loading: element("loading"),
+        content: element("content"),
+        empty: element("empty"),
+        auth: element("auth"),
+        error: element("error")
+    };
+
+    for (const [name, target] of Object.entries(sections)) {
+        setVisible(target, name === state);
     }
 }
 
 function createElement(tag, className = "", text = null) {
-    const element = document.createElement(tag);
+    const target = document.createElement(tag);
 
     if (className) {
-        element.className = className;
+        target.className = className;
     }
 
     if (text !== null && text !== undefined) {
-        element.textContent = String(text);
+        target.textContent = String(text);
     }
 
-    return element;
+    return target;
+}
+
+function toNonNegativeNumber(value, fallback = 0) {
+    const number = Number(value);
+
+    return Number.isFinite(number) && number >= 0
+        ? number
+        : fallback;
 }
 
 function normalizeCartItem(item) {
@@ -181,20 +142,19 @@ function normalizeCartItem(item) {
         Math.trunc(Number(item.quantity) || 1)
     );
 
-    const unitPrice = Math.max(
-        0,
-        Number(item.unitPrice ?? item.price) || 0
+    const unitPrice = toNonNegativeNumber(
+        item.unitPrice ?? item.price
     );
 
-    const subtotal = Math.max(
-        0,
-        Number(item.subtotal ?? unitPrice * quantity) || 0
+    const subtotal = toNonNegativeNumber(
+        item.subtotal,
+        unitPrice * quantity
     );
 
     return {
         productId,
         productName: String(
-            item.productName ?? "Product"
+            item.productName ?? "Тауар"
         ),
         imageUrl: getSafeImageUrl(item.imageUrl),
         quantity,
@@ -212,243 +172,88 @@ function normalizeCart(response) {
         ? data.items.map(normalizeCartItem).filter(Boolean)
         : [];
 
-    const calculatedQuantity = items.reduce(
+    const calculatedCount = items.reduce(
         (sum, item) => sum + item.quantity,
         0
     );
 
-    const calculatedTotal = items.reduce(
+    const calculatedAmount = items.reduce(
         (sum, item) => sum + item.subtotal,
         0
     );
 
-    const reportedQuantity = Number(data?.totalItems);
-    const reportedTotal = Number(data?.totalAmount);
-
     return {
         items,
-        totalItems:
-            Number.isFinite(reportedQuantity) &&
-            reportedQuantity >= 0
-                ? reportedQuantity
-                : calculatedQuantity,
-        totalAmount:
-            Number.isFinite(reportedTotal) &&
-            reportedTotal >= 0
-                ? reportedTotal
-                : calculatedTotal
+        totalItems: toNonNegativeNumber(
+            data?.totalItems,
+            calculatedCount
+        ),
+        totalAmount: toNonNegativeNumber(
+            data?.totalAmount,
+            calculatedAmount
+        )
     };
 }
 
-function setPageState(state) {
-    const elements = getElements();
-
-    const sections = {
-        loading: elements.loading,
-        content: elements.content,
-        error: elements.error,
-        empty: elements.empty,
-        auth: elements.auth
-    };
-
-    for (const [name, element] of Object.entries(sections)) {
-        if (!element) {
-            continue;
-        }
-
-        if (name === state) {
-            showElement(element);
-        } else {
-            hideElement(element);
-        }
+function createCartSignature(cart) {
+    if (!cart) {
+        return "";
     }
+
+    const items = cart.items.map(item => ({
+        productId: item.productId,
+        quantity: item.quantity,
+        unitPrice: item.unitPrice,
+        subtotal: item.subtotal
+    }));
+
+    items.sort((a, b) => a.productId - b.productId);
+
+    return JSON.stringify({
+        items,
+        totalItems: cart.totalItems,
+        totalAmount: cart.totalAmount
+    });
 }
 
-function createStateMessage(
-    title,
-    description,
-    buttonText,
-    buttonUrl
-) {
+function createProductImage(item) {
     const wrapper = createElement(
         "div",
-        "empty-state checkout-dynamic-state"
+        "checkout-summary-item-image"
     );
 
-    const heading = createElement(
-        "h2",
-        "empty-state-title",
-        title
-    );
-
-    const paragraph = createElement(
-        "p",
-        "empty-state-description",
-        description
-    );
-
-    wrapper.append(heading, paragraph);
-
-    if (buttonText && buttonUrl) {
-        const link = createElement(
-            "a",
-            "btn btn-primary",
-            buttonText
-        );
-
-        link.href = buttonUrl;
-        wrapper.appendChild(link);
+    if (!item.imageUrl) {
+        setText(wrapper, "N");
+        return wrapper;
     }
+
+    const image = document.createElement("img");
+
+    image.src = item.imageUrl;
+    image.alt = item.productName;
+    image.loading = "lazy";
+
+    image.addEventListener(
+        "error",
+        () => {
+            image.remove();
+            setText(wrapper, "N");
+        },
+        { once: true }
+    );
+
+    wrapper.appendChild(image);
 
     return wrapper;
 }
 
-function showFallbackMessage(
-    title,
-    description,
-    buttonText,
-    buttonUrl
-) {
-    const elements = getElements();
-
-    const target = elements.content ??
-        elements.form?.parentElement ??
-        document.querySelector("main");
-
-    if (!target) {
-        showError(description);
-        return;
-    }
-
-    let message = document.getElementById(
-        "checkout-dynamic-state"
-    );
-
-    if (!message) {
-        message = createElement(
-            "div",
-            "",
-            null
-        );
-
-        message.id = "checkout-dynamic-state";
-        target.prepend(message);
-    }
-
-    message.replaceChildren(
-        createStateMessage(
-            title,
-            description,
-            buttonText,
-            buttonUrl
-        )
-    );
-
-    showElement(message);
-
-    if (elements.form) {
-        hideElement(elements.form);
-    }
-
-    showElement(elements.content);
-}
-
-function showAuthRequired() {
-    const elements = getElements();
-
-    currentCart = null;
-
-    setPageState("auth");
-
-    const loginUrl = getLoginUrl(
-        "/pages/checkout.html"
-    );
-
-    if (elements.auth) {
-        const link = elements.auth.querySelector(
-            "a[href]"
-        );
-
-        if (link) {
-            link.href = loginUrl;
-        }
-    } else {
-        showFallbackMessage(
-            "Sign in to checkout",
-            "Тапсырысты рәсімдеу үшін аккаунтыңа кір.",
-            "Sign In",
-            loginUrl
-        );
-    }
-}
-
-function showEmptyCart() {
-    const elements = getElements();
-
-    setPageState("empty");
-
-    if (!elements.empty) {
-        showFallbackMessage(
-            "Your cart is empty",
-            "Тапсырыс рәсімдеу үшін алдымен себетке тауар қос.",
-            "Explore Products",
-            "/pages/catalog.html"
-        );
-    }
-}
-
-function showCheckoutError(error) {
-    const elements = getElements();
-    const message = getErrorMessage(error);
-
-    setPageState("error");
-
-    if (elements.error) {
-        const description = elements.error.querySelector(
-            "[data-error-message], .error-message, p"
-        );
-
-        setText(description, message);
-    } else {
-        showFallbackMessage(
-            "Checkout unavailable",
-            message,
-            "Back to Cart",
-            "/pages/cart.html"
-        );
-    }
-}
-
-function renderCheckoutItem(item) {
+function createCheckoutItem(item) {
     const wrapper = createElement(
         "div",
         "checkout-summary-item"
     );
 
-    const imageWrapper = createElement(
-        "div",
-        "checkout-summary-item-image"
-    );
-
-    if (item.imageUrl) {
-        const image = document.createElement("img");
-
-        image.src = item.imageUrl;
-        image.alt = item.productName;
-        image.loading = "lazy";
-
-        image.addEventListener(
-            "error",
-            () => {
-                imageWrapper.textContent = "N";
-            },
-            { once: true }
-        );
-
-        imageWrapper.appendChild(image);
-    } else {
-        imageWrapper.textContent = "N";
-    }
+    const image = createProductImage(item);
 
     const details = createElement(
         "div",
@@ -461,13 +266,14 @@ function renderCheckoutItem(item) {
         item.productName
     );
 
-    name.href =
-        `/pages/product.html?id=${encodeURIComponent(item.productId)}`;
+    name.href = `/pages/product.html?id=${encodeURIComponent(
+        item.productId
+    )}`;
 
     const quantity = createElement(
         "span",
         "checkout-summary-item-quantity",
-        `Qty: ${item.quantity}`
+        `Саны: ${item.quantity}`
     );
 
     details.append(name, quantity);
@@ -478,124 +284,406 @@ function renderCheckoutItem(item) {
         formatCurrency(item.subtotal)
     );
 
-    wrapper.append(
-        imageWrapper,
-        details,
-        price
-    );
+    wrapper.append(image, details, price);
 
     return wrapper;
 }
 
-function renderOrderSummary(cart) {
-    const elements = getElements();
+function renderCartItems() {
+    const container = element("items");
 
-    if (elements.items) {
-        const fragment = document.createDocumentFragment();
+    if (!container || !currentCart) {
+        return;
+    }
 
-        for (const item of cart.items) {
-            fragment.appendChild(
-                renderCheckoutItem(item)
+    const fragment = document.createDocumentFragment();
+
+    for (const item of currentCart.items) {
+        fragment.appendChild(
+            createCheckoutItem(item)
+        );
+    }
+
+    container.replaceChildren(fragment);
+}
+
+function selectedExtras() {
+    return {
+        giftWrapping: Boolean(element("giftWrapping")?.checked),
+        expressDelivery: Boolean(element("expressDelivery")?.checked),
+        extendedWarranty: Boolean(element("extendedWarranty")?.checked)
+    };
+}
+
+function hasSelectedExtras() {
+    const extras = selectedExtras();
+
+    return Object.values(extras).some(Boolean);
+}
+
+function renderExtraSummary() {
+    const selected = hasSelectedExtras();
+
+    setVisible(element("extrasRow"), selected);
+
+    if (selected) {
+        setText(
+            element("extrasTotal"),
+            "Тапсырыс кезінде есептеледі"
+        );
+    }
+
+    const note = element("extrasNote");
+
+    if (note) {
+        note.textContent = selected
+            ? "Таңдалған қосымша қызметтердің нақты құнын сервер тапсырысты рәсімдеу кезінде есептейді."
+            : "Қосымша қызметтер міндетті емес. Оларды өз қалауыңа қарай таңда.";
+    }
+}
+
+function renderOrderSummary() {
+    if (!currentCart) {
+        return;
+    }
+
+    renderCartItems();
+
+    setText(
+        element("itemCount"),
+        formatInteger(currentCart.totalItems)
+    );
+
+    setText(
+        element("subtotal"),
+        formatCurrency(currentCart.totalAmount)
+    );
+
+    const hasPromotion = promotionPreview !== null;
+
+    setVisible(
+        element("discountRow"),
+        hasPromotion
+    );
+
+    if (hasPromotion) {
+        setText(
+            element("discountAmount"),
+            `−${formatCurrency(promotionPreview.discountAmount)}`
+        );
+    } else {
+        setText(element("discountAmount"), "");
+    }
+
+    const estimatedTotal = hasPromotion
+        ? promotionPreview.finalAmount
+        : currentCart.totalAmount;
+
+    setText(
+        element("total"),
+        formatCurrency(estimatedTotal)
+    );
+
+    let note = hasPromotion
+        ? "Промокод жеңілдігі есептелді. Бұл — алдын ала сома."
+        : "Бұл — себеттегі тауарлардың бастапқы сомасы.";
+
+    if (hasSelectedExtras()) {
+        note += " Қосымша қызметтердің құны тапсырысты рәсімдеу кезінде қосылады.";
+    } else {
+        note += " Нақты төлем сомасын сервер растайды.";
+    }
+
+    setText(element("totalNote"), note);
+
+    renderExtraSummary();
+}
+
+function showPromotionMessage(message, type = "info") {
+    const target = element("promotionFeedback");
+
+    if (!target) {
+        if (type === "error") {
+            showError(message);
+        }
+
+        return;
+    }
+
+    target.classList.remove(
+        "is-success",
+        "is-error"
+    );
+
+    if (type === "success") {
+        target.classList.add("is-success");
+    }
+
+    if (type === "error") {
+        target.classList.add("is-error");
+    }
+
+    setText(target, message);
+    setVisible(target, true);
+}
+
+function hidePromotionMessage() {
+    const target = element("promotionFeedback");
+
+    if (!target) {
+        return;
+    }
+
+    target.classList.remove(
+        "is-success",
+        "is-error"
+    );
+
+    setText(target, "");
+    setVisible(target, false);
+}
+
+function resetPromotionPreview() {
+    promotionPreview = null;
+
+    const preview = element("promotionPreview");
+
+    if (preview) {
+        preview.replaceChildren();
+        setVisible(preview, false);
+    }
+
+    hidePromotionMessage();
+    renderOrderSummary();
+}
+
+function renderPromotionPreview() {
+    const container = element("promotionPreview");
+
+    if (!container || !promotionPreview) {
+        return;
+    }
+
+    const label = createElement(
+        "span",
+        "checkout-preview-label",
+        `Промокод: ${promotionPreview.code}`
+    );
+
+    const discount = createElement(
+        "span",
+        "checkout-preview-discount",
+        `Жеңілдік: −${formatCurrency(
+            promotionPreview.discountAmount
+        )}`
+    );
+
+    const total = createElement(
+        "strong",
+        "checkout-preview-total",
+        `Жеңілдіктен кейін: ${formatCurrency(
+            promotionPreview.finalAmount
+        )}`
+    );
+
+    container.replaceChildren(
+        label,
+        discount,
+        total
+    );
+
+    setVisible(container, true);
+}
+
+function setPromotionLoading(loading) {
+    checkingPromotion = loading;
+
+    const button = element("promotionApply");
+
+    if (!button) {
+        return;
+    }
+
+    button.disabled = loading || submitting;
+
+    button.textContent = loading
+        ? "Тексерілуде..."
+        : "Тексеру";
+
+    button.setAttribute(
+        "aria-busy",
+        String(loading)
+    );
+}
+
+function getPromotionCode() {
+    return String(
+        element("promotion")?.value ?? ""
+    ).trim();
+}
+
+async function applyPromotion() {
+    if (!active || checkingPromotion || submitting) {
+        return;
+    }
+
+    const code = getPromotionCode();
+
+    if (!code) {
+        resetPromotionPreview();
+
+        showPromotionMessage(
+            "Алдымен промокодты енгіз.",
+            "error"
+        );
+
+        element("promotion")?.focus();
+        return;
+    }
+
+    if (!currentCart || currentCart.items.length === 0) {
+        showPromotionMessage(
+            "Алдымен себетке тауар қос.",
+            "error"
+        );
+        return;
+    }
+
+    const version = ++promotionVersion;
+
+    resetPromotionPreview();
+    setPromotionLoading(true);
+
+    showPromotionMessage(
+        "Промокод серверде тексерілуде..."
+    );
+
+    try {
+        const response = await api.promotions.preview(code);
+
+        if (!active || version !== promotionVersion) {
+            return;
+        }
+
+        const data = response?.data ?? response;
+
+        const discountAmount = Number(
+            data?.discountAmount
+        );
+
+        const finalAmount = Number(
+            data?.finalAmount
+        );
+
+        const originalAmount = Number(
+            data?.originalAmount
+        );
+
+        if (
+            !Number.isFinite(discountAmount) ||
+            !Number.isFinite(finalAmount) ||
+            !Number.isFinite(originalAmount) ||
+            discountAmount < 0 ||
+            finalAmount < 0 ||
+            originalAmount < 0 ||
+            Math.abs(
+                originalAmount -
+                discountAmount -
+                finalAmount
+            ) > 0.01
+        ) {
+            throw new Error(
+                "Сервер жеңілдік сомасын дұрыс қайтармады."
             );
         }
 
-        elements.items.replaceChildren(fragment);
-    }
+        if (
+            Math.abs(
+                originalAmount - currentCart.totalAmount
+            ) > 0.01
+        ) {
+            throw new Error(
+                "Себет сомасы өзгерген. Бетті жаңартып, промокодты қайта тексер."
+            );
+        }
 
-    setText(
-        elements.itemCount,
-        formatInteger(cart.totalItems)
-    );
+        promotionPreview = {
+            code: String(data.code ?? code).trim(),
+            originalAmount,
+            discountAmount,
+            finalAmount
+        };
 
-    setText(
-        elements.subtotal,
-        formatCurrency(cart.totalAmount)
-    );
+        renderPromotionPreview();
+        renderOrderSummary();
 
-    setText(
-        elements.total,
-        formatCurrency(cart.totalAmount)
-    );
-}
+        showPromotionMessage(
+            `Промокод жарамды! Жеңілдік: ${formatCurrency(discountAmount)}`,
+            "success"
+        );
+    } catch (error) {
+        if (!active || version !== promotionVersion) {
+            return;
+        }
 
-function getInput(selectors) {
-    const form = getElements().form;
+        resetPromotionPreview();
 
-    if (form) {
-        const field = findElement(selectors, form);
+        if (isAuthenticationError(error)) {
+            clearAuthState();
+            showAuthRequired();
+            return;
+        }
 
-        if (field) {
-            return field;
+        showPromotionMessage(
+            getErrorMessage(error),
+            "error"
+        );
+    } finally {
+        if (active && version === promotionVersion) {
+            setPromotionLoading(false);
         }
     }
-
-    return findElement(selectors);
-}
-
-function readCheckbox(selectors) {
-    const element = getInput(selectors);
-
-    return element instanceof HTMLInputElement
-        ? element.checked
-        : false;
 }
 
 function getCheckoutData() {
-    const address = getInput(
-        SELECTORS.shippingAddress
-    );
-
-    const promotion = getInput(
-        SELECTORS.promotionCode
-    );
+    const extras = selectedExtras();
 
     return {
         shippingAddress: String(
-            address?.value ?? ""
+            element("address")?.value ?? ""
         ).trim(),
-        promotionCode: String(
-            promotion?.value ?? ""
-        ).trim() || null,
-        giftWrapping: readCheckbox(
-            SELECTORS.giftWrapping
-        ),
-        expressDelivery: readCheckbox(
-            SELECTORS.expressDelivery
-        ),
-        extendedWarranty: readCheckbox(
-            SELECTORS.extendedWarranty
-        )
+        promotionCode: getPromotionCode() || null,
+        ...extras
     };
 }
 
 function clearValidationErrors() {
-    const elements = getElements();
+    const address = element("address");
 
-    hideElement(elements.formError);
+    address?.removeAttribute("aria-invalid");
+    address?.classList.remove("is-invalid");
 
-    for (const selectors of [
-        SELECTORS.shippingAddress,
-        SELECTORS.promotionCode
-    ]) {
-        const field = getInput(selectors);
+    setText(element("addressError"), "");
+    setVisible(element("addressError"), false);
 
-        field?.removeAttribute("aria-invalid");
-        field?.classList.remove("is-invalid");
-    }
+    setText(element("submitError"), "");
+    setVisible(element("submitError"), false);
 }
 
 function showValidationError(message, field = null) {
-    const elements = getElements();
-
     if (field) {
         field.setAttribute("aria-invalid", "true");
         field.classList.add("is-invalid");
         field.focus();
     }
 
-    if (elements.formError) {
-        setText(elements.formError, message);
-        showElement(elements.formError);
+    const target = field === element("address")
+        ? element("addressError")
+        : element("submitError");
+
+    if (target) {
+        setText(target, message);
+        setVisible(target, true);
     } else {
         showError(message);
     }
@@ -608,16 +696,22 @@ function validateCheckout(data) {
         showValidationError(
             "Себетте кемінде бір тауар болуы керек."
         );
-
         return false;
     }
 
-    if (!data.shippingAddress) {
+    if (data.shippingAddress.length < 10) {
         showValidationError(
-            "Жеткізу мекенжайын енгіз.",
-            getInput(SELECTORS.shippingAddress)
+            "Жеткізу мекенжайын кемінде 10 таңбамен толық енгіз.",
+            element("address")
         );
+        return false;
+    }
 
+    if (data.shippingAddress.length > 500) {
+        showValidationError(
+            "Жеткізу мекенжайы 500 таңбадан аспауы керек.",
+            element("address")
+        );
         return false;
     }
 
@@ -625,10 +719,6 @@ function validateCheckout(data) {
 }
 
 function extractOrderId(response) {
-    if (response === null || response === undefined) {
-        return null;
-    }
-
     if (
         typeof response === "number" ||
         typeof response === "string"
@@ -636,13 +726,13 @@ function extractOrderId(response) {
         return parsePositiveId(response);
     }
 
-    const order = response.order ??
-        response.data?.order ??
-        response.data ??
+    const order = response?.order ??
+        response?.data?.order ??
+        response?.data ??
         response;
 
     return parsePositiveId(
-        order.id ?? order.orderId
+        order?.id ?? order?.orderId
     );
 }
 
@@ -660,10 +750,36 @@ function getPaymentUrl(orderId) {
     return `${url.pathname}${url.search}`;
 }
 
+function setSubmitting(value) {
+    submitting = value;
+
+    const button = element("submitButton");
+    const text = element("submitText");
+    const promotionButton = element("promotionApply");
+
+    if (button) {
+        button.disabled = value;
+        button.setAttribute(
+            "aria-busy",
+            String(value)
+        );
+    }
+
+    if (text) {
+        text.textContent = value
+            ? "Рәсімделуде..."
+            : "Тапсырысты рәсімдеу";
+    }
+
+    if (promotionButton) {
+        promotionButton.disabled = value || checkingPromotion;
+    }
+}
+
 async function handleCheckoutSubmit(event) {
     event.preventDefault();
 
-    if (submitting) {
+    if (!active || submitting || checkingPromotion) {
         return;
     }
 
@@ -673,41 +789,72 @@ async function handleCheckoutSubmit(event) {
         return;
     }
 
-    const button = getElements().submitButton;
-
-    submitting = true;
-
-    if (button instanceof HTMLButtonElement) {
-        setButtonLoading(
-            button,
-            true,
-            "Placing Order..."
-        );
-    }
+    setSubmitting(true);
 
     try {
+        const latestResponse = await api.cart.get();
+
+        if (!active) {
+            return;
+        }
+
+        const latestCart = normalizeCart(latestResponse);
+
+        if (latestCart.items.length === 0) {
+            currentCart = latestCart;
+            promotionVersion += 1;
+            promotionPreview = null;
+            showEmptyCart();
+            return;
+        }
+
+        if (
+            createCartSignature(currentCart) !==
+            createCartSignature(latestCart)
+        ) {
+            currentCart = latestCart;
+            promotionVersion += 1;
+            resetPromotionPreview();
+
+            showValidationError(
+                "Себеттегі тауарлар немесе олардың бағасы өзгерген. Жаңартылған соманы тексеріп, тапсырысты қайта рәсімде."
+            );
+
+            return;
+        }
+
+        currentCart = latestCart;
+
         const response = await api.orders.checkout(data);
+
+        if (!active) {
+            return;
+        }
 
         const orderId = extractOrderId(response);
 
         if (orderId === null) {
-            throw new Error(
-                "Тапсырыс серверде жасалған болуы мүмкін, бірақ оның ID нөмірі алынбады. Қайталап тапсырыс бермей, My Orders бөлімін тексер."
+            showValidationError(
+                "Тапсырыс жасалған болуы мүмкін, бірақ оның нөмірі алынбады. Қайта рәсімдемей тұрып, «Менің тапсырыстарым» бөлімін тексер."
             );
+
+            return;
         }
 
         window.dispatchEvent(
             new CustomEvent("nexora:cart-updated")
         );
 
-        showSuccess(
-            "Тапсырыс сәтті рәсімделді!"
-        );
+        showSuccess("Тапсырыс сәтті рәсімделді!");
 
         window.location.assign(
             getPaymentUrl(orderId)
         );
     } catch (error) {
+        if (!active) {
+            return;
+        }
+
         if (isAuthenticationError(error)) {
             clearAuthState();
             showAuthRequired();
@@ -718,50 +865,87 @@ async function handleCheckoutSubmit(event) {
             getErrorMessage(error)
         );
     } finally {
-        submitting = false;
-
-        if (button instanceof HTMLButtonElement) {
-            setButtonLoading(button, false);
+        if (active) {
+            setSubmitting(false);
         }
     }
 }
 
-function setupPromotionCode() {
-    const elements = getElements();
+function showAuthRequired() {
+    currentCart = null;
+    promotionPreview = null;
+    showPageState("auth");
 
-    elements.promotionApply?.addEventListener(
+    const loginUrl = getLoginUrl(
+        "/pages/checkout.html"
+    );
+
+    const link = element("auth")?.querySelector(
+        "a[href*='login']"
+    );
+
+    if (link) {
+        link.href = loginUrl;
+    }
+}
+
+function showEmptyCart() {
+    currentCart = currentCart ?? {
+        items: [],
+        totalItems: 0,
+        totalAmount: 0
+    };
+
+    promotionPreview = null;
+    showPageState("empty");
+}
+
+function showCheckoutError(error) {
+    setText(
+        element("errorMessage"),
+        getErrorMessage(error)
+    );
+
+    showPageState("error");
+}
+
+function setupPromotionEvents() {
+    const button = element("promotionApply");
+    const input = element("promotion");
+
+    button?.addEventListener(
         "click",
         event => {
             event.preventDefault();
+            applyPromotion();
+        },
+        {
+            signal: eventController.signal
+        }
+    );
 
-            const input = getInput(
-                SELECTORS.promotionCode
-            );
+    input?.addEventListener(
+        "input",
+        () => {
+            promotionVersion += 1;
 
-            const code = String(
-                input?.value ?? ""
-            ).trim();
-
-            if (!code) {
-                showError(
-                    "Промокодты енгіз."
-                );
-
-                return;
+            if (checkingPromotion) {
+                setPromotionLoading(false);
             }
 
-            const message =
-                "Промокод тапсырысты рәсімдеу кезінде серверде тексеріледі.";
+            resetPromotionPreview();
+        },
+        {
+            signal: eventController.signal
+        }
+    );
 
-            if (elements.promotionMessage) {
-                setText(
-                    elements.promotionMessage,
-                    message
-                );
-
-                showElement(
-                    elements.promotionMessage
-                );
+    input?.addEventListener(
+        "keydown",
+        event => {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                applyPromotion();
             }
         },
         {
@@ -770,27 +954,18 @@ function setupPromotionCode() {
     );
 }
 
-function setupExtraOptions() {
-    const selectors = [
-        SELECTORS.giftWrapping,
-        SELECTORS.expressDelivery,
-        SELECTORS.extendedWarranty
+function setupExtrasEvents() {
+    const fields = [
+        element("giftWrapping"),
+        element("expressDelivery"),
+        element("extendedWarranty")
     ];
 
-    for (const selector of selectors) {
-        const checkbox = getInput(selector);
-
-        checkbox?.addEventListener(
+    for (const field of fields) {
+        field?.addEventListener(
             "change",
             () => {
-                const message = document.querySelector(
-                    "#checkout-extras-note, [data-checkout-extras-note]"
-                );
-
-                if (message) {
-                    message.textContent =
-                        "Қосымша қызметтердің нақты құны мен жеңілдіктер тапсырысты рәсімдеген кезде серверде есептеледі.";
-                }
+                renderOrderSummary();
             },
             {
                 signal: eventController.signal
@@ -799,15 +974,31 @@ function setupExtraOptions() {
     }
 }
 
-function setupCheckoutForm() {
-    const elements = getElements();
-    const form = elements.form;
+function setupAddressEvents() {
+    const address = element("address");
 
-    if (!form) {
-        return;
-    }
+    address?.addEventListener(
+        "input",
+        () => {
+            address.removeAttribute("aria-invalid");
+            address.classList.remove("is-invalid");
 
-    form.addEventListener(
+            setText(element("addressError"), "");
+            setVisible(element("addressError"), false);
+
+            setText(element("submitError"), "");
+            setVisible(element("submitError"), false);
+        },
+        {
+            signal: eventController.signal
+        }
+    );
+}
+
+function setupCheckoutEvents() {
+    const form = element("form");
+
+    form?.addEventListener(
         "submit",
         handleCheckoutSubmit,
         {
@@ -815,11 +1006,10 @@ function setupCheckoutForm() {
         }
     );
 
-    if (
-        elements.submitButton &&
-        !form.contains(elements.submitButton)
-    ) {
-        elements.submitButton.addEventListener(
+    const submitButton = element("submitButton");
+
+    if (submitButton && form && !form.contains(submitButton)) {
+        submitButton.addEventListener(
             "click",
             event => {
                 event.preventDefault();
@@ -831,39 +1021,44 @@ function setupCheckoutForm() {
         );
     }
 
-    const address = getInput(
-        SELECTORS.shippingAddress
-    );
-
-    address?.addEventListener(
-        "input",
+    element("retry")?.addEventListener(
+        "click",
         () => {
-            address.removeAttribute("aria-invalid");
-            address.classList.remove("is-invalid");
-
-            hideElement(elements.formError);
+            loadCheckout();
         },
         {
             signal: eventController.signal
         }
     );
 
-    setupPromotionCode();
-    setupExtraOptions();
+    setupAddressEvents();
+    setupPromotionEvents();
+    setupExtrasEvents();
 }
 
 async function loadCheckout() {
+    if (!active) {
+        return;
+    }
+
     const version = ++requestVersion;
 
-    setPageState("loading");
+    promotionVersion += 1;
+    currentCart = null;
+    promotionPreview = null;
+
+    clearValidationErrors();
+    hidePromotionMessage();
+
+    setVisible(element("promotionPreview"), false);
+    setVisible(element("discountRow"), false);
+
+    showPageState("loading");
 
     try {
         const user = await getCurrentUser();
 
-        if (
-            !active ||
-            version !== requestVersion
-        ) {
+        if (!active || version !== requestVersion) {
             return;
         }
 
@@ -874,29 +1069,21 @@ async function loadCheckout() {
 
         const response = await api.cart.get();
 
-        if (
-            !active ||
-            version !== requestVersion
-        ) {
+        if (!active || version !== requestVersion) {
             return;
         }
 
-        const cart = normalizeCart(response);
+        currentCart = normalizeCart(response);
 
-        currentCart = cart;
-
-        if (cart.items.length === 0) {
+        if (currentCart.items.length === 0) {
             showEmptyCart();
             return;
         }
 
-        renderOrderSummary(cart);
-        setPageState("content");
+        renderOrderSummary();
+        showPageState("content");
     } catch (error) {
-        if (
-            !active ||
-            version !== requestVersion
-        ) {
+        if (!active || version !== requestVersion) {
             return;
         }
 
@@ -918,9 +1105,15 @@ export async function initCheckout() {
     initialized = true;
     active = true;
 
+    requestVersion = 0;
+    promotionVersion = 0;
+
+    submitting = false;
+    checkingPromotion = false;
+
     eventController = new AbortController();
 
-    setupCheckoutForm();
+    setupCheckoutEvents();
 
     await loadCheckout();
 }
@@ -928,14 +1121,18 @@ export async function initCheckout() {
 export function destroyCheckout() {
     active = false;
     initialized = false;
-    submitting = false;
 
     requestVersion += 1;
+    promotionVersion += 1;
 
     eventController?.abort();
     eventController = null;
 
     currentCart = null;
+    promotionPreview = null;
+
+    submitting = false;
+    checkingPromotion = false;
 }
 
 export const checkout = {

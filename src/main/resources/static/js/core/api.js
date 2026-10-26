@@ -690,6 +690,12 @@ export const api = {
     promotions: {
         active() {
             return http.get("/api/promotions/active");
+        },
+
+        preview(code) {
+            return http.get("/api/promotions/preview", {
+                code: String(code ?? "").trim()
+            });
         }
     },
 

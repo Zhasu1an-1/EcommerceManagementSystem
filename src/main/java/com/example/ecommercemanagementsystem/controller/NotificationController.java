@@ -3,6 +3,7 @@ package com.example.ecommercemanagementsystem.controller;
 
 import com.example.ecommercemanagementsystem.entity.Notification;
 import com.example.ecommercemanagementsystem.enums.NotificationStatus;
+import com.example.ecommercemanagementsystem.repository.NotificationRepository;
 import com.example.ecommercemanagementsystem.repository.UserRepository;
 import com.example.ecommercemanagementsystem.service.NotificationService;
 import jakarta.validation.Valid;
@@ -18,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -32,14 +34,34 @@ import java.util.Locale;
 public class NotificationController {
 
     private final NotificationService notificationService;
+    private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
 
     public NotificationController(
             NotificationService notificationService,
+            NotificationRepository notificationRepository,
             UserRepository userRepository
     ) {
         this.notificationService = notificationService;
+        this.notificationRepository = notificationRepository;
         this.userRepository = userRepository;
+    }
+
+    @GetMapping("/admin")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Transactional(readOnly = true)
+    public ResponseEntity<Page<NotificationResponse>> getAllNotifications(
+            @PageableDefault(
+                    size = 20,
+                    sort = "createdAt",
+                    direction = Sort.Direction.DESC
+            ) Pageable pageable
+    ) {
+        Page<NotificationResponse> notifications = notificationRepository
+                .findAll(pageable)
+                .map(NotificationResponse::fromEntity);
+
+        return ResponseEntity.ok(notifications);
     }
 
     @GetMapping
@@ -58,21 +80,6 @@ public class NotificationController {
                 .map(NotificationResponse::fromEntity);
 
         return ResponseEntity.ok(notifications);
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<NotificationResponse> getNotificationById(
-            Authentication authentication,
-            @PathVariable Long id
-    ) {
-        Long userId = getCurrentUserId(authentication);
-
-        Notification notification = notificationService
-                .getNotificationById(id, userId);
-
-        return ResponseEntity.ok(
-                NotificationResponse.fromEntity(notification)
-        );
     }
 
     @GetMapping("/failed/count")
@@ -100,6 +107,21 @@ public class NotificationController {
         return ResponseEntity.ok(notifications);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<NotificationResponse> getNotificationById(
+            Authentication authentication,
+            @PathVariable Long id
+    ) {
+        Long userId = getCurrentUserId(authentication);
+
+        Notification notification = notificationService
+                .getNotificationById(id, userId);
+
+        return ResponseEntity.ok(
+                NotificationResponse.fromEntity(notification)
+        );
+    }
+
     @PostMapping("/sms")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<NotificationResponse> sendSmsNotification(
@@ -114,7 +136,9 @@ public class NotificationController {
         NotificationResponse response =
                 NotificationResponse.fromEntity(notification);
 
-        URI location = URI.create("/api/notifications/" + response.id());
+        URI location = URI.create(
+                "/api/notifications/" + response.id()
+        );
 
         return ResponseEntity
                 .created(location)
@@ -146,7 +170,10 @@ public class NotificationController {
     }
 
     private Long getCurrentUserId(Authentication authentication) {
-        if (authentication == null || !authentication.isAuthenticated()) {
+        if (
+                authentication == null ||
+                        !authentication.isAuthenticated()
+        ) {
             throw new ResponseStatusException(
                     HttpStatus.UNAUTHORIZED,
                     "Authentication is required"

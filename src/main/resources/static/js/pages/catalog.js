@@ -26,22 +26,22 @@ const DEFAULT_SORT = "id,desc";
 
 const SELECTORS = {
     grid: [
-        "#catalog-products-grid",
         "#catalog-product-grid",
+        "#catalog-products-grid",
         "#products-grid",
-        ".catalog-products-grid",
-        ".catalog-product-grid"
+        ".catalog-product-grid",
+        ".catalog-products-grid"
     ],
     search: [
+        "#catalog-keyword",
         "#catalog-search",
         "#catalog-search-input",
-        "#catalog-keyword",
         "#product-search",
         'input[name="keyword"]'
     ],
     searchForm: [
-        "#catalog-search-form",
         "#catalog-filter-form",
+        "#catalog-search-form",
         ".catalog-search-form"
     ],
     category: [
@@ -50,9 +50,9 @@ const SELECTORS = {
         'select[name="categoryId"]'
     ],
     categoryList: [
+        "#catalog-category-options",
         "#catalog-categories",
         "#catalog-category-list",
-        "#catalog-category-options",
         "#category-filters",
         "[data-catalog-categories]"
     ],
@@ -86,12 +86,12 @@ const SELECTORS = {
         "#catalog-products-loading"
     ],
     empty: [
-        "#catalog-empty",
-        "#catalog-empty-state"
+        "#catalog-empty-state",
+        "#catalog-empty"
     ],
     error: [
-        "#catalog-error",
-        "#catalog-error-state"
+        "#catalog-error-state",
+        "#catalog-error"
     ],
     pagination: [
         "#catalog-pagination",
@@ -100,26 +100,30 @@ const SELECTORS = {
     sidebar: [
         "#catalog-sidebar",
         "#catalog-filter-sidebar",
+        ".catalog-sidebar",
         ".catalog-filter-sidebar",
-        ".catalog-filters-sidebar",
-        ".catalog-sidebar"
+        ".catalog-filters-sidebar"
     ],
     filterToggle: [
+        "#open-catalog-filters",
         "#catalog-filter-toggle",
         "#catalog-mobile-filters-button",
-        ".catalog-mobile-filters-button",
-        ".catalog-filter-toggle"
+        ".catalog-filter-toggle",
+        ".catalog-mobile-filters-button"
     ],
     filterClose: [
+        "#close-catalog-filters",
         "#catalog-filter-close",
         "[data-catalog-filter-close]"
     ],
     filterApply: [
+        "#apply-catalog-filters",
         "#catalog-apply-filters",
         "#apply-filters",
         "[data-catalog-apply]"
     ],
     filterReset: [
+        "#reset-catalog-filters",
         "#catalog-reset-filters",
         "#catalog-clear-filters",
         "#reset-filters",
@@ -128,6 +132,19 @@ const SELECTORS = {
     filterOverlay: [
         "#catalog-filter-overlay",
         ".catalog-filter-overlay"
+    ],
+    categoryChips: [
+        "#catalog-category-chips",
+        ".catalog-category-chips"
+    ],
+    activeFilters: [
+        "#catalog-active-filters"
+    ],
+    emptyReset: [
+        "#catalog-empty-reset"
+    ],
+    retryButton: [
+        "#catalog-retry-button"
     ]
 };
 
@@ -166,18 +183,23 @@ let requestVersion = 0;
 let eventController = null;
 let searchDebounce = null;
 let priceDebounce = null;
-let categoryListGenerated = false;
 
-let state = {
-    keyword: "",
-    categoryId: null,
-    minPrice: null,
-    maxPrice: null,
-    inStock: false,
-    sort: DEFAULT_SORT,
-    page: 0,
-    size: DEFAULT_PAGE_SIZE
-};
+let categories = [];
+
+function createDefaultState() {
+    return {
+        keyword: "",
+        categoryId: null,
+        minPrice: null,
+        maxPrice: null,
+        inStock: false,
+        sort: DEFAULT_SORT,
+        page: 0,
+        size: DEFAULT_PAGE_SIZE
+    };
+}
+
+let state = createDefaultState();
 
 function findElement(selectors) {
     for (const selector of selectors) {
@@ -192,20 +214,20 @@ function findElement(selectors) {
 }
 
 function getElements() {
-    const result = {};
+    const elements = {};
 
-    for (const [name, selectors] of Object.entries(SELECTORS)) {
-        result[name] = findElement(selectors);
+    for (const [key, selectors] of Object.entries(SELECTORS)) {
+        elements[key] = findElement(selectors);
     }
 
-    return result;
+    return elements;
 }
 
 function toPositiveNumber(value) {
     if (
-        value === "" ||
         value === null ||
-        value === undefined
+        value === undefined ||
+        String(value).trim() === ""
     ) {
         return null;
     }
@@ -218,6 +240,15 @@ function toPositiveNumber(value) {
 }
 
 function toCategoryId(value) {
+    if (
+        value === null ||
+        value === undefined ||
+        String(value).trim() === "" ||
+        String(value).toLowerCase() === "all"
+    ) {
+        return null;
+    }
+
     const number = Number(value);
 
     return Number.isSafeInteger(number) && number > 0
@@ -241,8 +272,8 @@ function readStateFromUrl() {
     const page = Number(params.get("page"));
     const size = Number(params.get("size"));
 
-    return {
-        keyword: (
+    const result = {
+        keyword: String(
             params.get("keyword") ??
             params.get("q") ??
             ""
@@ -267,6 +298,17 @@ function readStateFromUrl() {
             ? Math.min(size, 100)
             : DEFAULT_PAGE_SIZE
     };
+
+    if (
+        result.minPrice !== null &&
+        result.maxPrice !== null &&
+        result.minPrice > result.maxPrice
+    ) {
+        result.minPrice = null;
+        result.maxPrice = null;
+    }
+
+    return result;
 }
 
 function writeStateToUrl() {
@@ -289,64 +331,7 @@ function writeStateToUrl() {
     });
 }
 
-function syncInputs() {
-    const elements = getElements();
-
-    if (elements.search) {
-        elements.search.value = state.keyword;
-    }
-
-    if (elements.minPrice) {
-        elements.minPrice.value =
-            state.minPrice ?? "";
-    }
-
-    if (elements.maxPrice) {
-        elements.maxPrice.value =
-            state.maxPrice ?? "";
-    }
-
-    if (elements.inStock) {
-        if (elements.inStock.type === "checkbox") {
-            elements.inStock.checked = state.inStock;
-        } else {
-            elements.inStock.value = String(state.inStock);
-        }
-    }
-
-    if (elements.sort) {
-        const matchingOption = Array.from(
-            elements.sort.options
-        ).find(option => {
-            return normalizeSort(option.value) === state.sort;
-        });
-
-        if (matchingOption) {
-            elements.sort.value = matchingOption.value;
-        }
-    }
-
-    if (elements.category) {
-        elements.category.value = String(
-            state.categoryId ?? ""
-        );
-    }
-
-    const radios = document.querySelectorAll(
-        'input[name="categoryId"][type="radio"], input[name="category"][type="radio"]'
-    );
-
-    for (const radio of radios) {
-        radio.checked =
-            toCategoryId(radio.value) === state.categoryId ||
-            (
-                state.categoryId === null &&
-                (radio.value === "" || radio.value === "all")
-            );
-    }
-}
-
-function extractProducts(response) {
+function extractItems(response) {
     if (Array.isArray(response)) {
         return response;
     }
@@ -359,6 +344,10 @@ function extractProducts(response) {
         return response.products;
     }
 
+    if (Array.isArray(response?.items)) {
+        return response.items;
+    }
+
     if (Array.isArray(response?.data?.content)) {
         return response.data.content;
     }
@@ -367,16 +356,8 @@ function extractProducts(response) {
         return response.data.products;
     }
 
-    return [];
-}
-
-function extractCategories(response) {
-    if (Array.isArray(response)) {
-        return response;
-    }
-
-    if (Array.isArray(response?.content)) {
-        return response.content;
+    if (Array.isArray(response?.data?.items)) {
+        return response.data.items;
     }
 
     if (Array.isArray(response?.data)) {
@@ -416,6 +397,369 @@ function getRequestParams() {
     return params;
 }
 
+function normalizeCategory(category) {
+    if (
+        !category ||
+        typeof category !== "object"
+    ) {
+        return null;
+    }
+
+    const id = toCategoryId(
+        category.id ?? category.categoryId
+    );
+
+    const name = String(
+        category.name ??
+        category.categoryName ??
+        ""
+    ).trim();
+
+    if (id === null || !name) {
+        return null;
+    }
+
+    return {
+        id,
+        name
+    };
+}
+
+function syncInputs() {
+    const elements = getElements();
+
+    if (elements.search) {
+        elements.search.value = state.keyword;
+    }
+
+    if (elements.minPrice) {
+        elements.minPrice.value = state.minPrice ?? "";
+    }
+
+    if (elements.maxPrice) {
+        elements.maxPrice.value = state.maxPrice ?? "";
+    }
+
+    if (elements.inStock) {
+        if (elements.inStock.type === "checkbox") {
+            elements.inStock.checked = state.inStock;
+        } else {
+            elements.inStock.value = String(state.inStock);
+        }
+    }
+
+    if (elements.sort instanceof HTMLSelectElement) {
+        const option = Array.from(elements.sort.options)
+            .find(item =>
+                normalizeSort(item.value) === state.sort
+            );
+
+        if (option) {
+            elements.sort.value = option.value;
+        }
+    }
+
+    if (elements.category instanceof HTMLSelectElement) {
+        elements.category.value = String(
+            state.categoryId ?? ""
+        );
+    }
+
+    const radios = document.querySelectorAll(
+        'input[name="categoryId"][type="radio"], input[name="category"][type="radio"]'
+    );
+
+    for (const radio of radios) {
+        const id = toCategoryId(radio.value);
+
+        radio.checked =
+            id === state.categoryId;
+    }
+
+    syncCategoryChips();
+    renderActiveFilters();
+}
+
+function createCategoryOption(category) {
+    const label = document.createElement("label");
+    label.className =
+        "catalog-filter-option catalog-category-option";
+
+    const left = document.createElement("span");
+    left.className = "catalog-filter-option-left";
+
+    const radio = document.createElement("input");
+    radio.type = "radio";
+    radio.name = "categoryId";
+    radio.value = String(category.id);
+    radio.id = `catalog-category-${category.id}`;
+    radio.checked = state.categoryId === category.id;
+
+    const text = document.createElement("span");
+    text.textContent = category.name;
+
+    left.append(radio, text);
+    label.appendChild(left);
+
+    return label;
+}
+
+function renderCategoryOptions() {
+    const elements = getElements();
+
+    if (elements.category instanceof HTMLSelectElement) {
+        const fragment = document.createDocumentFragment();
+
+        const allOption = document.createElement("option");
+        allOption.value = "";
+        allOption.textContent = "Барлық категориялар";
+
+        fragment.appendChild(allOption);
+
+        for (const category of categories) {
+            const option = document.createElement("option");
+            option.value = String(category.id);
+            option.textContent = category.name;
+
+            fragment.appendChild(option);
+        }
+
+        elements.category.replaceChildren(fragment);
+        elements.category.value = String(state.categoryId ?? "");
+
+        return;
+    }
+
+    const container = elements.categoryList;
+
+    if (!container || container instanceof HTMLSelectElement) {
+        return;
+    }
+
+    const fragment = document.createDocumentFragment();
+
+    const allLabel = document.createElement("label");
+    allLabel.className =
+        "catalog-filter-option catalog-category-option";
+
+    const left = document.createElement("span");
+    left.className = "catalog-filter-option-left";
+
+    const allRadio = document.createElement("input");
+    allRadio.type = "radio";
+    allRadio.name = "categoryId";
+    allRadio.id = "catalog-category-all";
+    allRadio.value = "";
+    allRadio.checked = state.categoryId === null;
+
+    const allText = document.createElement("span");
+    allText.textContent = "Барлық категориялар";
+
+    left.append(allRadio, allText);
+    allLabel.appendChild(left);
+
+    fragment.appendChild(allLabel);
+
+    for (const category of categories) {
+        fragment.appendChild(
+            createCategoryOption(category)
+        );
+    }
+
+    container.replaceChildren(fragment);
+}
+
+function renderCategoryChips() {
+    const container = getElements().categoryChips;
+
+    if (!container || categories.length === 0) {
+        return;
+    }
+
+    const fragment = document.createDocumentFragment();
+
+    const items = [
+        {
+            id: null,
+            name: "Барлығы"
+        },
+        ...categories
+    ];
+
+    for (const item of items) {
+        const link = document.createElement("a");
+
+        link.className = "catalog-category-chip";
+        link.textContent = item.name;
+
+        const url = new URL(
+            window.location.href
+        );
+
+        if (item.id === null) {
+            url.searchParams.delete("categoryId");
+        } else {
+            url.searchParams.set(
+                "categoryId",
+                String(item.id)
+            );
+        }
+
+        url.searchParams.delete("page");
+
+        link.href = `${url.pathname}${url.search}`;
+
+        link.dataset.categoryId =
+            item.id === null ? "" : String(item.id);
+
+        link.classList.toggle(
+            "is-active",
+            state.categoryId === item.id
+        );
+
+        fragment.appendChild(link);
+    }
+
+    container.replaceChildren(fragment);
+}
+
+function syncCategoryChips() {
+    const container = getElements().categoryChips;
+
+    if (!container) {
+        return;
+    }
+
+    const chips = container.querySelectorAll(
+        ".catalog-category-chip"
+    );
+
+    for (const chip of chips) {
+        const id = toCategoryId(
+            chip.dataset.categoryId ??
+            new URL(chip.href, window.location.origin)
+                .searchParams.get("categoryId")
+        );
+
+        const selected = id === state.categoryId;
+
+        chip.classList.toggle(
+            "is-active",
+            selected
+        );
+
+        if (selected) {
+            chip.setAttribute("aria-current", "true");
+        } else {
+            chip.removeAttribute("aria-current");
+        }
+    }
+}
+
+function createFilterChip(label, onRemove) {
+    const chip = document.createElement("span");
+    chip.className = "catalog-filter-chip";
+
+    const text = document.createElement("span");
+    text.textContent = label;
+
+    const button = document.createElement("button");
+    button.type = "button";
+    button.textContent = "×";
+    button.setAttribute(
+        "aria-label",
+        `${label} сүзгісін алып тастау`
+    );
+
+    button.addEventListener(
+        "click",
+        onRemove
+    );
+
+    chip.append(text, button);
+
+    return chip;
+}
+
+function updateFilter(key, value) {
+    state[key] = value;
+    state.page = 0;
+
+    syncInputs();
+    writeStateToUrl();
+
+    loadProducts();
+}
+
+function renderActiveFilters() {
+    const container = getElements().activeFilters;
+
+    if (!container) {
+        return;
+    }
+
+    const fragment = document.createDocumentFragment();
+
+    if (state.keyword) {
+        fragment.appendChild(
+            createFilterChip(
+                `Іздеу: ${state.keyword}`,
+                () => updateFilter("keyword", "")
+            )
+        );
+    }
+
+    if (state.categoryId !== null) {
+        const category = categories.find(
+            item => item.id === state.categoryId
+        );
+
+        fragment.appendChild(
+            createFilterChip(
+                category?.name ?? `Категория #${state.categoryId}`,
+                () => updateFilter("categoryId", null)
+            )
+        );
+    }
+
+    if (state.minPrice !== null) {
+        fragment.appendChild(
+            createFilterChip(
+                `Бастап: ${state.minPrice} ₸`,
+                () => updateFilter("minPrice", null)
+            )
+        );
+    }
+
+    if (state.maxPrice !== null) {
+        fragment.appendChild(
+            createFilterChip(
+                `Дейін: ${state.maxPrice} ₸`,
+                () => updateFilter("maxPrice", null)
+            )
+        );
+    }
+
+    if (state.inStock) {
+        fragment.appendChild(
+            createFilterChip(
+                "Қоймада бар",
+                () => updateFilter("inStock", false)
+            )
+        );
+    }
+
+    container.replaceChildren(fragment);
+
+    if (fragment.childNodes.length > 0) {
+        showElement(container);
+    } else if (container.childElementCount > 0) {
+        showElement(container);
+    } else {
+        hideElement(container);
+    }
+}
+
 function createLoadingSkeletons(container) {
     if (!container) {
         return;
@@ -427,7 +771,7 @@ function createLoadingSkeletons(container) {
         const skeleton = document.createElement("div");
 
         skeleton.className =
-            "skeleton catalog-product-skeleton";
+            "product-card skeleton catalog-product-skeleton";
 
         skeleton.style.minHeight = "340px";
         skeleton.setAttribute("aria-hidden", "true");
@@ -464,7 +808,7 @@ function setMessage(target, title, description) {
     );
 
     const paragraph = target.querySelector(
-        "p, .empty-state-description"
+        "p, .empty-state-text, .empty-state-description"
     );
 
     if (heading) {
@@ -488,13 +832,15 @@ function renderInlineState(title, description, retry = false) {
     }
 
     const wrapper = document.createElement("div");
-    const heading = document.createElement("h3");
-    const paragraph = document.createElement("p");
-
     wrapper.className = "empty-state catalog-empty-state";
     wrapper.style.gridColumn = "1 / -1";
 
+    const heading = document.createElement("h3");
+    heading.className = "empty-state-title";
     heading.textContent = title;
+
+    const paragraph = document.createElement("p");
+    paragraph.className = "empty-state-text";
     paragraph.textContent = description;
 
     wrapper.append(heading, paragraph);
@@ -538,15 +884,13 @@ function showEmptyState() {
     if (!setMessage(
         elements.empty,
         "Тауарлар табылмады",
-        "Іздеу шарттарын өзгертіп немесе фильтрлерді тазалап көр."
+        "Іздеу шарттарын өзгертіп немесе сүзгілерді тазалап көр."
     )) {
         renderInlineState(
             "Тауарлар табылмады",
-            "Іздеу шарттарын өзгертіп немесе фильтрлерді тазалап көр."
+            "Іздеу шарттарын өзгертіп немесе сүзгілерді тазалап көр."
         );
-    }
-
-    if (elements.empty) {
+    } else {
         elements.grid?.replaceChildren();
     }
 
@@ -567,38 +911,40 @@ function showErrorState(error) {
             message,
             true
         );
+    } else {
+        elements.grid?.replaceChildren();
     }
 
     elements.pagination?.replaceChildren();
-
-    if (elements.error) {
-        elements.grid?.replaceChildren();
-    }
 }
 
 function getPageResponse(response, productCount) {
-    if (
-        response &&
-        typeof response === "object" &&
-        !Array.isArray(response)
-    ) {
-        const pageData = response.data?.content
-            ? response.data
-            : response;
+    const source = response?.data?.content
+        ? response.data
+        : response;
 
+    if (
+        source &&
+        typeof source === "object" &&
+        !Array.isArray(source)
+    ) {
         return {
-            ...pageData,
-            number: pageData.number ??
-                pageData.page?.number ??
+            ...source,
+            number:
+                source.number ??
+                source.page?.number ??
                 state.page,
-            size: pageData.size ??
-                pageData.page?.size ??
+            size:
+                source.size ??
+                source.page?.size ??
                 state.size,
-            totalElements: pageData.totalElements ??
-                pageData.page?.totalElements ??
+            totalElements:
+                source.totalElements ??
+                source.page?.totalElements ??
                 productCount,
-            totalPages: pageData.totalPages ??
-                pageData.page?.totalPages ??
+            totalPages:
+                source.totalPages ??
+                source.page?.totalPages ??
                 Math.ceil(productCount / state.size)
         };
     }
@@ -611,6 +957,21 @@ function getPageResponse(response, productCount) {
     };
 }
 
+function scrollToProducts() {
+    const target = document.querySelector(
+        ".catalog-toolbar, #catalog-products, .catalog-main"
+    );
+
+    target?.scrollIntoView({
+        behavior: window.matchMedia(
+            "(prefers-reduced-motion: reduce)"
+        ).matches
+            ? "auto"
+            : "smooth",
+        block: "start"
+    });
+}
+
 async function loadProducts(options = {}) {
     const {
         scrollToTop = false
@@ -619,7 +980,7 @@ async function loadProducts(options = {}) {
     const version = ++requestVersion;
     const elements = getElements();
 
-    if (!elements.grid) {
+    if (!elements.grid || !active) {
         return;
     }
 
@@ -637,14 +998,14 @@ async function loadProducts(options = {}) {
             return;
         }
 
-        const products = extractProducts(response);
+        const products = extractItems(response);
+
         const pageData = getPageResponse(
             response,
             products.length
         );
 
         setLoading(false);
-
         setResultCount(pageData);
 
         if (products.length === 0) {
@@ -686,14 +1047,7 @@ async function loadProducts(options = {}) {
         );
 
         if (scrollToTop) {
-            const target = document.querySelector(
-                ".catalog-toolbar, .catalog-results-toolbar, .catalog-main"
-            );
-
-            target?.scrollIntoView({
-                behavior: "smooth",
-                block: "start"
-            });
+            scrollToProducts();
         }
     } catch (error) {
         if (
@@ -713,132 +1067,6 @@ async function loadProducts(options = {}) {
     }
 }
 
-function createCategoryOption(category, index) {
-    const id = toCategoryId(
-        category.id ?? category.categoryId
-    );
-
-    const name = String(
-        category.name ??
-        category.categoryName ??
-        ""
-    ).trim();
-
-    if (id === null || !name) {
-        return null;
-    }
-
-    const label = document.createElement("label");
-
-    label.className =
-        "catalog-filter-option catalog-category-option";
-
-    const radio = document.createElement("input");
-
-    radio.type = "radio";
-    radio.name = "categoryId";
-    radio.value = String(id);
-    radio.id = `catalog-category-${id}`;
-    radio.checked = state.categoryId === id;
-
-    const text = document.createElement("span");
-
-    text.textContent = name;
-
-    label.append(radio, text);
-
-    return label;
-}
-
-function renderCategoryOptions(categories) {
-    const elements = getElements();
-
-    if (
-        elements.category instanceof HTMLSelectElement
-    ) {
-        const select = elements.category;
-        const fragment = document.createDocumentFragment();
-
-        const allOption = document.createElement("option");
-
-        allOption.value = "";
-        allOption.textContent = "Барлық категориялар";
-
-        fragment.appendChild(allOption);
-
-        for (const category of categories) {
-            const id = toCategoryId(
-                category.id ?? category.categoryId
-            );
-
-            const name = String(
-                category.name ??
-                category.categoryName ??
-                ""
-            ).trim();
-
-            if (id === null || !name) {
-                continue;
-            }
-
-            const option = document.createElement("option");
-
-            option.value = String(id);
-            option.textContent = name;
-
-            fragment.appendChild(option);
-        }
-
-        select.replaceChildren(fragment);
-        select.value = String(state.categoryId ?? "");
-
-        return;
-    }
-
-    const container = elements.categoryList;
-
-    if (!container) {
-        return;
-    }
-
-    if (container instanceof HTMLSelectElement) {
-        return;
-    }
-
-    const fragment = document.createDocumentFragment();
-    const allLabel = document.createElement("label");
-    const allRadio = document.createElement("input");
-    const allText = document.createElement("span");
-
-    allLabel.className =
-        "catalog-filter-option catalog-category-option";
-
-    allRadio.type = "radio";
-    allRadio.name = "categoryId";
-    allRadio.value = "";
-    allRadio.id = "catalog-category-all";
-    allRadio.checked = state.categoryId === null;
-
-    allText.textContent = "Барлық категориялар";
-
-    allLabel.append(allRadio, allText);
-    fragment.appendChild(allLabel);
-
-    for (let index = 0; index < categories.length; index++) {
-        const option = createCategoryOption(
-            categories[index],
-            index
-        );
-
-        if (option) {
-            fragment.appendChild(option);
-        }
-    }
-
-    container.replaceChildren(fragment);
-    categoryListGenerated = true;
-}
-
 async function loadCategories() {
     try {
         const response = await api.categories.list();
@@ -847,11 +1075,18 @@ async function loadCategories() {
             return;
         }
 
-        const categories = extractCategories(response);
+        categories = extractItems(response)
+            .map(normalizeCategory)
+            .filter(Boolean);
 
-        renderCategoryOptions(categories);
+        renderCategoryOptions();
+        renderCategoryChips();
         syncInputs();
     } catch (error) {
+        if (!active) {
+            return;
+        }
+
         console.error(
             "Catalog categories loading failed:",
             error
@@ -878,11 +1113,17 @@ function applyFilters() {
         showError(
             "Ең төменгі баға ең жоғарғы бағадан үлкен болмауы керек."
         );
-
-        return;
+        return false;
     }
 
-    state.keyword = elements.search?.value.trim() ?? "";
+    const selected = document.querySelector(
+        'input[name="categoryId"]:checked, input[name="category"]:checked'
+    );
+
+    state.keyword = String(
+        elements.search?.value ?? ""
+    ).trim();
+
     state.minPrice = minPrice;
     state.maxPrice = maxPrice;
 
@@ -897,77 +1138,62 @@ function applyFilters() {
         state.categoryId = toCategoryId(
             elements.category.value
         );
-    } else {
-        const selected = document.querySelector(
-            'input[name="categoryId"]:checked, input[name="category"]:checked'
+    } else if (selected) {
+        state.categoryId = toCategoryId(
+            selected.value
         );
-
-        if (selected) {
-            state.categoryId = toCategoryId(
-                selected.value
-            );
-        }
     }
 
     state.page = 0;
 
+    syncCategoryChips();
+    renderActiveFilters();
     writeStateToUrl();
     loadProducts();
+
+    return true;
 }
 
 function resetFilters() {
-    state = {
-        keyword: "",
-        categoryId: null,
-        minPrice: null,
-        maxPrice: null,
-        inStock: false,
-        sort: DEFAULT_SORT,
-        page: 0,
-        size: DEFAULT_PAGE_SIZE
-    };
+    searchDebounce?.cancel();
+    priceDebounce?.cancel();
+
+    state = createDefaultState();
 
     syncInputs();
     writeStateToUrl();
     loadProducts();
+    closeMobileFilters();
 }
 
 function setupSearch() {
     const elements = getElements();
+    const signal = eventController.signal;
 
-    searchDebounce = debounce(() => {
-        applyFilters();
-    }, 450);
+    searchDebounce = debounce(
+        () => {
+            applyFilters();
+        },
+        450
+    );
 
-    if (elements.search) {
-        elements.search.addEventListener(
-            "input",
-            searchDebounce,
-            { signal: eventController.signal }
-        );
-    }
-
-    if (elements.searchForm) {
-        elements.searchForm.addEventListener(
-            "submit",
-            event => {
-                event.preventDefault();
-
-                searchDebounce.cancel();
-                applyFilters();
-            },
-            { signal: eventController.signal }
-        );
-    }
+    elements.search?.addEventListener(
+        "input",
+        searchDebounce,
+        { signal }
+    );
 }
 
 function setupFilters() {
     const elements = getElements();
     const signal = eventController.signal;
 
-    priceDebounce = debounce(() => {
-        applyFilters();
-    }, 550);
+    priceDebounce = debounce(
+        () => {
+            applyFilters();
+        },
+        550
+    );
 
     for (const input of [
         elements.minPrice,
@@ -982,13 +1208,13 @@ function setupFilters() {
 
     elements.inStock?.addEventListener(
         "change",
-        applyFilters,
+        () => applyFilters(),
         { signal }
     );
 
     elements.category?.addEventListener(
         "change",
-        applyFilters,
+        () => applyFilters(),
         { signal }
     );
 
@@ -1006,42 +1232,119 @@ function setupFilters() {
         { signal }
     );
 
-    elements.filterApply?.addEventListener(
-        "click",
+    elements.searchForm?.addEventListener(
+        "submit",
         event => {
             event.preventDefault();
 
             searchDebounce?.cancel();
             priceDebounce?.cancel();
 
-            applyFilters();
-            closeMobileFilters();
+            if (applyFilters()) {
+                closeMobileFilters();
+            }
         },
         { signal }
     );
 
-    elements.filterReset?.addEventListener(
-        "click",
+    elements.searchForm?.addEventListener(
+        "reset",
         event => {
             event.preventDefault();
-
-            searchDebounce?.cancel();
-            priceDebounce?.cancel();
-
             resetFilters();
+        },
+        { signal }
+    );
+
+    if (
+        elements.filterApply &&
+        !elements.searchForm?.contains(elements.filterApply)
+    ) {
+        elements.filterApply.addEventListener(
+            "click",
+            event => {
+                event.preventDefault();
+
+                searchDebounce?.cancel();
+                priceDebounce?.cancel();
+
+                if (applyFilters()) {
+                    closeMobileFilters();
+                }
+            },
+            { signal }
+        );
+    }
+
+    if (
+        elements.filterReset &&
+        !elements.searchForm?.contains(elements.filterReset)
+    ) {
+        elements.filterReset.addEventListener(
+            "click",
+            event => {
+                event.preventDefault();
+                resetFilters();
+            },
+            { signal }
+        );
+    }
+
+    elements.emptyReset?.addEventListener(
+        "click",
+        resetFilters,
+        { signal }
+    );
+
+    elements.retryButton?.addEventListener(
+        "click",
+        () => loadProducts(),
+        { signal }
+    );
+
+    elements.categoryChips?.addEventListener(
+        "click",
+        event => {
+            const chip = event.target.closest(
+                ".catalog-category-chip"
+            );
+
+            if (
+                !chip ||
+                !elements.categoryChips.contains(chip)
+            ) {
+                return;
+            }
+
+            event.preventDefault();
+
+            const url = new URL(
+                chip.href,
+                window.location.origin
+            );
+
+            state.categoryId = toCategoryId(
+                url.searchParams.get("categoryId")
+            );
+
+            state.page = 0;
+
+            syncInputs();
+            writeStateToUrl();
+            loadProducts();
         },
         { signal }
     );
 }
 
 function setupSorting() {
-    const sortSelect = getElements().sort;
+    const element = getElements().sort;
 
-    sortSelect?.addEventListener(
+    element?.addEventListener(
         "change",
         () => {
             state.sort = normalizeSort(
-                sortSelect.value
+                element.value
             );
 
             state.page = 0;
@@ -1049,7 +1352,9 @@ function setupSorting() {
             writeStateToUrl();
             loadProducts();
         },
-        { signal: eventController.signal }
+        {
+            signal: eventController.signal
+        }
     );
 }
 
@@ -1060,15 +1365,10 @@ function openMobileFilters() {
         return;
     }
 
-    elements.sidebar.classList.remove(
-        "is-collapsed"
-    );
-
+    elements.sidebar.classList.remove("is-collapsed");
     elements.sidebar.classList.add("is-open");
 
-    elements.filterOverlay?.classList.add(
-        "is-visible"
-    );
+    elements.filterOverlay?.classList.add("is-visible");
 
     if (elements.filterOverlay) {
         showElement(elements.filterOverlay);
@@ -1078,36 +1378,35 @@ function openMobileFilters() {
         "aria-expanded",
         "true"
     );
+
+    document.body.classList.add(
+        "catalog-filters-open"
+    );
 }
 
 function closeMobileFilters() {
     const elements = getElements();
 
-    elements.sidebar?.classList.remove(
-        "is-open"
-    );
-
-    elements.filterOverlay?.classList.remove(
-        "is-visible"
-    );
+    elements.sidebar?.classList.remove("is-open");
+    elements.filterOverlay?.classList.remove("is-visible");
 
     if (elements.filterOverlay) {
         hideElement(elements.filterOverlay);
     }
 
     if (window.innerWidth <= 992) {
-        elements.sidebar?.classList.add(
-            "is-collapsed"
-        );
+        elements.sidebar?.classList.add("is-collapsed");
     } else {
-        elements.sidebar?.classList.remove(
-            "is-collapsed"
-        );
+        elements.sidebar?.classList.remove("is-collapsed");
     }
 
     elements.filterToggle?.setAttribute(
         "aria-expanded",
         "false"
+    );
+
+    document.body.classList.remove(
+        "catalog-filters-open"
     );
 }
 
@@ -1135,7 +1434,10 @@ function setupMobileFilters() {
 
     elements.filterClose?.addEventListener(
         "click",
-        closeMobileFilters,
+        event => {
+            event.preventDefault();
+            closeMobileFilters();
+        },
         { signal }
     );
 
@@ -1172,12 +1474,17 @@ function setupHistoryNavigation() {
     window.addEventListener(
         "popstate",
         () => {
+            searchDebounce?.cancel();
+            priceDebounce?.cancel();
+
             state = readStateFromUrl();
 
             syncInputs();
             loadProducts();
         },
-        { signal: eventController.signal }
+        {
+            signal: eventController.signal
+        }
     );
 }
 
@@ -1194,6 +1501,7 @@ export async function initCatalog() {
     eventController = new AbortController();
 
     syncInputs();
+
     setupSearch();
     setupFilters();
     setupSorting();
@@ -1210,17 +1518,22 @@ export function destroyCatalog() {
     active = false;
     initialized = false;
 
-    requestVersion += 1;
+    requestVersion++;
 
     searchDebounce?.cancel();
     priceDebounce?.cancel();
 
     eventController?.abort();
 
+    document.body.classList.remove(
+        "catalog-filters-open"
+    );
+
     eventController = null;
     searchDebounce = null;
     priceDebounce = null;
-    categoryListGenerated = false;
+
+    categories = [];
 }
 
 export const catalog = {
@@ -1229,8 +1542,13 @@ export const catalog = {
     reload: loadProducts,
     resetFilters,
     applyFilters,
+
     getState() {
         return { ...state };
+    },
+
+    getCategories() {
+        return [...categories];
     }
 };
 

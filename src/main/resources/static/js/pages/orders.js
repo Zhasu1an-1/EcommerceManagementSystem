@@ -19,9 +19,7 @@ import {
     renderPagination,
     updateQueryParams,
     debounce,
-    parsePositiveId,
-    showElement,
-    hideElement
+    parsePositiveId
 } from "../core/utils.js";
 
 import {
@@ -37,6 +35,15 @@ const ORDER_STATUSES = new Set([
     "SHIPPED",
     "DELIVERED",
     "CANCELLED"
+]);
+
+const SORT_OPTIONS = new Set([
+    "newest",
+    "oldest",
+    "price-desc",
+    "price-asc",
+    "total-desc",
+    "total-asc"
 ]);
 
 const SELECTORS = {
@@ -70,7 +77,7 @@ const SELECTORS = {
         "#orders-search",
         "#orders-search-input",
         'input[name="orderSearch"]',
-        '[data-orders-search]'
+        "[data-orders-search]"
     ],
     searchForm: [
         "#orders-search-form",
@@ -91,6 +98,7 @@ const SELECTORS = {
         'select[name="sort"]'
     ],
     count: [
+        "#orders-result-count",
         "#orders-count",
         "#orders-results-count",
         "[data-orders-count]"
@@ -104,8 +112,8 @@ const SELECTORS = {
         "[data-orders-pagination-info]"
     ],
     refresh: [
-        "#orders-refresh",
         "#orders-refresh-button",
+        "#orders-refresh",
         "[data-orders-refresh]"
     ],
     totalOrders: [
@@ -123,6 +131,15 @@ const SELECTORS = {
     cancelledOrders: [
         "#orders-cancelled-count",
         "[data-cancelled-orders]"
+    ],
+    resetFilter: [
+        "#orders-reset-filter"
+    ],
+    filterEmpty: [
+        "#orders-filter-empty"
+    ],
+    retry: [
+        "#orders-retry-button"
     ]
 };
 
@@ -131,7 +148,8 @@ let active = false;
 let requestVersion = 0;
 let eventController = null;
 let searchDebounce = null;
-let cancellingOrders = new Set();
+
+const cancellingOrders = new Set();
 
 let allOrders = [];
 
@@ -170,6 +188,24 @@ function setText(element, value) {
     }
 }
 
+function show(element) {
+    if (!element) {
+        return;
+    }
+
+    element.hidden = false;
+    element.classList.remove("hidden");
+}
+
+function hide(element) {
+    if (!element) {
+        return;
+    }
+
+    element.hidden = true;
+    element.classList.add("hidden");
+}
+
 function createElement(tag, className = "", text = null) {
     const element = document.createElement(tag);
 
@@ -185,16 +221,11 @@ function createElement(tag, className = "", text = null) {
 }
 
 function normalizeOrder(raw) {
-    if (
-        !raw ||
-        typeof raw !== "object"
-    ) {
+    if (!raw || typeof raw !== "object") {
         return null;
     }
 
-    const id = parsePositiveId(
-        raw.id ?? raw.orderId
-    );
+    const id = parsePositiveId(raw.id ?? raw.orderId);
 
     if (id === null) {
         return null;
@@ -214,20 +245,15 @@ function normalizeOrder(raw) {
             raw.status ?? raw.orderStatus
         ),
         paymentStatus: normalizeStatus(
-            raw.paymentStatus ??
-            raw.payment?.status
+            raw.paymentStatus ?? raw.payment?.status
         ),
-        totalAmount: Number.isFinite(total)
-            ? total
-            : 0,
+        totalAmount: Number.isFinite(total) ? total : 0,
         createdAt:
             raw.createdAt ??
             raw.orderDate ??
             raw.createdDate ??
             null,
-        items: Array.isArray(raw.items)
-            ? raw.items
-            : []
+        items: Array.isArray(raw.items) ? raw.items : []
     };
 }
 
@@ -256,34 +282,25 @@ function extractOrders(response) {
 }
 
 function readStateFromUrl() {
-    const params = new URLSearchParams(
-        window.location.search
-    );
+    const params = new URLSearchParams(window.location.search);
 
-    const status = normalizeStatus(
+    const requestedStatus = normalizeStatus(
         params.get("status") ?? "ALL"
     );
 
-    const sort = params.get("sort") ?? "newest";
-    const page = Number(params.get("page"));
+    const requestedSort = params.get("sort") ?? "newest";
+    const requestedPage = Number(params.get("page") ?? 0);
 
     return {
-        keyword: String(
-            params.get("keyword") ?? ""
-        ).trim(),
-        status: ORDER_STATUSES.has(status)
-            ? status
+        keyword: String(params.get("keyword") ?? "").trim(),
+        status: ORDER_STATUSES.has(requestedStatus)
+            ? requestedStatus
             : "ALL",
-        sort: [
-            "newest",
-            "oldest",
-            "total-desc",
-            "total-asc"
-        ].includes(sort)
-            ? sort
+        sort: SORT_OPTIONS.has(requestedSort)
+            ? requestedSort
             : "newest",
-        page: Number.isSafeInteger(page) && page >= 0
-            ? page
+        page: Number.isSafeInteger(requestedPage) && requestedPage >= 0
+            ? requestedPage
             : 0
     };
 }
@@ -303,32 +320,6 @@ function syncUrl() {
     });
 }
 
-function syncControls() {
-    const elements = getElements();
-
-    if (elements.search) {
-        elements.search.value = state.keyword;
-    }
-
-    if (elements.status) {
-        const matchingOption = Array.from(
-            elements.status.options ?? []
-        ).find(option => {
-            return normalizeStatus(option.value) === state.status;
-        });
-
-        if (matchingOption) {
-            elements.status.value = matchingOption.value;
-        }
-    }
-
-    if (elements.sort) {
-        elements.sort.value = state.sort;
-    }
-
-    updateStatusTabs();
-}
-
 function updateStatusTabs() {
     const container = getElements().statusTabs;
 
@@ -337,34 +328,53 @@ function updateStatusTabs() {
     }
 
     const buttons = container.querySelectorAll(
-        "[data-order-status], [data-status], button"
+        "[data-status], [data-order-status]"
     );
 
     for (const button of buttons) {
-        const status = normalizeStatus(
-            button.dataset.orderStatus ??
+        const requestedStatus = normalizeStatus(
             button.dataset.status ??
-            button.value ??
+            button.dataset.orderStatus ??
             "ALL"
         );
 
-        const selected = status === state.status;
+        const selected = requestedStatus === state.status;
 
-        button.classList.toggle(
-            "is-active",
-            selected
-        );
+        button.classList.toggle("is-active", selected);
+        button.classList.toggle("active", selected);
 
-        button.classList.toggle(
-            "active",
-            selected
-        );
-
-        button.setAttribute(
-            "aria-pressed",
-            String(selected)
-        );
+        button.setAttribute("aria-pressed", String(selected));
     }
+}
+
+function syncControls() {
+    const elements = getElements();
+
+    if (elements.search) {
+        elements.search.value = state.keyword;
+    }
+
+    if (elements.status) {
+        const option = Array.from(elements.status.options ?? [])
+            .find(item => {
+                return normalizeStatus(item.value) === state.status;
+            });
+
+        if (option) {
+            elements.status.value = option.value;
+        }
+    }
+
+    if (elements.sort) {
+        const available = Array.from(elements.sort.options ?? [])
+            .some(option => option.value === state.sort);
+
+        if (available) {
+            elements.sort.value = state.sort;
+        }
+    }
+
+    updateStatusTabs();
 }
 
 function setPageState(pageState) {
@@ -379,27 +389,22 @@ function setPageState(pageState) {
     };
 
     for (const [name, element] of Object.entries(sections)) {
-        if (!element) {
-            continue;
-        }
-
         if (name === pageState) {
-            showElement(element);
+            show(element);
         } else {
-            hideElement(element);
+            hide(element);
         }
+    }
+
+    if (pageState !== "content") {
+        hide(elements.filterEmpty);
     }
 }
 
-function showFallbackMessage(
-    title,
-    description,
-    linkText,
-    linkUrl
-) {
-    const container = getElements().list;
+function showFallbackMessage(title, description, linkText, linkUrl) {
+    const elements = getElements();
 
-    if (!container) {
+    if (!elements.list || !elements.content) {
         showError(description);
         return;
     }
@@ -409,19 +414,13 @@ function showFallbackMessage(
         "empty-state orders-dynamic-state"
     );
 
-    const heading = createElement(
-        "h3",
-        "empty-state-title",
-        title
+    wrapper.appendChild(
+        createElement("h3", "empty-state-title", title)
     );
 
-    const paragraph = createElement(
-        "p",
-        "empty-state-description",
-        description
+    wrapper.appendChild(
+        createElement("p", "empty-state-text", description)
     );
-
-    wrapper.append(heading, paragraph);
 
     if (linkText && linkUrl) {
         const link = createElement(
@@ -434,55 +433,50 @@ function showFallbackMessage(
         wrapper.appendChild(link);
     }
 
-    container.replaceChildren(wrapper);
-
-    showElement(getElements().content);
+    elements.list.replaceChildren(wrapper);
+    show(elements.content);
 }
 
 function showAuthRequired() {
     setPageState("auth");
 
-    const loginUrl = getLoginUrl(
-        "/pages/orders.html"
-    );
+    const elements = getElements();
+    const loginUrl = getLoginUrl("/pages/orders.html");
 
-    const authElement = getElements().auth;
-
-    if (authElement) {
-        const link = authElement.querySelector(
-            "a[href]"
+    if (elements.auth) {
+        const loginLink = elements.auth.querySelector(
+            'a[href*="login.html"]'
         );
 
-        if (link) {
-            link.href = loginUrl;
+        if (loginLink) {
+            loginLink.href = loginUrl;
         }
     } else {
         showFallbackMessage(
-            "Sign in to view orders",
+            "Жүйеге кіру қажет",
             "Тапсырыстарыңды көру үшін аккаунтыңа кір.",
-            "Sign In",
+            "Жүйеге кіру",
             loginUrl
         );
     }
 }
 
 function showOrdersError(error) {
+    const elements = getElements();
     const message = getErrorMessage(error);
-    const errorElement = getElements().error;
 
     setPageState("error");
 
-    if (errorElement) {
-        const description = errorElement.querySelector(
-            "[data-error-message], .error-message, p"
+    if (elements.error) {
+        setText(
+            document.getElementById("orders-error-message"),
+            message
         );
-
-        setText(description, message);
     } else {
         showFallbackMessage(
-            "Orders unavailable",
+            "Тапсырыстарды жүктеу мүмкін болмады",
             message,
-            "Back to Shop",
+            "Каталогты ашу",
             "/pages/catalog.html"
         );
     }
@@ -518,21 +512,17 @@ function createOrderMeta(label, value) {
         "order-card-meta-item"
     );
 
-    const labelElement = createElement(
-        "span",
-        "order-card-meta-label",
-        label
-    );
-
-    const valueElement = createElement(
-        "strong",
-        "order-card-meta-value",
-        value
-    );
-
     wrapper.append(
-        labelElement,
-        valueElement
+        createElement(
+            "span",
+            "order-card-meta-label",
+            label
+        ),
+        createElement(
+            "strong",
+            "order-card-meta-value",
+            value
+        )
     );
 
     return wrapper;
@@ -553,43 +543,35 @@ function createOrderCard(order) {
 
     article.dataset.orderId = String(order.id);
 
-    const header = createElement(
-        "div",
-        "order-card-header"
-    );
+    const header = createElement("div", "order-card-header");
+    const identity = createElement("div", "order-card-identity");
 
-    const identity = createElement(
-        "div",
-        "order-card-identity"
+    identity.append(
+        createElement(
+            "span",
+            "order-card-eyebrow",
+            "ТАПСЫРЫС"
+        ),
+        createElement(
+            "h3",
+            "order-card-title",
+            `Тапсырыс #${order.id}`
+        )
     );
-
-    const eyebrow = createElement(
-        "span",
-        "order-card-eyebrow",
-        "ORDER"
-    );
-
-    const title = createElement(
-        "h3",
-        "order-card-title",
-        `Order #${order.id}`
-    );
-
-    identity.append(eyebrow, title);
 
     const statusWrapper = createElement(
         "div",
         "order-card-status"
     );
 
-    const badgeContainer = createElement("span");
+    const statusBadge = createElement("span");
 
-    badgeContainer.innerHTML = renderStatusBadge(
+    statusBadge.innerHTML = renderStatusBadge(
         order.status,
         "order"
     );
 
-    statusWrapper.appendChild(badgeContainer);
+    statusWrapper.appendChild(statusBadge);
 
     header.append(identity, statusWrapper);
 
@@ -600,8 +582,10 @@ function createOrderCard(order) {
 
     details.appendChild(
         createOrderMeta(
-            "Order Date",
-            formatDateTime(order.createdAt)
+            "Тапсырыс күні",
+            order.createdAt
+                ? formatDateTime(order.createdAt)
+                : "—"
         )
     );
 
@@ -610,7 +594,7 @@ function createOrderCard(order) {
     if (itemCount !== null) {
         details.appendChild(
             createOrderMeta(
-                "Items",
+                "Тауар саны",
                 formatInteger(itemCount)
             )
         );
@@ -618,10 +602,19 @@ function createOrderCard(order) {
 
     details.appendChild(
         createOrderMeta(
-            "Total",
+            "Жалпы сомасы",
             formatCurrency(order.totalAmount)
         )
     );
+
+    if (order.paymentStatus) {
+        const payment = createOrderMeta(
+            "Төлем статусы",
+            order.paymentStatus
+        );
+
+        details.appendChild(payment);
+    }
 
     const footer = createElement(
         "div",
@@ -633,15 +626,12 @@ function createOrderCard(order) {
         "order-card-total"
     );
 
-    total.appendChild(
+    total.append(
         createElement(
             "span",
             "order-card-total-label",
-            "Order Total"
-        )
-    );
-
-    total.appendChild(
+            "Тапсырыс сомасы"
+        ),
         createElement(
             "strong",
             "order-card-total-amount",
@@ -657,7 +647,7 @@ function createOrderCard(order) {
     const detailsLink = createElement(
         "a",
         "btn btn-primary order-details-button",
-        "View Details"
+        "Толығырақ"
     );
 
     detailsLink.href =
@@ -669,12 +659,11 @@ function createOrderCard(order) {
         const cancelButton = createElement(
             "button",
             "btn btn-outline order-cancel-button",
-            "Cancel Order"
+            "Тапсырыстан бас тарту"
         );
 
         cancelButton.type = "button";
-        cancelButton.dataset.cancelOrderId =
-            String(order.id);
+        cancelButton.dataset.cancelOrderId = String(order.id);
 
         actions.appendChild(cancelButton);
     }
@@ -691,11 +680,9 @@ function createOrderCard(order) {
 }
 
 function getFilteredOrders() {
-    const keyword = state.keyword
-        .trim()
-        .toLowerCase();
+    const keyword = state.keyword.trim().toLowerCase();
 
-    let result = allOrders.filter(order => {
+    const filtered = allOrders.filter(order => {
         if (
             state.status !== "ALL" &&
             order.status !== state.status
@@ -713,9 +700,7 @@ function getFilteredOrders() {
             order.status,
             order.shippingAddress,
             ...order.items.map(item => {
-                return item.productName ??
-                    item.name ??
-                    "";
+                return item.productName ?? item.name ?? "";
             })
         ]
             .filter(Boolean)
@@ -725,9 +710,7 @@ function getFilteredOrders() {
         return searchable.includes(keyword);
     });
 
-    result = [...result];
-
-    result.sort((a, b) => {
+    filtered.sort((a, b) => {
         switch (state.sort) {
             case "oldest":
                 return (
@@ -735,9 +718,11 @@ function getFilteredOrders() {
                     new Date(b.createdAt || 0).getTime()
                 ) || a.id - b.id;
 
+            case "price-desc":
             case "total-desc":
                 return b.totalAmount - a.totalAmount;
 
+            case "price-asc":
             case "total-asc":
                 return a.totalAmount - b.totalAmount;
 
@@ -749,15 +734,17 @@ function getFilteredOrders() {
         }
     });
 
-    return result;
+    return filtered;
 }
 
 function updateStatistics() {
     const elements = getElements();
 
+    const total = allOrders.length;
+
     setText(
         elements.totalOrders,
-        formatInteger(allOrders.length)
+        `${formatInteger(total)} тапсырыс`
     );
 
     setText(
@@ -786,61 +773,78 @@ function updateStatistics() {
             ).length
         )
     );
+
+    if (elements.totalOrders) {
+        if (total > 0) {
+            show(elements.totalOrders);
+        } else {
+            hide(elements.totalOrders);
+        }
+    }
 }
 
-function showEmptyOrders(filteredCount) {
+function showEmptyOrders() {
     const elements = getElements();
 
     const isFiltered =
         Boolean(state.keyword) ||
         state.status !== "ALL";
 
+    if (isFiltered && allOrders.length > 0 && elements.filterEmpty) {
+        setPageState("content");
+        show(elements.filterEmpty);
+
+        elements.list?.replaceChildren();
+        elements.pagination?.replaceChildren();
+
+        setText(elements.count, "0 тапсырыс");
+
+        return;
+    }
+
     const title = isFiltered
-        ? "No matching orders"
-        : "No orders yet";
+        ? "Бұл сүзгі бойынша тапсырыс жоқ"
+        : "Әзірге тапсырыстарың жоқ";
 
     const description = isFiltered
-        ? "Іздеу немесе статус фильтрін өзгертіп көр."
-        : "Сен әлі тапсырыс жасамағансың. Каталогтан алғашқы тауарыңды таңда.";
+        ? "Басқа статусты таңда немесе барлық тапсырыстарыңды қарап көр."
+        : "Сен әлі тапсырыс жасамадың. Каталогтан өзіңе ұнаған алғашқы тауарыңды таңда.";
+
+    setPageState("empty");
 
     if (elements.empty) {
-        const heading = elements.empty.querySelector(
-            "h2, h3, .empty-state-title"
+        setText(
+            document.getElementById("orders-empty-title"),
+            title
         );
 
-        const paragraph = elements.empty.querySelector(
-            "p, .empty-state-description"
+        setText(
+            document.getElementById("orders-empty-message"),
+            description
         );
-
-        setText(heading, title);
-        setText(paragraph, description);
-
-        showElement(elements.empty);
-        elements.list?.replaceChildren();
     } else {
         showFallbackMessage(
             title,
             description,
-            isFiltered ? null : "Start Shopping",
-            isFiltered ? null : "/pages/catalog.html"
+            "Каталогты ашу",
+            "/pages/catalog.html"
         );
     }
 
+    elements.list?.replaceChildren();
     elements.pagination?.replaceChildren();
 
-    setText(
-        elements.count,
-        `${filteredCount} orders`
-    );
-
-    setText(
-        elements.paginationInfo,
-        "0 нәтиже"
-    );
+    setText(elements.count, "0 тапсырыс");
+    setText(elements.paginationInfo, "0 нәтиже");
 }
 
 function renderOrders() {
+    if (!active) {
+        return;
+    }
+
     const elements = getElements();
+
     const filteredOrders = getFilteredOrders();
 
     updateStatistics();
@@ -851,42 +855,41 @@ function renderOrders() {
 
     state.page = totalPages === 0
         ? 0
-        : Math.min(
-            state.page,
-            totalPages - 1
-        );
+        : Math.min(state.page, totalPages - 1);
 
     syncUrl();
 
     if (filteredOrders.length === 0) {
-        showEmptyOrders(0);
+        showEmptyOrders();
         return;
     }
 
-    hideElement(elements.empty);
     setPageState("content");
 
     const start = state.page * PAGE_SIZE;
     const end = start + PAGE_SIZE;
 
-    const visibleOrders = filteredOrders.slice(
-        start,
-        end
-    );
+    const visibleOrders = filteredOrders.slice(start, end);
 
     const fragment = document.createDocumentFragment();
 
     for (const order of visibleOrders) {
-        fragment.appendChild(
-            createOrderCard(order)
-        );
+        fragment.appendChild(createOrderCard(order));
     }
 
     elements.list?.replaceChildren(fragment);
 
     setText(
         elements.count,
-        `${formatInteger(filteredOrders.length)} orders`
+        `${formatInteger(filteredOrders.length)} тапсырыс`
+    );
+
+    const from = start + 1;
+    const to = Math.min(end, filteredOrders.length);
+
+    setText(
+        elements.paginationInfo,
+        `${from}–${to} / ${filteredOrders.length}`
     );
 
     const pageData = {
@@ -896,33 +899,23 @@ function renderOrders() {
         totalPages
     };
 
-    const from = start + 1;
-    const to = Math.min(
-        end,
-        filteredOrders.length
-    );
+    if (elements.pagination) {
+        renderPagination(
+            elements.pagination,
+            pageData,
+            page => {
+                state.page = page;
 
-    setText(
-        elements.paginationInfo,
-        `${from}–${to} / ${filteredOrders.length}`
-    );
+                renderOrders();
 
-    renderPagination(
-        elements.pagination,
-        pageData,
-        page => {
-            state.page = page;
-
-            renderOrders();
-
-            document.querySelector(
-                ".orders-list-section, .orders-main, #orders-content"
-            )?.scrollIntoView({
-                behavior: "smooth",
-                block: "start"
-            });
-        }
-    );
+                document.getElementById("orders-section")
+                    ?.scrollIntoView({
+                        behavior: "smooth",
+                        block: "start"
+                    });
+            }
+        );
+    }
 }
 
 async function loadOrders() {
@@ -933,24 +926,19 @@ async function loadOrders() {
     try {
         const user = await getCurrentUser();
 
-        if (
-            !active ||
-            version !== requestVersion
-        ) {
+        if (!active || version !== requestVersion) {
             return;
         }
 
         if (!user) {
+            allOrders = [];
             showAuthRequired();
             return;
         }
 
         const response = await api.orders.mine();
 
-        if (
-            !active ||
-            version !== requestVersion
-        ) {
+        if (!active || version !== requestVersion) {
             return;
         }
 
@@ -960,15 +948,13 @@ async function loadOrders() {
 
         renderOrders();
     } catch (error) {
-        if (
-            !active ||
-            version !== requestVersion
-        ) {
+        if (!active || version !== requestVersion) {
             return;
         }
 
         if (isAuthenticationError(error)) {
             clearAuthState();
+            allOrders = [];
             showAuthRequired();
             return;
         }
@@ -982,20 +968,15 @@ async function cancelOrder(orderId) {
         return;
     }
 
-    const order = allOrders.find(
-        item => item.id === orderId
-    );
+    const order = allOrders.find(item => item.id === orderId);
 
     if (!order || !canCancelOrder(order)) {
-        showError(
-            "Бұл тапсырысты қазір жою мүмкін емес."
-        );
-
+        showError("Бұл тапсырысты қазір болдырмау мүмкін емес.");
         return;
     }
 
     const confirmed = window.confirm(
-        `#${orderId} тапсырысын жоюды растайсың ба?`
+        `#${orderId} тапсырысынан бас тартқың келе ме?`
     );
 
     if (!confirmed) {
@@ -1010,14 +991,14 @@ async function cancelOrder(orderId) {
 
     if (button) {
         button.disabled = true;
-        button.textContent = "Cancelling...";
+        button.textContent = "Өңделуде...";
     }
 
     try {
         await api.orders.cancel(orderId);
 
         showSuccess(
-            `#${orderId} тапсырысы жойылды.`
+            `#${orderId} тапсырысынан бас тарту орындалды.`
         );
 
         await loadOrders();
@@ -1026,49 +1007,56 @@ async function cancelOrder(orderId) {
             clearAuthState();
             showAuthRequired();
         } else {
-            showError(
-                getErrorMessage(error)
-            );
-
+            showError(getErrorMessage(error));
             await loadOrders();
         }
     } finally {
         cancellingOrders.delete(orderId);
+
+        if (button?.isConnected) {
+            button.disabled = false;
+            button.textContent = "Тапсырыстан бас тарту";
+        }
     }
 }
 
 function applyFilters() {
     const elements = getElements();
 
-    state.keyword = String(
-        elements.search?.value ?? ""
-    ).trim();
+    if (elements.search) {
+        state.keyword = String(elements.search.value).trim();
+    }
 
     if (elements.status) {
-        const status = normalizeStatus(
+        const requestedStatus = normalizeStatus(
             elements.status.value
         );
 
-        state.status = ORDER_STATUSES.has(status)
-            ? status
+        state.status = ORDER_STATUSES.has(requestedStatus)
+            ? requestedStatus
             : "ALL";
     }
 
     if (elements.sort) {
-        const sort = elements.sort.value;
+        const requestedSort = elements.sort.value;
 
-        state.sort = [
-            "newest",
-            "oldest",
-            "total-desc",
-            "total-asc"
-        ].includes(sort)
-            ? sort
+        state.sort = SORT_OPTIONS.has(requestedSort)
+            ? requestedSort
             : "newest";
     }
 
     state.page = 0;
 
+    updateStatusTabs();
+    renderOrders();
+}
+
+function resetFilters() {
+    state.keyword = "";
+    state.status = "ALL";
+    state.page = 0;
+
+    syncControls();
     renderOrders();
 }
 
@@ -1076,10 +1064,7 @@ function setupFilters() {
     const elements = getElements();
     const signal = eventController.signal;
 
-    searchDebounce = debounce(
-        applyFilters,
-        300
-    );
+    searchDebounce = debounce(applyFilters, 300);
 
     elements.search?.addEventListener(
         "input",
@@ -1091,8 +1076,7 @@ function setupFilters() {
         "submit",
         event => {
             event.preventDefault();
-
-            searchDebounce.cancel();
+            searchDebounce?.cancel();
             applyFilters();
         },
         { signal }
@@ -1118,40 +1102,36 @@ function setupFilters() {
             }
 
             const button = event.target.closest(
-                "[data-order-status], [data-status], button"
+                "[data-status], [data-order-status]"
             );
 
             if (!button) {
                 return;
             }
 
-            const status = normalizeStatus(
-                button.dataset.orderStatus ??
+            const requestedStatus = normalizeStatus(
                 button.dataset.status ??
-                button.value ??
+                button.dataset.orderStatus ??
                 "ALL"
             );
 
-            state.status = ORDER_STATUSES.has(status)
-                ? status
+            state.status = ORDER_STATUSES.has(requestedStatus)
+                ? requestedStatus
                 : "ALL";
 
             state.page = 0;
 
-            if (elements.status) {
-                const matchingOption = Array.from(
-                    elements.status.options ?? []
-                ).find(option => {
-                    return normalizeStatus(option.value) === state.status;
-                });
-
-                if (matchingOption) {
-                    elements.status.value = matchingOption.value;
-                }
-            }
-
             updateStatusTabs();
             renderOrders();
+        },
+        { signal }
+    );
+
+    elements.resetFilter?.addEventListener(
+        "click",
+        event => {
+            event.preventDefault();
+            resetFilters();
         },
         { signal }
     );
@@ -1160,7 +1140,15 @@ function setupFilters() {
         "click",
         event => {
             event.preventDefault();
+            loadOrders();
+        },
+        { signal }
+    );
 
+    elements.retry?.addEventListener(
+        "click",
+        event => {
+            event.preventDefault();
             loadOrders();
         },
         { signal }
@@ -1183,9 +1171,9 @@ function setupOrderActions() {
                 return;
             }
 
-            const list = getElements().list;
+            const elements = getElements();
 
-            if (!list?.contains(button)) {
+            if (!elements.list?.contains(button)) {
                 return;
             }
 
@@ -1199,9 +1187,7 @@ function setupOrderActions() {
                 cancelOrder(orderId);
             }
         },
-        {
-            signal: eventController.signal
-        }
+        { signal: eventController.signal }
     );
 }
 
@@ -1209,14 +1195,18 @@ function setupHistoryNavigation() {
     window.addEventListener(
         "popstate",
         () => {
-            state = readStateFromUrl();
+            if (!active) {
+                return;
+            }
 
+            state = readStateFromUrl();
             syncControls();
-            renderOrders();
+
+            if (allOrders.length > 0) {
+                renderOrders();
+            }
         },
-        {
-            signal: eventController.signal
-        }
+        { signal: eventController.signal }
     );
 }
 
